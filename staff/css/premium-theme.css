@@ -1,0 +1,1037 @@
+/* 
+  premium-theme.css 
+  Strict UI Redesign - Premium, Modern, Mobile-First
+*/
+
+:root {
+  /* Colors */
+  --primary-orange: #ff7c08;
+  --primary-hover: #e66c00;
+  --bg-color: #f8f9fa;
+  /* slightly off-white for contrast with white cards */
+  --card-bg: #ffffff;
+  --text-main: #1a1a1a;
+  --text-sec: #777777;
+  --text-light: #a0a0a0;
+  --border-color: #eeeeee;
+
+  /* Border Radius */
+  --radius-main: 24px;
+  --radius-sm: 12px;
+  --radius-pill: 50px;
+
+  /* Shadows */
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Layout */
+  --max-width: 1200px;
+
+  /* Bootstrap Blue Overrides */
+  --bs-primary: #ff7c08 !important;
+  --bs-primary-rgb: 255, 124, 8 !important;
+  --bs-link-color: #ff7c08 !important;
+  --bs-link-hover-color: #e66c00 !important;
+  --bs-link-color-rgb: 255, 124, 8 !important;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: 'Manrope', 'Barlow', sans-serif;
+  margin: 0;
+  padding: 0;
+  /* Add padding bottom on mobile to accommodate fixed bottom nav */
+  padding-bottom: 80px;
+}
+
+/* Base resets to override existing styles gently */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Global icon orientation fix - Prevents mirroring */
+.fa-phone,
+.fa-phone-alt {
+  display: inline-block !important;
+  transform: scaleX(-1) !important;
+  -webkit-transform: scaleX(-1) !important;
+}
+
+.fa-search,
+.fa-magnifying-glass,
+.fa-bars,
+.fa-times,
+.fa-home,
+.fa-shopping-basket,
+.fa-backward,
+.fa-user,
+.fa-repeat,
+.fa-cart-shopping,
+.fa-box-archive {
+  display: inline-block !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+}
+
+/* =========================================
+   TOP HEADER
+========================================= */
+.premium-header {
+  background-color: var(--bg-color);
+  /* Match body bg to blend in */
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  gap: var(--spacing-md);
+}
+
+.header-icons-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.header-icon {
+  font-size: 24px;
+  color: var(--text-main);
+  position: relative;
+  cursor: pointer;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 0px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--primary-orange);
+  border-radius: 50%;
+  border: 2px solid var(--bg-color);
+}
+
+.header-search-right {
+  flex-grow: 1;
+  max-width: 400px;
+  /* Keep it controlled on desktop */
+}
+
+.pill-search-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--card-bg);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  /* Space for the inner button */
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-soft);
+  transition: box-shadow 0.3s ease;
+}
+
+.pill-search-container:focus-within {
+  box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2);
+  border-color: var(--primary-orange);
+}
+
+.pill-search-input {
+  flex-grow: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 16px;
+  font-size: 15px;
+  color: var(--text-main);
+  outline: none;
+}
+
+.pill-search-input::placeholder {
+  color: var(--text-light);
+}
+
+.pill-search-btn {
+  background-color: var(--primary-orange);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pill-search-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+/* =========================================
+   HERO BANNER
+========================================= */
+.premium-hero {
+  padding: 0 var(--spacing-lg);
+  margin-top: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.hero-card {
+  background-color: var(--primary-orange);
+  /* The reference uses a diagonal split or gradient. We'll simulate with a gradient */
+  background: linear-gradient(135deg, #ffffff 50%, var(--primary-orange) 50%);
+  border-radius: var(--radius-main);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  position: relative;
+  min-height: 200px;
+  /* Adjust based on content */
+  display: flex;
+  align-items: center;
+}
+
+/* We will implement the hero via inline styles or specific HTML structure later */
+
+/* =========================================
+   CATEGORY TABS
+========================================= */
+.premium-categories {
+  padding: 0 var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  display: flex;
+  justify-content: center;
+  /* Center on desktop */
+}
+
+.category-pill-container {
+  background-color: #eeeeee;
+  /* Gray background for the container */
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  padding: 6px;
+  gap: 4px;
+  overflow-x: auto;
+  /* Scroll on mobile */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+  max-width: 100%;
+}
+
+.category-pill-container::-webkit-scrollbar {
+  display: none;
+  /* Safari and Chrome */
+}
+
+.category-tab {
+  padding: 10px 24px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-sec);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.category-tab.active {
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================
+   PREMIUM PRODUCT LIST (VERTICAL CARD REDESIGN)
+========================================= */
+.premium-product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 16px;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .premium-product-list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 12px;
+  }
+}
+
+.modern-product-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: none;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modern-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.product-image-container {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background-color: #f8f8f8;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.product-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-content {
+  display: flex;
+  flex-direction: column;
+  padding: 0 4px;
+}
+
+.product-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 10px 0;
+  line-height: 1.2;
+}
+
+.product-desc-sm {
+  font-size: 14px !important;
+  color: #514f4f;
+  margin-top: -8px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+  display: block;
+}
+
+/* Weight Selection Pills */
+.product-size-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.size-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.size-pill {
+  padding: 6px 16px;
+  background-color: #f2f2f2;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.size-pill.active {
+  background-color: #ff7c08;
+  color: #fff;
+}
+
+/* Quantity Selector */
+.qty-selector {
+  display: flex;
+  align-items: center;
+  background-color: #f8f8f8;
+  border-radius: 20px;
+  padding: 2px;
+  border: 1px solid #eeeeee;
+}
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background-color: #fff;
+  color: #ff7c08;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.qty-btn:hover {
+  background-color: #ff7c08;
+  color: #fff;
+}
+
+.qty-value {
+  min-width: 30px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+.product-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+}
+
+.price-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 12px;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+
+.product-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.add-button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.product-actions-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.modal-add-btn {
+  background-color: #fff;
+  color: #ff7c08;
+  border: 1.5px solid #ff7c08;
+  border-radius: 10px;
+  padding: 6px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 65px;
+}
+
+.modal-add-btn:hover {
+  background-color: var(--primary-orange);
+  color: #fff !important;
+}
+
+.modal-buy-btn {
+  background-color: #ff7c08;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 7px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-width: 85px;
+  display: block !important;
+}
+
+.modal-buy-btn:hover {
+  background-color: #ffffff !important;
+  color: #ff7c08 !important;
+  border: 1.5px solid #ff7c08 !important;
+}
+
+.customisable-text {
+  font-size: 11px;
+  color: #777;
+}
+
+.product-desc {
+  display: none;
+}
+
+/* =========================================
+   SKELETON LOADING
+========================================= */
+.skeleton {
+  background: #eee;
+  background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+  border-radius: 5px;
+  background-size: 200% 100%;
+  animation: 1.5s shine linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+.skeleton-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.skeleton-img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 16px;
+  margin-bottom: 12px;
+}
+
+.skeleton-text {
+  height: 18px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.skeleton-text.title {
+  width: 70%;
+}
+
+.skeleton-text.price {
+  width: 40%;
+}
+
+.skeleton-text.btn {
+  width: 100%;
+  height: 35px;
+  border-radius: 10px;
+}
+
+/* New Home Page Skeletons */
+.skeleton-banner {
+  width: calc(100% - 30px);
+  height: 180px;
+  margin: 0 15px 15px;
+  border-radius: 20px;
+}
+
+.skeleton-categories {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+}
+
+.skeleton-pill {
+  width: 80px;
+  height: 38px;
+  border-radius: 999px;
+}
+
+/* =========================================
+   BOTTOM NAVIGATION (MOBILE) - PREMIUM REDESIGN
+========================================= */
+.mobile-bottom-nav {
+  display: block;
+  /* Show by default, then hidden via media query on large screens if needed */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
+  z-index: 1001;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  padding: 8px 10px;
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+  border-top: 1px solid #f0f0f0;
+}
+
+.bottom-nav-list {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: relative;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2px;
+  color: #8e8e93;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 0;
+  position: relative;
+  border-radius: 12px;
+}
+
+.bottom-nav-item i {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.bottom-nav-item span {
+  opacity: 0.9;
+}
+
+.bottom-nav-item.active {
+  color: var(--primary-orange);
+}
+
+.bottom-nav-item.active i {
+  color: var(--primary-orange);
+}
+
+.bottom-nav-item.active span {
+  opacity: 1;
+  font-weight: 700;
+}
+
+.bottom-nav-item:hover {
+  color: var(--primary-orange) !important;
+}
+
+.bottom-nav-item:hover i {
+  color: var(--primary-orange) !important;
+}
+
+.bottom-nav-item .badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: var(--primary-orange);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #ffffff;
+  padding: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* Global Hover Overrides to prevent blue colors */
+a:hover,
+button:hover,
+.btn:hover,
+.nav-link:hover,
+.bottom-nav-item:hover {
+  color: var(--primary-orange) !important;
+}
+
+/* FIX: Ensure white text on hover for orange buttons (Fixes invisible text on hover) */
+.size-pill.active:hover,
+.btn-buy-now:hover,
+.common_btn:hover,
+.checkout_btn:hover,
+.btn-add-cart:hover,
+.pill-search-btn:hover,
+.btn-reorder:hover,
+.btn-track:hover {
+  color: #ffffff !important;
+}
+
+/* Specific white hover for Buy Now */
+.modal-buy-btn:hover,
+.btn-buy-now:hover,
+.btn-premium-buy:hover {
+  background-color: #ffffff !important;
+  color: #ff7c08 !important;
+  border: 2px solid #ff7c08 !important;
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus,
+.checkout_btn:hover {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  color: #fff !important;
+}
+
+/* Fix any blue hover on specific buttons mentioned by user */
+.common_btn:hover,
+.btn-shop:hover,
+.btn-premium-add:hover,
+.modal-add-btn:hover,
+.btn-add-cart:hover,
+.checkout_btn:hover {
+  background-color: var(--primary-hover) !important;
+  color: #fff !important;
+}
+
+.nav-icon-wrapper {
+  position: relative;
+}
+
+/* Desktop view: hide bottom nav and adjust padding */
+@media (min-width: 1201px) {
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+
+  body {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* Mobile/Tablet view: show bottom nav and adjust padding */
+@media (max-width: 1200px) {
+  .mobile-bottom-nav {
+    display: block !important;
+  }
+
+  body {
+    padding-bottom: 80px !important;
+  }
+}
+
+/* --- COMPACT POPUP FIXES --- */
+.cart-popup {
+  position: fixed;
+  bottom: 110px;
+  /* Moved up to avoid covering bottom nav */
+  left: 20px;
+  right: 20px;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  transform: translateY(150%);
+  transition: transform 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.cart-popup.show {
+  transform: translateY(0);
+}
+
+/* --- Blinking Animation for Active Orders --- */
+/* --- Pulse Animation for Active Orders in Nav --- */
+@keyframes nav-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 124, 8, 0.4);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 124, 8, 0);
+    transform: scale(1.1);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 124, 8, 0);
+    transform: scale(1);
+  }
+}
+
+.blink-orders i {
+  background: #ff7c08;
+  color: #fff !important;
+  width: 32px;
+  height: 32px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-bottom: 4px !important;
+  animation: nav-pulse 2s infinite ease-in-out;
+}
+
+.cart-popup .popup-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.cart-popup .popup-details {
+  flex-grow: 1;
+}
+
+.cart-popup h4 {
+  font-size: 13px;
+  margin: 0;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.cart-popup p {
+  font-size: 11px;
+  margin: 0;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.cart-popup .common_btn {
+  padding: 5px 10px !important;
+  font-size: 11px !important;
+  height: auto !important;
+  margin-left: 10px;
+  border-radius: 6px !important;
+}
+
+.cart-popup .close-popup {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #ccc;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+/* Buy Now Modal Compactness */
+.buy-now-box {
+  padding: 20px !important;
+}
+
+.buy-now-product {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.buy-now-product img {
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.buy-now-product img[src=""],
+.buy-now-product img:not([src]),
+.buy-now-product img[src*="undefined"] {
+  display: none !important;
+}
+
+.buy-now-product h3 {
+  font-size: 18px !important;
+  margin: 0 !important;
+}
+
+.buy-now-options h4,
+.buy-now-quantity h4 {
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+}
+
+.size-options {
+  gap: 8px !important;
+}
+
+.size-btn {
+  padding: 6px 12px !important;
+  font-size: 13px !important;
+}
+
+.buy-now-total {
+  margin: 15px 0 !important;
+  padding-top: 15px !important;
+  font-size: 18px !important;
+}
+
+/* Contact Page Redesign - Premium Edition */
+.contact_section {
+  padding-top: 40px;
+  background: #fdfdfd;
+}
+
+.contact_title_area {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.contact_title_area h1 {
+  font-size: 32px;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.contact_title_area p {
+  font-size: 15px;
+  color: #888;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.contact_info_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.premium_info_card {
+  background: #fff;
+  padding: 35px 25px;
+  border-radius: 24px;
+  text-align: center;
+  border: 1px solid #f2f2f2;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.premium_info_card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  border-color: #ff7c0822;
+}
+
+.card_icon_box {
+  width: 60px;
+  height: 60px;
+  background: #fff5ee;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: #ff7c08;
+  font-size: 24px;
+}
+
+.premium_info_card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+}
+
+.premium_info_card p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.premium_info_card a {
+  color: #ff7c08;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.contact_form_area {
+  background: #fff;
+  padding: 40px;
+  border-radius: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.contact_form h3 {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  margin-bottom: 25px !important;
+  text-transform: capitalize !important;
+}
+
+.contact_form_input {
+  background: #f8f9fa !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 15px !important;
+  margin-bottom: 20px !important;
+  display: flex;
+  align-items: center;
+}
+
+.contact_form_input span {
+  color: #ff7c08;
+  margin-right: 15px;
+}
+
+.contact_form_input input,
+.contact_form_input textarea {
+  background: transparent !important;
+  border: none !important;
+  width: 100%;
+  font-size: 14px;
+  outline: none;
+}
+
+.contact_map {
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Orders Navigation Glow --- */
+.blink-orders {
+  animation: blink-orange 1.5s infinite ease-in-out;
+  color: #ff7c08 !important;
+  text-shadow: 0 0 8px rgba(255, 124, 8, 0.6);
+}
+
+@keyframes blink-orange {
+
+  0%,
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 5px rgba(255, 124, 8, 0.4);
+  }
+
+  50% {
+    transform: scale(1.1);
+    text-shadow: 0 0 15px rgba(255, 124, 8, 0.8), 0 0 20px rgba(255, 124, 8, 0.4);
+  }
+}

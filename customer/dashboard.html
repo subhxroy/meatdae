@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PK393WSLT7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PK393WSLT7');
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Profile - MeatDae | Fresh Meat Delivery in Silchar</title>
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <link rel="stylesheet" href="css/all.min.css" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/swiggy-theme.css" />
+  <link rel="stylesheet" href="css/premium-theme.css" />
+  <link rel="stylesheet" href="css/cart-redesign.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="css/support-bot.css" />
+  <link rel="stylesheet" href="css/review-popup.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Oleo+Script:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Logo fix for header */
+    .header-logo-img img, .sidebar-logo {
+      height: 22px !important;
+      /* Adjust height as needed */
+      width: auto !important;
+      object-fit: contain !important;
+    }
+
+    :root {
+      --primary-orange: #ff7c08;
+      --bg-light: #faf8f5;
+      --text-dark: #1a1a2e;
+      --text-gray: #7a7a8c;
+      --card-bg: #ffffff;
+      --border-light: #f0ede8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-light);
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+
+    /* Header */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px;
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .profile-header .back-btn {
+      position: absolute;
+      left: 20px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--text-dark);
+      cursor: pointer;
+    }
+
+    .profile-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 0;
+    }
+
+    /* Profile Card */
+    .profile-card {
+      background: linear-gradient(180deg, #fff 0%, var(--bg-light) 100%);
+      padding: 30px 20px 40px;
+      text-align: center;
+    }
+
+    .profile-avatar-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+    }
+
+    .profile-avatar-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 4px solid #ffe4d6;
+      background: #fff5eb;
+      color: var(--primary-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      z-index: 1;
+    }
+
+    .profile-avatar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 4px solid #ffe4d6;
+      object-fit: cover;
+      background: #fff;
+      z-index: 2;
+      display: none;
+    }
+
+    .avatar-edit-btn {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-orange);
+      color: white;
+      border: 3px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+      z-index: 3;
+    }
+
+    .profile-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .profile-email {
+      font-size: 14px;
+      color: var(--text-gray);
+      margin-bottom: 16px;
+    }
+
+    .member-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      border: 2px solid var(--primary-orange);
+      border-radius: 25px;
+      color: var(--primary-orange);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    /* Menu Section */
+    .menu-section {
+      padding: 0 16px;
+      margin-top: -20px;
+    }
+
+    .menu-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      margin-bottom: 12px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      text-decoration: none;
+      color: var(--text-dark);
+      transition: background 0.2s;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .menu-item:hover, .menu-item:active {
+      background: #faf8f5;
+    }
+
+    .menu-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 16px;
+      font-size: 18px;
+    }
+
+    .menu-icon.orange {
+      background: #fff5eb;
+      color: var(--primary-orange);
+    }
+
+    .menu-icon.red {
+      background: #fff0f0;
+      color: #ef4444;
+    }
+
+    .menu-text {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .menu-arrow {
+      color: #c5c5c5;
+      font-size: 14px;
+    }
+
+    .menu-item.logout {
+      color: #ef4444;
+    }
+
+    .menu-item.logout .menu-text {
+      color: #ef4444;
+    }
+
+    /* Settings Section Styles */
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary-orange);
+      letter-spacing: 0.5px;
+      padding: 20px 20px 12px;
+      text-transform: uppercase;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 28px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #e0e0e0;
+      transition: 0.3s;
+      border-radius: 28px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: var(--primary-orange);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(22px);
+    }
+
+    /* Logout Button */
+    .logout-btn-full {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: calc(100% - 32px);
+      margin: 20px 16px;
+      padding: 16px;
+      background: var(--primary-orange);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .logout-btn-full:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    /* Delete Account */
+    .delete-account {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      color: #ef4444;
+      background: white;
+      margin: 0 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .delete-account i {
+      margin-right: 12px;
+      font-size: 16px;
+    }
+
+    /* Version */
+    .version-text {
+      text-align: center;
+      color: var(--text-gray);
+      font-size: 12px;
+      padding: 20px;
+    }
+
+    /* Bottom Navigation */
+    
+
+    .bottom-nav-list {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      padding: 4px 12px;
+      transition: color 0.2s;
+    }
+
+    .bottom-nav-item i {
+      font-size: 20px;
+    }
+
+    .bottom-nav-item.active {
+      color: var(--primary-orange);
+    }
+
+    .bottom-nav-item .badge {
+      position: absolute;
+      top: -4px;
+      right: -8px;
+      background: var(--text-dark);
+      color: white;
+      font-size: 10px;
+      border-radius: 50%;
+      padding: 2px 6px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .nav-icon-wrapper {
+      position: relative;
+    }
+
+    /* Hidden file input */
+    #upload-photo {
+      display: none;
+    }
+
+    /* Edit Modal Styles */
+    .modal-content {
+      border-radius: 16px;
+      border: none;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid var(--border-light);
+      padding: 16px 20px;
+    }
+
+    .modal-title {
+      font-weight: 600;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      padding: 12px 16px;
+      border: 1px solid var(--border-light);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary-orange);
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    }
+
+    .btn-save {
+      background: var(--primary-orange);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-weight: 600;
+    }
+
+    .btn-save:hover {
+      background: #e55a2b;
+      color: white;
+    }
+  </style>
+</head>
+
+<body class="profile-page" data-requires-auth>
+  <!-- Dynamic Layout Components -->
+  <div id="sidebar-placeholder"></div>
+  <div id="header-placeholder"></div>
+
+
+  <!-- Skeleton Loader for Dashboard -->
+  <div id="page-skeleton" class="skeleton-page">
+    <div class="skeleton-profile-card">
+      <div class="skeleton-avatar"></div>
+      <div class="skeleton-line title"></div>
+      <div class="skeleton-line subtitle"></div>
+      <div class="skeleton-badge"></div>
+    </div>
+    <div class="skeleton-menu-section">
+      <div class="skeleton-menu-card"></div>
+      <div class="skeleton-menu-card"></div>
+      <div class="skeleton-menu-card"></div>
+    </div>
+  </div>
+
+  <div id="actual-page" style="display: none;">
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <div class="profile-avatar-wrapper">
+      <div class="profile-avatar-placeholder">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <img id="profile-pic" src="" alt="Profile" class="profile-avatar" onerror="this.style.display='none';" onload="this.style.display='block';" />
+      <label for="upload-photo" class="avatar-edit-btn">
+        <i class="fa-solid fa-pencil"></i>
+      </label>
+      <input type="file" id="upload-photo" accept="image/*" onchange="uploadProfilePicture(event)" />
+    </div>
+    <h2 id="user-profile-name" class="profile-name">
+      <span class="skeleton" style="display:inline-block; width:150px; height:24px; border-radius:4px;"></span>
+    </h2>
+    <p id="user-email" class="profile-email">
+      <span class="skeleton" style="display:inline-block; width:200px; height:16px; border-radius:4px;"></span>
+    </p>
+    <span class="member-badge">VALUED CUSTOMER</span>
+  </div>
+
+  <!-- Menu Section -->
+  <div class="menu-section">
+    <!-- Account Menu -->
+    <div class="menu-card">
+      <a href="#" class="menu-item" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+        <div class="menu-icon orange">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <span class="menu-text">My Account</span>
+        <i class="fa-solid fa-chevron-right menu-arrow"></i>
+      </a>
+      <a href="my_orders.html" class="menu-item">
+        <div class="menu-icon orange">
+          <i class="fa-solid fa-clipboard-list"></i>
+        </div>
+        <span class="menu-text">My Orders</span>
+        <i class="fa-solid fa-chevron-right menu-arrow"></i>
+      </a>
+      <a href="#" class="menu-item" onclick="showSavedAddresses()">
+        <div class="menu-icon orange">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+        <span class="menu-text">Saved Addresses</span>
+        <i class="fa-solid fa-chevron-right menu-arrow"></i>
+      </a>
+    </div>
+
+    <!-- Support Menu -->
+    <div class="menu-card">
+      <a href="tel:+917002568330" class="menu-item">
+        <div class="menu-icon orange">
+          <i class="fa-solid fa-headset"></i>
+        </div>
+        <span class="menu-text">Help & Support</span>
+        <i class="fa-solid fa-chevron-right menu-arrow"></i>
+      </a>
+      <a href="privacy_policy.html" class="menu-item">
+        <div class="menu-icon orange">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <span class="menu-text">Privacy Policy</span>
+        <i class="fa-solid fa-chevron-right menu-arrow"></i>
+      </a>
+      <a href="terms_condition.html" class="menu-item">
+        <div class="menu-icon orange">
+          <i class="fa-solid fa-file-lines"></i>
+        </div>
+        <span class="menu-text">Terms of Service</span>
+        <i class="fa-solid fa-chevron-right menu-arrow"></i>
+      </a>
+    </div>
+
+    <!-- Logout -->
+    <div class="menu-card">
+      <a href="#" class="menu-item logout" onclick="logout()">
+        <div class="menu-icon red">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </div>
+        <span class="menu-text">Logout</span>
+        <i class="fa-solid fa-chevron-right menu-arrow"></i>
+      </a>
+    </div>
+
+    <p class="version-text">MeatDae v2.5.0 (Mobile)</p>
+  </div>
+  </div>
+
+  <!-- Edit Profile Modal -->
+  <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="edit-profile-form">
+            <div class="mb-3">
+              <label for="edit-name" class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="edit-name" placeholder="Enter your name">
+            </div>
+            <div class="mb-3">
+              <label for="edit-phone" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="edit-phone" placeholder="Enter phone number">
+            </div>
+            <div class="mb-3">
+              <label for="edit-address" class="form-label">Address</label>
+              <textarea class="form-control" id="edit-address" rows="3" placeholder="Enter your address"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-save" onclick="updateProfile()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Address Modal -->
+  <div class="modal fade" id="addressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Saved Address</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="saved-address-content">
+            <p id="display-address" class="mb-0">No address saved</p>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-save" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mobile-nav-placeholder"></div>
+  <div id="buy-now-placeholder"></div>
+  <div id="custom-popup-placeholder"></div>
+  <div id="support-bot-placeholder"></div>
+
+  <!-- Component Loader -->
+  <script src="js/layout-loader.js"></script>
+
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+  <script type="module" src="js/firebase-auth.js?v=101"></script>
+  <script type="module" src="js/cart.js"></script>
+  <script type="module" src="js/support-bot.js"></script>
+  <script type="module" src="js/review-popup.js"></script>
+  <script type="module" src="js/order-notifier.js"></script>
+  <script>
+    // Show saved addresses modal
+    function showSavedAddresses() {
+      const addressModal = new bootstrap.Modal(document.getElementById('addressModal'));
+      addressModal.show();
+    }
+
+    // Update cart count badge
+    function updateCartBadge(count) {
+      const badges = document.querySelectorAll('.cart-count');
+      badges.forEach(badge => {
+        badge.textContent = count || 0;
+        badge.style.display = count > 0 ? 'block' : 'none';
+      });
+    }
+  </script>
+</body>
+
+</html>
+
+
+

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PK393WSLT7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PK393WSLT7');
+</script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Status - MeatDae</title>
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <script src="js/Font-Awesome.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8f9fa;
+            color: #1a1a1a;
+            padding-bottom: 130px; /* Reduced for compactness */
+        }
+
+        .glass-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 15px; /* Reduced from 20px */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,124,8,0.1);
+            margin-bottom: 12px; /* Reduced from 15px */
+        }
+
+        /* Large Checkmark styling */
+        .success-circle-outer {
+            width: 60px; /* Reduced further */
+            height: 60px; /* Reduced further */
+            background-color: #fcebd9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px auto 8px; /* Reduced further */
+        }
+
+        .success-circle-inner {
+            width: 40px; /* Reduced further */
+            height: 40px; /* Reduced further */
+            background-color: #ff7c08;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px; /* Reduced further */
+            box-shadow: 0 4px 10px rgba(255,124,8,0.3);
+        }
+
+        .banner-image {
+            width: 100%;
+            height: 140px; /* Reduced from 200px */
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 15px; /* Reduced from 25px */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .btn-pill {
+            border-radius: 12px;
+            padding: 12px; /* Reduced from 14px */
+            font-weight: 700;
+            font-size: 15px; /* Reduced from 16px */
+            width: 100%;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-track {
+            background-color: #ff7c08;
+            color: white;
+            border: none;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 12px rgba(255,124,8,0.2);
+        }
+        
+        .btn-track:hover { color: white; opacity: 0.9; }
+
+        .btn-home {
+            background-color: #fcebd9;
+            color: #ff7c08;
+            border: 1px solid rgba(255,124,8,0.2);
+        }
+        
+        .btn-home:hover { color: #ff7c08; background-color: #fadec4; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Simple Slim Header -->
+    <header class="sticky-top bg-white border-bottom" style="padding: 8px 15px; z-index: 1000;">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="text-dark" style="text-decoration: none;">
+                <i class="fas fa-times fs-5"></i>
+            </a>
+            <h5 class="m-0 text-center flex-grow-1" style="font-weight: 700; font-size: 18px;">Payment Status</h5>
+            <div style="width: 20px;"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <div class="container mt-1" style="max-width: 500px;">
+        
+        <!-- Success Icon -->
+        <div class="success-circle-outer text-center">
+            <div class="success-circle-inner text-center">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+
+        <!-- Success Text -->
+        <div class="text-center mb-3">
+            <h2 id="dynamic-status-title" style="font-weight: 800; font-size: 22px; margin-bottom: 5px;">Order Placed!</h2>
+            <p style="color: #555; font-size: 14px; line-height: 1.4;">
+                Your order <span id="dynamic-order-id" style="color: #ff7c08; font-weight: 700;">#MD-0000</span> has been placed successfully.
+            </p>
+        </div>
+
+        <!-- Decorative Banner Image -->
+        <!-- Fallback to a placeholder if chicken_banner doesn't exist. using a general aesthetic -->
+        <img src="https://images.unsplash.com/photo-1607532941433-304659e819b0?q=80&w=800&auto=format&fit=crop" onerror="this.src='images/logo.png'; this.style.objectFit='contain'; this.style.padding='20px';" class="banner-image" alt="Fresh Meat" />
+
+        <!-- Total Paid Card -->
+        <div class="glass-card mb-3 text-start">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <p id="dynamic-payment-label" style="color: #666; font-size: 13px; font-weight: 600; margin: 0;">Total Paid</p>
+                <span id="dynamic-payment-badge" class="badge rounded-pill" style="font-size: 10px; padding: 4px 10px;">Paid</span>
+            </div>
+            <h2 style="margin: 0; font-weight: 800; font-size: 24px; color: #1a1a1a;">
+                ₹<span id="dynamic-total">0.00</span>
+            </h2>
+        </div>
+
+        <!-- Estimated Delivery Card -->
+        <div class="glass-card d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <div style="width: 45px; height: 45px; background: #fff5eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                    <i class="fas fa-motorcycle" style="color: #ff7c08; font-size: 18px;"></i>
+                </div>
+                <div>
+                    <h6 style="margin: 0; font-weight: 700; font-size: 15px;">Estimated Delivery</h6>
+                    <p style="margin: 0; color: #ff7c08; font-size: 13px; font-weight: 500;" id="dynamic-eta">Arriving in 35 to 90 mins</p>
+                </div>
+            </div>
+            <a href="my_orders.html" style="color: #ff7c08; font-size: 13px; font-weight: 600; text-decoration: none;">
+                Details <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 2px;"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Fixed Bottom Actions -->
+    <div class="fixed-bottom bg-white border-top p-2" style="z-index: 1050; border-radius: 15px 15px 0 0;">
+        <div class="container" style="max-width: 500px;">
+            <a href="my_orders.html" class="btn-pill btn-track">
+                <i class="fas fa-map-marked-alt me-2"></i> Track Order
+            </a>
+            <a href="index.html" class="btn-pill btn-home">
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Retrieve data from sessionStorage
+            const orderIdStr = sessionStorage.getItem('successOrderId');
+            const totalStr = sessionStorage.getItem('successTotalAmount');
+            const paymentMethod = sessionStorage.getItem('successPaymentMethod') || '';
+
+            if (orderIdStr) {
+                document.getElementById('dynamic-order-id').textContent = orderIdStr;
+            }
+            if (totalStr) {
+                document.getElementById('dynamic-total').textContent = totalStr;
+            }
+
+            // Payment Context Logic
+            const statusTitle = document.getElementById('dynamic-status-title');
+            const paymentLabel = document.getElementById('dynamic-payment-label');
+            const paymentBadge = document.getElementById('dynamic-payment-badge');
+            const successIcon = document.querySelector('.success-circle-inner i');
+
+            if (paymentMethod.includes('COD')) {
+                statusTitle.textContent = "Order Placed!";
+                paymentLabel.textContent = "Payable at Delivery";
+                paymentBadge.textContent = "Pending Payment";
+                paymentBadge.style.background = "#fff5eb";
+                paymentBadge.style.color = "#ff7c08";
+                paymentBadge.style.border = "1px solid #ffe8d6";
+                
+                // Change icon to box or something related to order placement if preferred,
+                // but checkmark is also fine for "Order Successful"
+            } else {
+                statusTitle.textContent = "Order Placed!";
+                paymentLabel.textContent = "Total Paid";
+                paymentBadge.textContent = "Paid Online";
+                paymentBadge.style.background = "#e7f5ed";
+                paymentBadge.style.color = "#28a745";
+                paymentBadge.style.border = "1px solid #d1eadb";
+            }
+
+            // Clear WhatsApp pending redirect if any (from old logic)
+            sessionStorage.removeItem('pendingWhatsAppUrl');
+            
+            // Wait a small delay before clearing to ensure rendering, then clear to prevent refresh re-submission traces
+            setTimeout(() => {
+                sessionStorage.removeItem('successOrderId');
+                sessionStorage.removeItem('successTotalAmount');
+                sessionStorage.removeItem('successPaymentMethod');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
+

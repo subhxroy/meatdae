@@ -1,0 +1,57 @@
+<div class="mobile_navigation d-block d-lg-none">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <ul class="d-flex flex-wrap justify-content-between">
+                    <li>
+                        <a href="javascript:void(0)" onclick="window.history.back()">
+                            <i class="fa-solid fa-backward"></i>
+                            <span>Back</span>
+                        </a>
+                    </li>
+                    <li id="mobile-nav-dashboard" style="display: none;">
+                        <a href="admin_dashboard.html">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Admin</span>
+                        </a>
+                    </li>
+                    <li id="mobile-nav-stock" style="display: none;">
+                        <a href="stock_control.html">
+                            <i class="fas fa-boxes"></i>
+                            <span>Stock</span>
+                        </a>
+                    </li>
+                    <li id="mobile-nav-preparer">
+                        <a href="preparer.html">
+                            <i class="fas fa-fire"></i>
+                            <span>Kitchen</span>
+                        </a>
+                    </li>
+                    <li id="mobile-nav-rider">
+                        <a href="rider.html">
+                            <i class="fas fa-motorcycle"></i>
+                            <span>Rider</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://meatdae.com">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span>Site</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Highlight active link
+    const currentStaffPage = window.location.pathname.split('/').pop();
+    const navLinks = document.querySelectorAll('.mobile_navigation a');
+    navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentStaffPage) {
+            link.classList.add('active');
+        }
+    });
+</script>

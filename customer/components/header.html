@@ -1,0 +1,19 @@
+<header class="cart-header">
+    <button class="header-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+
+    <a href="index.html" class="header-logo-img">
+      <img src="images/logo.png" alt="MeatDae">
+    </a>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="header-btn" onclick="window.location.href='tel:+917002568330'"><i class="fas fa-phone"></i></button>
+      <button class="header-btn" onclick="toggleSearch()"><i class="fas fa-search"></i></button>
+    </div>
+
+    <!-- Integrated Search Bar -->
+    <div class="header-search-container" id="header-search-container">
+      <i class="fas fa-search" style="color: #999;"></i>
+      <input type="text" class="header-search-input" id="header-search-input" placeholder="Search products...">
+      <div class="header-search-close" onclick="toggleSearch()"><i class="fas fa-times"></i></div>
+    </div>
+</header>

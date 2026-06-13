@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PK393WSLT7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PK393WSLT7');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment - MeatDae | Fresh Meat Delivery in Silchar</title>
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <link rel="manifest" href="manifest.json">
+  <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Swiggy Theme -->
+  <link rel="stylesheet" href="css/swiggy-theme.css?v=4" />
+  <link rel="stylesheet" href="css/premium-theme.css?v=4" />
+  <style>
+    /* ===== Fix footer overlap on short pages (checkout / payment) ===== */
+
+    /* Make sure footer participates in normal document flow and sits above any background */
+    footer {
+      position: relative;
+      z-index: 2;
+      /* ensure footer is above content background but below UI if needed */
+    }
+
+    /* Ensure the footer has the intended top & bottom spacing */
+    .footer_overlay {
+      padding-top: 100px !important;
+      /* same vertical spacing as index */
+      padding-bottom: 100px !important;
+    }
+
+    /* Leave extra room below page content so footer does not overlap it on short pages */
+    .payment_page {
+      padding-bottom: 60px;
+    }
+
+    /* Account for mobile bottom footer */
+    body {
+      padding-bottom: 0px;
+    }
+
+    /* On small screens give pages even more bottom spacing */
+    @media (max-width: 991px) {
+
+      .cart_view,
+      .payment_page {
+        padding-bottom: 80px;
+      }
+
+      .footer_overlay {
+        padding-top: 90px;
+        padding-bottom: 120px;
+      }
+    }
+
+    /* Hide distracting elements during payment */
+    .mobile-bottom-nav,
+    footer {
+      display: none !important;
+    }
+  </style>
+  <style>
+    .cancellation-note {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: .375rem;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      font-size: 14px;
+    }
+
+    .cancellation-note p {
+      margin-bottom: 5px;
+      color: #212529;
+    }
+
+    .cancellation-note strong {
+      color: #dc3545;
+      font-weight: 700;
+    }
+
+    .cancellation-note a {
+      color: #ff7c08;
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    /* Custom Radio Styles for Payment */
+    .payment-option {
+      border: 1px solid #dee2e6;
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .payment-option:hover {
+      background-color: #fff;
+      border-color: #ff7c08;
+      box-shadow: 0 4px 12px rgba(255, 124, 8, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .payment-option input {
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      accent-color: #ff7c08;
+    }
+
+    .payment-option label {
+      cursor: pointer;
+      width: 100%;
+      margin-left: 12px;
+      font-weight: 500;
+      font-size: 16px;
+    }
+
+    /* Place Order Button Fix */
+    #place-order-btn {
+      background: #ff7c08;
+      color: white !important;
+      border-radius: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      border: 1px solid #ff7c08;
+      min-width: 140px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(255, 124, 8, 0.2);
+    }
+
+    #place-order-btn:hover {
+      background: white !important;
+      color: #ff7c08 !important;
+      border-color: #ff7c08 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 124, 8, 0.15) !important;
+    }
+  </style>
+</head>
+
+<body data-requires-auth>
+  <!-- Simple Slim Header -->
+  <header class="checkout-header sticky-top bg-white border-bottom" style="padding: 15px 20px; z-index: 1000;">
+    <div class="d-flex align-items-center justify-content-between">
+      <a href="javascript:void(0)" onclick="smartBack()" class="text-dark header-back-btn"
+        style="text-decoration: none;">
+        <i class="fas fa-arrow-left fs-5"></i>
+      </a>
+      <h5 class="m-0 text-center flex-grow-1"
+        style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 18px;">Payment Methods</h5>
+      <div style="width: 20px;"></div> <!-- Spacer for centering -->
+    </div>
+  </header>
+
+  <main style="background: #f8f9fa; padding-bottom: 50px; padding-top: 10px;">
+    <div class="container" style="max-width: 600px;">
+
+
+
+      <!-- Select Payment Method Section -->
+      <div class="mb-5 border-top pt-4 mt-2">
+        <h6 class="mb-4 text-center"
+          style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #1a1a1a; font-size: 18px;">Select Payment
+          Method</h6>
+        <div class="row gx-3">
+          <!-- COD Option -->
+          <div class="col-12">
+            <label class="glass-card p-4 border-0 d-block text-center position-relative w-100 h-100 payment-box-label"
+              style="border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+              <input class="form-check-input visually-hidden custom-radio" type="radio" name="paymentMethod"
+                id="paymentMethodCOD" value="COD" checked>
+              <div class="selected-check position-absolute"
+                style="top: 10px; right: 10px; color: #ff7c08; display: none;">
+                <i class="fas fa-check-circle fs-5"></i>
+              </div>
+              <div class="payment-icon-wrapper mb-3 mx-auto d-flex align-items-center justify-content-center"
+                style="width: 50px; height: 50px; background: #fff5eb; border-radius: 12px; transition: all 0.3s ease;">
+                <i class="fas fa-money-bill-1-wave" style="color: #ff7c08; font-size: 24px;"></i>
+              </div>
+              <span class="d-block"
+                style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px; color: #1a1a1a; line-height: 1.2; transition: all 0.3s ease;">Cash
+                on Delivery</span>
+              <small class="d-block mt-2" style="font-size: 10px; color: #28a745; font-weight: 600; line-height: 1.1;">
+                COD is appreciated</small>
+            </label>
+          </div>
+
+          <!-- Razorpay Online Option -->
+          <div class="col-6 d-none">
+            <label class="glass-card p-4 border-0 d-block text-center position-relative w-100 h-100 payment-box-label"
+              style="border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+              <input class="form-check-input visually-hidden custom-radio" type="radio" name="paymentMethod"
+                id="paymentMethodOnline" value="Online">
+              <div class="selected-check position-absolute"
+                style="top: 10px; right: 10px; color: #ff7c08; display: none;">
+                <i class="fas fa-check-circle fs-5"></i>
+              </div>
+              <div class="payment-icon-wrapper mb-3 mx-auto d-flex align-items-center justify-content-center"
+                style="width: 50px; height: 50px; background: #fff5eb; border-radius: 12px; transition: all 0.3s ease;">
+                <i class="fas fa-credit-card" style="color: #ff7c08; font-size: 24px;"></i>
+              </div>
+              <span class="d-block"
+                style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px; color: #1a1a1a; line-height: 1.2; transition: all 0.3s ease;">Online
+                Payment<br>
+                <small style="font-weight: 400; font-size: 10px; color: #666;">Razorpay / Card / UPI</small><br>
+                <small style="color: #dc3545; font-weight: 700; font-size: 10px;">₹11 processing fee</small>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- COD Notice (Dynamically shown) -->
+      <div id="cod-notice" class="glass-card p-3 mb-4 d-none"
+        style="border-radius: 12px; background: #fffaf5; border: 1px solid #ffe4d6 !important; border-left: 4px solid #ff7c08 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+        <div class="d-flex align-items-center">
+          <div class="me-3 d-flex align-items-center justify-content-center"
+            style="width: 40px; height: 40px; background: #fff5eb; border-radius: 50%;">
+            <i class="fas fa-handshake" style="color: #ff7c08; font-size: 18px;"></i>
+          </div>
+          <p class="m-0" style="font-size: 13px; color: #555; font-weight: 500;">
+            Pay <strong id="cod-amount-notice" style="color: #ff7c08; font-size: 15px;">₹0</strong> to the rider upon delivery. Our riders appreciate your kindness!
+          </p>
+        </div>
+      </div>
+
+      <!-- Hidden standard elements needed for JS logic but removed from UI -->
+      <div style="display:none;">
+        <span id="user-name"></span>
+        <span id="user-email"></span>
+        <span id="user-phone"></span>
+        <span id="user-address"></span>
+        <span id="user-pincode"></span>
+        <div id="cart-progress-container"><span id="cart-progress-text"></span>
+          <div id="cart-progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Order Summary Card -->
+      <div class="glass-card p-4 border-0 mb-4"
+        style="border-radius: 15px; background: #fffaf5; border: 1px solid rgba(255,124,8,0.1) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02) !important;">
+        <h6 class="mb-4" id="summary-title"
+          style="font-family: 'Outfit', sans-serif; font-weight: 800; color: #1a1a1a; font-size: 16px;">Order Summary
+        </h6>
+
+        <div class="d-flex justify-content-between mb-2">
+          <span style="font-size: 14px; color: #555;">Items Total</span>
+          <span id="summary-subtotal" style="font-size: 14px; font-weight: 600; color: #333;">₹0.00</span>
+        </div>
+
+        <div class="d-flex justify-content-between mb-2">
+          <span style="font-size: 14px; color: #555;">Delivery Fee</span>
+          <span id="summary-delivery" style="font-size: 14px; font-weight: 600; color: #ff7c08;">FREE</span>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+          <span style="font-size: 14px; color: #555;">Discount</span>
+          <span id="summary-discount" style="font-size: 14px; font-weight: 600; color: #ff7c08;">₹0.00</span>
+        </div>
+
+        <div id="summary-online-fee-row" class="d-none justify-content-between mb-3 pb-3 border-bottom">
+          <span style="font-size: 14px; color: #555;">Online Payment Fee</span>
+          <span id="summary-online-fee" style="font-size: 14px; font-weight: 600; color: #dc3545;">₹11.00</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <span style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; color: #1a1a1a;">Total
+            Amount</span>
+          <span id="summary-total"
+            style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 18px; color: #ff7c08;">₹0.00</span>
+        </div>
+
+        <!-- Operating Hours Error if any -->
+        <div id="operating-hours-message" class="mt-3 alert alert-warning border-0"
+          style="display: none; background-color: #fff3cd; border-radius: 8px; padding: 10px; font-size: 13px;">
+          <p class="mb-1 text-dark fw-semibold"><i class="fas fa-info-circle me-1" style="color: #856404;"></i> We
+            deliver between 8 AM and 8 PM IST.</p>
+          <p id="next-delivery-time" class="mb-0 text-muted"></p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Sticky Bottom Footer for Pay Action -->
+  <div class="fixed-bottom bg-white border-top shadow-lg"
+    style="padding: 15px 20px; z-index: 1050; border-radius: 20px 20px 0 0;">
+    <div class="container" style="max-width: 600px;">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p class="m-0 text-muted text-uppercase" style="font-size: 10px; font-weight: 700; letter-spacing: 1px;">
+            Paying</p>
+          <h3 class="m-0" id="total-amount"
+            style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 22px; color: #1a1a1a;">₹0.00</h3>
+        </div>
+        <!-- The ID 'place-order-btn' is used heavily in JS, keep the ID but style it like the reference -->
+        <button class="btn" id="place-order-btn">
+          Pay Now <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Popup Placeholder for Branded Alerts -->
+  <div id="custom-popup-placeholder"></div>
+
+  <nav class="mobile-bottom-nav" style="display: none !important;">
+    <div class="bottom-nav-list">
+      <a href="javascript:void(0)" onclick="smartBack()" class="bottom-nav-item">
+        <i class="fa-solid fa-angle-left"></i>
+        <span>Back</span>
+      </a>
+      <a href="javascript:void(0)" onclick="repeatLastOrder()" class="bottom-nav-item">
+        <i class="fa-solid fa-rotate-left"></i>
+        <span>Reorder</span>
+      </a>
+      <a href="index.html" class="bottom-nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </a>
+      <a href="cart_view.html" class="bottom-nav-item nav-icon-wrapper">
+        <i class="fa-solid fa-basket-shopping"></i>
+        <span class="badge cart-count">0</span>
+        <span>Cart</span>
+      </a>
+      <a href="my_orders.html" class="bottom-nav-item">
+        <i class="fa-solid fa-box-archive"></i>
+        <span>Orders</span>
+      </a>
+    </div>
+  </nav>
+
+  <style>
+    .payment-box-label:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(255, 124, 8, 0.15) !important;
+    }
+
+    .payment-box-label input.custom-radio:checked~.payment-icon-wrapper {
+      background: #ff7c08 !important;
+      transform: scale(1.1);
+    }
+
+    .payment-box-label input.custom-radio:checked~.payment-icon-wrapper i {
+      color: #fff !important;
+    }
+
+    .payment-box-label input.custom-radio:checked~.selected-check {
+      display: block !important;
+      animation: fadeInScale 0.3s ease;
+    }
+
+    .payment-box-label {
+      border: 2px solid transparent !important;
+    }
+
+    .payment-box-label:has(input.custom-radio:checked) {
+      border: 2px solid #ff7c08 !important;
+      background: #fffaf5 !important;
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+
+
+
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js?v=5"></script>
+  <script type="module" src="js/firebase-auth.js?v=101"></script>
+  <script type="module" src="js/payment.js?v=5"></script>
+  <script type="module" src="js/cart.js?v=5"></script>
+  <script type="module" src="js/stock_manager.js"></script>
+  <script>
+    // Reveal body immediately on this simple page
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.classList.add('loaded');
+    });
+    // Backup reveal
+    setTimeout(() => { document.body.classList.add('loaded'); }, 500);
+  </script>
+</body>
+
+</html>

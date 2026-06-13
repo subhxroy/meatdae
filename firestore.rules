@@ -1,0 +1,185 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================
+    // HELPER FUNCTIONS
+    // ===============================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper: Safely check if the current user is an admin
+    function isAdmin() {
+      return isSignedIn() && (
+        ('email' in request.auth.token && request.auth.token.email != null && 
+         request.auth.token.email.lower() in ['aarxslan@gmail.com', '10sahilsarkargg@gmail.com']) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'none') == 'admin')
+      );
+    }
+
+    function isPreparer() {
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'none') in ['preparer', 'admin'];
+    }
+
+    function isRider() {
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'none') in ['rider', 'admin'];
+    }
+
+    // ===============================================
+    // USERS COLLECTION
+    // ===============================================
+    match /users/{userId} {
+      // 1. Users can manage their own profile
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+      
+      // 2. Admin can manage everyone
+      allow read, write, list: if isAdmin();
+    }
+
+    // ===============================================
+    // ORDERS COLLECTION
+    // ===============================================
+    match /orders/{orderId} {
+      // READ
+      // Admin: all | Preparer: all | Rider: available or assigned | Customer: own only
+      allow read: if isAdmin() || isPreparer()
+                  || (isRider() && (resource.data.status in ['PENDING_APPROVAL', 'PREPARING', 'Pending', 'READY_FOR_PICKUP'] || resource.data.riderId == request.auth.uid))
+                  || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      // CREATE — customers place their own orders
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+
+      // UPDATE
+      allow update: if (
+        // 1. Admin: full power
+        isAdmin() ||
+
+        // 2. Preparer: accept, mark prepared, or cancel
+        (isPreparer() &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+           'status', 'acceptedAt', 'acceptedBy', 'preparerId',
+           'isPrepared', 'preparedAt', 'preparedBy', 'cancelledAt', 'cancelledBy'
+         ]) && (
+           ((resource.data.status == 'PENDING_APPROVAL' || resource.data.status == 'Pending') && request.resource.data.status == 'PREPARING') ||
+           (resource.data.status == 'PREPARING' && request.resource.data.isPrepared == true) ||
+           (request.resource.data.status == 'CANCELLED' && resource.data.status != 'OUT_FOR_DELIVERY' && resource.data.status != 'DELIVERED')
+         )
+        ) ||
+
+        // 3. Rider: accept, GPS updates, arrival time, mark delivered
+        (isRider() &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+           'status', 'riderId', 'riderName', 'riderPhone', 'riderLocation',
+           'pickedUpAt', 'pickedUpBy', 'deliveredAt', 'estimatedArrivalTime', 'lastTimeUpdate'
+         ]) && (
+           (resource.data.status == 'PREPARING' && resource.data.isPrepared == true && request.resource.data.status == 'OUT_FOR_DELIVERY') ||
+           (resource.data.status == 'OUT_FOR_DELIVERY' && resource.data.riderId == request.auth.uid) ||
+           (resource.data.status == 'OUT_FOR_DELIVERY' && resource.data.riderId == request.auth.uid && request.resource.data.status == 'DELIVERED')
+         )
+        )
+      );
+
+      // DELETE — admin only
+      allow delete: if isAdmin();
+    }
+
+    // ===============================================
+    // RIDER SETTLEMENTS (Payment tracking)
+    // ===============================================
+    match /rider_settlements/{settlementId} {
+      // Admins can manage all settlements
+      allow read, write: if isAdmin();
+      
+      // Riders can create their own requests and read their own history
+      allow create: if isRider() && request.resource.data.riderId == request.auth.uid;
+      allow read: if isRider() && resource.data.riderId == request.auth.uid;
+    }
+
+    // ===============================================
+    // INVENTORY
+    // ===============================================
+    match /inventory/{productId} {
+      allow read: if true;       // public catalogue
+      allow write: if isAdmin();
+    }
+
+    // ===============================================
+    // CARTS
+    // ===============================================
+    match /carts/{userId}/{document=**} {
+      allow read, write: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+    }
+
+    // ===============================================
+    // METADATA
+    // ===============================================
+    match /metadata/{docId} {
+      allow read: if true;
+      // Only signed-in users may bump the order counter; admin can write anything
+      allow write: if (docId == 'order_counter' && isSignedIn()) || isAdmin();
+    }
+
+    // ===============================================
+    // ADMIN PUSH TOKENS
+    // ===============================================
+    match /admin_push_tokens/{adminId} {
+      allow read: if isAdmin();
+      allow write: if isSignedIn() && request.auth.uid == adminId && isAdmin();
+    }
+
+    // ===============================================
+    // ADMIN NOTIFICATIONS
+    // ===============================================
+    match /admin_notifications/{notifId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if true; // Allow bot or users to trigger notifications for admin
+    }
+
+    // ===============================================
+    // RIDERS (live location tracking)
+    // ===============================================
+    match /riders/{riderId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() || (isRider() && request.auth.uid == riderId);
+    }
+
+    // ===============================================
+    // REVIEWS
+    // ===============================================
+    match /reviews/{reviewId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn();
+    }
+
+    // ===============================================
+    // REVIEW EMAILS
+    // ===============================================
+    match /reviewEmails/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ===============================================
+    // ANALYTICS
+    // ===============================================
+    match /analytics/{doc} {
+      allow read, write: if isAdmin();
+    }
+
+    // ===============================================
+    // COMPLAINTS
+    // ===============================================
+    match /complaints/{complaintId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if true; // Allow guests to file complaints
+    }
+
+  }
+}

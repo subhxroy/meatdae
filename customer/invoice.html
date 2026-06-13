@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PK393WSLT7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PK393WSLT7');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - MeatDae</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff; color: #333; padding: 40px; }
+        .invoice-container { max-width: 800px; margin: auto; border: 1px solid #eee; padding: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ff7c08; padding-bottom: 20px; margin-bottom: 30px; }
+        .logo { font-size: 28px; font-weight: 800; color: #ff7c08; text-transform: uppercase; }
+        .invoice-title { font-size: 24px; color: #333; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+        .info-label { color: #888; text-transform: uppercase; font-size: 11px; font-weight: 700; margin-bottom: 5px; }
+        .info-value { font-size: 15px; font-weight: 600; }
+        .table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .table th { background: #f8f9fa; border-bottom: 2px solid #eee; padding: 12px; text-align: left; font-size: 13px; }
+        .table td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .totals { margin-left: auto; width: 300px; }
+        .total-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; }
+        .total-final { border-top: 2px solid #333; margin-top: 10px; padding-top: 15px; font-weight: 800; font-size: 20px; color: #ff7c08; }
+        .footer { text-align: center; margin-top: 50px; color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px; }
+        @media print {
+            body { padding: 0; }
+            .invoice-container { border: none; box-shadow: none; max-width: 100%; width: 100%; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="header">
+            <div class="logo">MeatDae</div>
+            <div class="invoice-title">INVOICE</div>
+        </div>
+
+        <div class="info-grid">
+            <div>
+                <div class="info-label">Customer Details</div>
+                <div class="info-value" id="inv-cust-name">Loading...</div>
+                <div class="info-value" id="inv-cust-phone"></div>
+                <div class="info-value" id="inv-cust-address" style="font-weight: 400; font-size: 13px; margin-top: 5px;"></div>
+            </div>
+            <div style="text-align: right;">
+                <div class="info-label">Order Reference</div>
+                <div class="info-value" id="inv-order-id">#---</div>
+                <div class="info-label" style="margin-top: 15px;">Date</div>
+                <div class="info-value" id="inv-date">---</div>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th style="text-align: center;">Qty</th>
+                    <th style="text-align: right;">Price</th>
+                    <th style="text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody id="inv-items">
+                <!-- Items populated by JS -->
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <div class="total-row">
+                <span>Subtotal</span>
+                <span id="inv-subtotal">₹0.00</span>
+            </div>
+            <div class="total-row" id="inv-discount-row" style="display: none; color: green;">
+                <span>Discount</span>
+                <span id="inv-discount">-₹0.00</span>
+            </div>
+            <div class="total-row">
+                <span>Delivery Fee</span>
+                <span id="inv-delivery">₹0.00</span>
+            </div>
+            <div class="total-row total-final">
+                <span>Total</span>
+                <span id="inv-total">₹0.00</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            Thank you for choosing MeatDae. For any queries, contact us at silchar@meatdae.com<br>
+            Visit us at www.meatdae.com
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;" class="no-print">
+        <button class="btn btn-primary px-4 py-2 fw-bold rounded-pill" onclick="window.print()">Print Invoice</button>
+        <button class="btn btn-outline-secondary px-4 py-2 ms-2 rounded-pill" onclick="window.history.back()">Go Back</button>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { app, db } from './js/firebase-config.js';
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        async function loadInvoice() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId');
+
+            if (!orderId) {
+                alert("Order ID missing.");
+                return;
+            }
+
+            try {
+                const docRef = doc(db, "orders", orderId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const order = docSnap.data();
+                    
+                    document.getElementById('inv-cust-name').innerText = order.name || order.customerName || "Customer";
+                    document.getElementById('inv-cust-phone').innerText = order.phone || "";
+                    document.getElementById('inv-cust-address').innerText = order.address || "";
+                    document.getElementById('inv-order-id').innerText = `#${orderId.toUpperCase()}`;
+                    
+                    const timestamp = order.timestamp || order.createdAt;
+                    if (timestamp) {
+                        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+                        document.getElementById('inv-date').innerText = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    }
+
+                    const itemsContainer = document.getElementById('inv-items');
+                    const items = order.items || order.cart || [];
+                    let subtotal = 0;
+
+                    items.forEach(item => {
+                        const price = item.price || 0;
+                        const qty = item.quantity || 1;
+                        const total = price * qty;
+                        subtotal += total;
+
+                        const row = `
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">${item.name || item.productName || 'Item'}</div>
+                                    <div style="font-size: 11px; color: #888;">${item.weight || item.size || ''}</div>
+                                </td>
+                                <td style="text-align: center;">${qty}</td>
+                                <td style="text-align: right;">₹${price.toFixed(2)}</td>
+                                <td style="text-align: right; font-weight: 600;">₹${total.toFixed(2)}</td>
+                            </tr>
+                        `;
+                        itemsContainer.innerHTML += row;
+                    });
+
+                    const delivery = order.deliveryCharge || order.deliveryFee || 0;
+                    const discount = order.discountAmount || order.discount || 0;
+                    const total = order.totalAmount || order.total || 0;
+
+                    document.getElementById('inv-subtotal').innerText = `₹${subtotal.toFixed(2)}`;
+                    document.getElementById('inv-delivery').innerText = `₹${delivery.toFixed(2)}`;
+                    document.getElementById('inv-total').innerText = `₹${total.toFixed(2)}`;
+
+                    if (discount > 0) {
+                        document.getElementById('inv-discount-row').style.display = 'flex';
+                        document.getElementById('inv-discount').innerText = `-₹${discount.toFixed(2)}`;
+                    }
+
+                    // Auto-print
+                    setTimeout(() => {
+                        window.print();
+                    }, 1000);
+
+                } else {
+                    alert("Order not found.");
+                }
+            } catch (error) {
+                console.error("Error loading invoice:", error);
+                alert("Failed to load invoice.");
+            }
+        }
+
+        loadInvoice();
+    </script>
+</body>
+</html>

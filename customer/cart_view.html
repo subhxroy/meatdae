@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PK393WSLT7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PK393WSLT7');
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densityDpi=device-dpi" />
+  <title>View Cart - MeatDae | Fresh Meat Delivery in Silchar</title>
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <link rel="manifest" href="manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/slick.css" />
+  <link rel="stylesheet" href="css/nice-select.css" />
+  <link rel="stylesheet" href="css/custom_spacing.css" />
+  <link rel="stylesheet" href="css/venobox.min.css" />
+  <link rel="stylesheet" href="css/animate.css" />
+  <link rel="stylesheet" href="css/jquery.exzoom.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="stylesheet" href="css/custom-popup.css" />
+  <link rel="stylesheet" href="css/custom-toast.css" />
+  <link rel="stylesheet" href="css/premium-theme.css?v=4" />
+  <link rel="stylesheet" href="css/cart-redesign.css" />
+  <link rel="stylesheet" href="css/review-popup.css" />
+
+  <style>
+    /* Logo fix */
+    .header-logo-img img, .sidebar-logo {
+      display: block;
+      width: auto !important;
+      height: 22px !important;
+      /* Increased for professionalism */
+      object-fit: contain !important;
+    }
+
+    .footer_logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .footer_logo img {
+      display: block;
+      width: auto;
+      height: 50px;
+      max-width: 180px;
+      object-fit: contain;
+    }
+  </style>
+  <style>
+    /* ── Skeleton loading cards ── */
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position: 600px 0; }
+    }
+    .skeleton-line {
+      border-radius: 6px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite linear;
+    }
+    .cart-skeleton-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid #f0f0f0;
+    }
+    .cart-skeleton-img  { width: 72px; height: 72px; border-radius: 10px; flex-shrink: 0; }
+    .cart-skeleton-body { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .cart-skeleton-title{ height: 14px; width: 65%; }
+    .cart-skeleton-sub  { height: 11px; width: 40%; }
+    .cart-skeleton-price{ height: 16px; width: 30%; }
+    .cart-skeleton-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .cart-skeleton-qty  { height: 30px; width: 90px; border-radius: 8px; }
+    .cart-skeleton-trash{ height: 30px; width: 30px; border-radius: 8px; }
+  </style>
+</head>
+
+<body class="cart-page">
+  <!-- Dynamic Layout Components -->
+  <div id="sidebar-placeholder"></div>
+  <div id="header-placeholder"></div>
+
+
+  <main class="wow fadeInUp" data-wow-duration="1s">
+    <div class="cart-title-area">
+      <h2>My Cart <span id="myntra-cart-count">(0 items)</span></h2>
+    </div>
+
+    <!-- Free Delivery Promotion Banner (Compact centered design) -->
+    <div id="free-delivery-banner" class="delivery-promo-banner" style="margin: 0 auto 15px; width: 300px; padding: 10px 15px; background: #fff8f4; border-radius: 12px; display: none; flex-direction: column; gap: 6px; box-shadow: 0 4px 12px rgba(255, 124, 8, 0.08); border: 1px solid #fff3e8;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <i id="free-delivery-icon" class="fas fa-truck-fast" style="color: #ff7c08; font-size: 16px;"></i>
+        <span id="free-delivery-text" style="font-size: 10px; font-weight: 600; color: #333; white-space: nowrap;">Enjoy <span style="color: #ff7c08;">FREE DELIVERY</span> on orders of ₹350 or above!</span>
+      </div>
+      <div class="free-delivery-progress-container" style="width: 100%; height: 6px; background: #f0e0d6; border-radius: 10px; overflow: hidden; margin-top: 4px;">
+        <div id="free-delivery-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff7c08, #ff9f43); transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+      </div>
+    </div>
+
+    <!-- Free Delivery Progress Card Removed -->
+
+    <!-- Cart Items Container -->
+    <div id="myntra-cart-items" class="cart-items-container">
+      <!-- Skeleton shown while Firebase loads, hidden by JS -->
+      <div id="cart-skeleton-loader">
+        <div class="cart-skeleton-card">
+          <div class="skeleton-line cart-skeleton-img"></div>
+          <div class="cart-skeleton-body">
+            <div class="skeleton-line cart-skeleton-title"></div>
+            <div class="skeleton-line cart-skeleton-sub"></div>
+            <div class="skeleton-line cart-skeleton-price"></div>
+            <div class="cart-skeleton-actions">
+              <div class="skeleton-line cart-skeleton-qty"></div>
+              <div class="skeleton-line cart-skeleton-trash"></div>
+            </div>
+          </div>
+        </div>
+        <div class="cart-skeleton-card">
+          <div class="skeleton-line cart-skeleton-img"></div>
+          <div class="cart-skeleton-body">
+            <div class="skeleton-line cart-skeleton-title"></div>
+            <div class="skeleton-line cart-skeleton-sub"></div>
+            <div class="skeleton-line cart-skeleton-price"></div>
+            <div class="cart-skeleton-actions">
+              <div class="skeleton-line cart-skeleton-qty"></div>
+              <div class="skeleton-line cart-skeleton-trash"></div>
+            </div>
+          </div>
+        </div>
+        <div class="cart-skeleton-card">
+          <div class="skeleton-line cart-skeleton-img"></div>
+          <div class="cart-skeleton-body">
+            <div class="skeleton-line cart-skeleton-title"></div>
+            <div class="skeleton-line cart-skeleton-sub"></div>
+            <div class="skeleton-line cart-skeleton-price"></div>
+            <div class="cart-skeleton-actions">
+              <div class="skeleton-line cart-skeleton-qty"></div>
+              <div class="skeleton-line cart-skeleton-trash"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    <section id="push-sale-section" class="addons-section" style="display: none;">
+      <div class="addons-header">
+        <h3>You Might Also Like</h3>
+        <a href="menu.html" class="view-all">View all</a>
+      </div>
+      <div class="addons-scroll">
+        <div class="addon-card">
+          <div class="addon-img"><img src="images/items/fresh big eggs1.webp" alt="Big Eggs"></div>
+          <div class="addon-info">
+            <h5>Pack of 10 Fresh Big Eggs</h5>
+            <p>10 pieces</p>
+          </div>
+          <div class="addon-footer">
+            <span class="addon-price" id="addon-price-big-eggs">₹67</span>
+            <button class="addon-add-btn add-push-sale-item" data-id="big-eggs"><i class="fas fa-plus"></i></button>
+          </div>
+        </div>
+ 
+        <div class="addon-card">
+          <div class="addon-img"><img src="images/items/duck.png" alt="Duck Eggs"></div>
+          <div class="addon-info">
+            <h5>Pack of 10 Local Duck Eggs</h5>
+            <p>10 pieces</p>
+          </div>
+          <div class="addon-footer">
+            <span class="addon-price" id="addon-price-local-duck-eggs">₹134</span>
+            <button class="addon-add-btn add-push-sale-item" data-id="local-duck-eggs"><i
+                class="fas fa-plus"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+ 
+    <!-- Order Summary Card -->
+    <div class="cart_list_footer_button">
+      <div class="summary-card">
+        <h6 id="summary-title" style="display:none;">total cart (0)</h6>
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="summary-subtotal">₹0.00</span>
+        </div>
+        <div class="summary-row">
+          <span>Delivery Fee</span>
+          <span id="summary-delivery">₹0.00</span>
+        </div>
+        <div class="summary-row discount">
+          <span>Discount <i class="fas fa-tag ms-1"></i></span>
+          <span id="summary-discount">₹0.00</span>
+        </div>
+ 
+        <div class="summary-row total">
+          <span>Total to pay</span>
+          <span class="price" id="summary-total">₹0.00</span>
+        </div>
+
+        <a href="check_out.html" class="checkout-btn checkout_btn">
+          PROCEED TO CHECKOUT <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </main>
+
+
+
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/Font-Awesome.js"></script>
+  <script src="js/slick.min.js"></script>
+  <script src="js/isotope.pkgd.min.js"></script>
+  <script src="js/jquery.waypoints.min.js"></script>
+  <script src="js/jquery.countup.min.js"></script>
+  <script src="js/jquery.nice-select.min.js"></script>
+  <script src="js/venobox.min.js"></script>
+  <script src="js/sticky_sidebar.js"></script>
+  <script src="js/wow.min.js"></script>
+  <script src="js/jquery.exzoom.js"></script>
+
+  <script src="js/main.js?v=5"></script>
+  <script type="module" src="js/firebase-auth.js?v=101"></script>
+  <script type="module" src="js/cart_view.js?v=5"></script>
+  <script type="module" src="js/cart.js?v=5"></script>
+  <script type="module" src="js/stock_manager.js?v=5"></script>
+  <script type="module" src="js/review-popup.js?v=5"></script>
+  <script type="module" src="js/support-bot.js?v=5"></script>
+  <script type="module" src="js/order-notifier.js?v=5"></script>
+
+  <div id="mobile-nav-placeholder"></div>
+  <div id="buy-now-placeholder"></div>
+  <div id="custom-popup-placeholder"></div>
+  <div id="support-bot-placeholder"></div>
+
+  <!-- Component Loader -->
+  <script src="js/layout-loader.js"></script>
+
+</body>
+
+</html>
+
+
+
+

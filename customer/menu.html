@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PK393WSLT7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PK393WSLT7');
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>All Items - MeatDae | Fresh Meat Delivery in Silchar</title>
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/slick.css" />
+  <link rel="stylesheet" href="css/nice-select.css" />
+  <link rel="stylesheet" href="css/custom_spacing.css" />
+  <link rel="stylesheet" href="css/venobox.min.css" />
+  <link rel="stylesheet" href="css/animate.css" />
+  <link rel="stylesheet" href="css/jquery.exzoom.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/swiggy-theme.css?v=4" />
+  <link rel="stylesheet" href="css/premium-theme.css?v=4" />
+  <link rel="stylesheet" href="css/cart-redesign.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/custom-popup.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="css/support-bot.css" />
+  <link rel="stylesheet" href="css/review-popup.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Oleo+Script:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Logo fix for header */
+    .header-logo-img img,
+    .sidebar-logo {
+      height: 22px !important;
+      /* Increased for professionalism */
+      width: auto !important;
+      object-fit: contain !important;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Dynamic Layout Components -->
+  <div id="sidebar-placeholder"></div>
+  <div id="header-placeholder"></div>
+
+  <section class="menu_page mt_100 xs_mt_70 mb_100 xs_mb_70" style="background:#fff;">
+    <div class="container">
+      <div class="row mb-4">
+        <div class="col-lg-6 mx-auto">
+          <div class="search_box">
+            <form id="search_form" style="position: relative; width: 100%;">
+              <input type="text" id="search_input" placeholder="Search products..."
+                style="width: 100%; padding: 15px 45px 15px 20px; border-radius: 30px; border: 1px solid #eee; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+              <button type="submit"
+                style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+                                 border: none; background: transparent; cursor: pointer; color: #ff7c08; font-size: 18px;">
+                <i class="fas fa-search"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div id="no_results_message" class="text-center mb-4" style="display: none;">
+        <h4>No items found matching your search.</h4>
+        <p>Try a different search term or browse all our items below.</p>
+      </div>
+
+
+      <div class="row" id="main-product-list">
+        <!-- Skeleton Loading -->
+        <div id="product-skeletons" style="display: contents;">
+          <div class="col-12 col-lg-6">
+            <div class="skeleton-card" style="height: 180px; margin-bottom: 20px; padding: 15px;">
+              <div class="skeleton sk-img" style="height: 100px; margin-bottom: 15px;"></div>
+              <div class="skeleton sk-title" style="width: 70%; margin-bottom: 10px;"></div>
+              <div class="skeleton sk-text" style="width: 40%;"></div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-6">
+            <div class="skeleton-card" style="height: 180px; margin-bottom: 20px; padding: 15px;">
+              <div class="skeleton sk-img" style="height: 100px; margin-bottom: 15px;"></div>
+              <div class="skeleton sk-title" style="width: 70%; margin-bottom: 10px;"></div>
+              <div class="skeleton sk-text" style="width: 40%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actual Products (initially hidden) -->
+        <div id="actual-products" style="display: contents; opacity: 0; transition: opacity 0.5s ease;">
+          <!-- 1. Chicken Curry Cuts -->
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card">
+              <!-- Details Left -->
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type">
+                  <i class="fas fa-drumstick-bite"></i> Premium Meat
+                </div>
+                <a href="product_details.html?id=fresh-chicken-curry-cuts"
+                  style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Fresh Chicken Curry Cuts</h3>
+                </a>
+                <div class="menu_swiggy_price">₹309 <del class="text-muted ms-2" style="font-size:14px;">₹305</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.9 (480g - 500g)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Perfectly sized pieces for authentic Indian curries. Fresh, hygienic, and cut right before delivery.
+                </div>
+              </div>
+              <!-- Image Right & Add -->
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=fresh-chicken-curry-cuts">
+                    <img src="images/items/fresh chicken curry cuts1.webp" alt="Fresh Chicken Curry Cuts" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn">ADD</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Chicken Boneless Cuts -->
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card">
+              <!-- Details Left -->
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type">
+                  <i class="fas fa-drumstick-bite"></i> Premium Meat
+                </div>
+                <a href="product_details.html?id=chicken-boneless-cut" style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Fresh Chicken Boneless Cuts</h3>
+                </a>
+                <div class="menu_swiggy_price">₹339 <del class="text-muted ms-2" style="font-size:14px;">₹340</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.9 (480g - 500g)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Clean, trimmed boneless pieces suitable for stir-fries, curries, and grilling.
+                </div>
+              </div>
+              <!-- Image Right & Add -->
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=chicken-boneless-cut">
+                    <img src="images/items/fresh chicken boneless cuts1.webp" alt="Fresh Chicken Boneless Cuts" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn">ADD</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Chicken Legs Cuts -->
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card">
+              <!-- Details Left -->
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type">
+                  <i class="fas fa-drumstick-bite"></i> Premium Meat
+                </div>
+                <a href="product_details.html?id=chicken-legs-cut" style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Fresh Chicken Legs Cuts</h3>
+                </a>
+                <div class="menu_swiggy_price">₹354 <del class="text-muted ms-2" style="font-size:14px;">₹529</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.8 (480g - 500g)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Juicy, tender, full legs perfect for roasting or making rich biryanis.
+                </div>
+              </div>
+              <!-- Image Right & Add -->
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=chicken-legs-cut">
+                    <img src="images/items/fresh chicken leg cuts1.webp" alt="Fresh Chicken Legs Cuts" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn">ADD</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Chicken Breast Cuts -->
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card">
+              <!-- Details Left -->
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type">
+                  <i class="fas fa-drumstick-bite"></i> Premium Meat
+                </div>
+                <a href="product_details.html?id=chicken-breast-cuts" style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Fresh Chicken Breast Cuts</h3>
+                </a>
+                <div class="menu_swiggy_price">₹344 <del class="text-muted ms-2" style="font-size:14px;">₹348</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.9 (480g - 500g)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Lean, protein-packed breast fillets for fitness enthusiasts and healthy meals.
+                </div>
+              </div>
+              <!-- Image Right & Add -->
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=chicken-breast-cuts">
+                    <img src="images/items/fresh chicken breast cuts1.webp" alt="Fresh Chicken Breast Cuts" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn">ADD</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Clean Gizzard Liver
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card">
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type">
+                  <i class="fas fa-drumstick-bite"></i> Premium Meat
+                </div>
+                <a href="product_details.html?id=clean-gizzard-liver" style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Fresh Clean Gizzard Liver</h3>
+                </a>
+                <div class="menu_swiggy_price">₹279 <del class="text-muted ms-2" style="font-size:14px;">₹359</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.7 (480g - 500g)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Freshly cleaned gizzard and liver mix. Perfect for dry frying or making flavorful curries.
+                </div>
+              </div>
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=clean-gizzard-liver">
+                    <img src="images/items/clean gizzard liver1.webp" alt="Fresh Clean Gizzard Liver" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn">ADD</button>
+              </div>
+            </div>
+          </div>
+          -->
+
+          <!-- 6. Chicken Biriyani Cuts -->
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card">
+              <!-- Details Left -->
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type">
+                  <i class="fas fa-drumstick-bite"></i> Premium Meat
+                </div>
+                <a href="product_details.html?id=chicken-biriyani-cuts" style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Fresh Chicken Biriyani Cuts</h3>
+                </a>
+                <div class="menu_swiggy_price">₹370 <del class="text-muted ms-2" style="font-size:14px;">₹400</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.9 (480g - 500g)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Expertly cut pieces ideal for biriyani, juicy and tender. Pure taste of tradition.
+                </div>
+              </div>
+              <!-- Image Right & Add -->
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=chicken-biriyani-cuts">
+                    <img src="images/items/IMG_1987.PNG" alt="Fresh Chicken Biriyani Cuts" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn">ADD</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Chicken Keema -->
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card" data-id="Fresh Chicken Boneless Keema" data-category="chicken">
+              <!-- Details Left -->
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type">
+                  <i class="fas fa-drumstick-bite"></i> Premium Meat
+                </div>
+                <a href="product_details.html?id=chicken-keema" style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Fresh Chicken Boneless Keema</h3>
+                </a>
+                <div class="menu_swiggy_price">₹369 <del class="text-muted ms-2" style="font-size:14px;">₹400</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.8 (480g - 500g)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Finely minced fresh chicken, perfect for kebabs, parathas, and keema matar.
+                </div>
+              </div>
+              <!-- Image Right & Add -->
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=chicken-keema">
+                    <img src="images/items/IMG_1935.PNG" alt="Fresh Chicken Boneless Keema" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn" data-id="Fresh Chicken Boneless Keema"
+                  data-category="chicken">ADD</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. Chicken Wings -->
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card">
+              <!-- Details Left -->
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type">
+                  <i class="fas fa-drumstick-bite"></i> Premium Meat
+                </div>
+                <a href="product_details.html?id=chicken-wings" style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Fresh Chicken Wings</h3>
+                </a>
+                <div class="menu_swiggy_price">₹319 <del class="text-muted ms-2" style="font-size:14px;">₹360</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.7 (480g - 500g)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Fresh, juicy chicken wings. Ideal for crispy frying or spicy BBQ grilling.
+                </div>
+              </div>
+              <!-- Image Right & Add -->
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=chicken-wings">
+                    <img src="images/items/IMG_1988.PNG" alt="Fresh Chicken Wings" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn">ADD</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Fresh Big Eggs -->
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card" data-id="Fresh Big Eggs" data-category="eggs-big">
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type">
+                  <i class="fas fa-egg"></i> Premium Eggs
+                </div>
+                <a href="product_details.html?id=fresh-big-eggs" style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Fresh Big Eggs</h3>
+                </a>
+                <div class="menu_swiggy_price">₹299 <del class="text-muted ms-2" style="font-size:14px;">₹310</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.9 (Farm Fresh)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Fresh, high-quality big eggs selected daily from the best farms. Rich in protein.
+                </div>
+              </div>
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=fresh-big-eggs">
+                    <img src="images/items/IMG_1986.PNG" alt="Fresh Big Eggs" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn" data-id="Fresh Big Eggs"
+                  data-category="eggs-big">ADD</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. Fresh Local Duck Eggs -->
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card" data-id="Fresh Local Duck Eggs" data-category="eggs-duck">
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type">
+                  <i class="fas fa-egg"></i> Premium Eggs
+                </div>
+                <a href="product_details.html?id=local-duck-eggs" style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Fresh Local Duck Eggs</h3>
+                </a>
+                <div class="menu_swiggy_price">₹289 <del class="text-muted ms-2" style="font-size:14px;">₹309</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.8 (Hand-picked)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Rich, creamy local duck eggs with a fuller taste. Perfectly fresh and natural.
+                </div>
+              </div>
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=local-duck-eggs">
+                    <img src="images/items/duck.png" alt="Fresh Local Duck Eggs" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn" data-id="Fresh Local Duck Eggs"
+                  data-category="eggs-duck">ADD</button>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- 9. Fresh Mutton Curry Cuts -->
+          <div class="col-12 col-lg-6">
+            <div class="menu_swiggy_card" data-id="Pure Mutton Curry Cuts" data-category="mutton">
+              <!-- Details Left -->
+              <div class="menu_swiggy_details">
+                <div class="menu_swiggy_type" style="color:#8B4513">
+                  <i class="fas fa-drumstick-bite"></i> Premium Meat
+                </div>
+                <a href="product_details.html?id=pure-mutton-curry-cuts" style="text-decoration: none; color: inherit;">
+                  <h3 class="menu_swiggy_title">Pure Mutton Curry Cuts</h3>
+                </a>
+                <div class="menu_swiggy_price">₹570 <del class="text-muted ms-2" style="font-size:14px;">₹619</del>
+                </div>
+                <div class="menu_swiggy_rating">
+                  <i class="fa-solid fa-star"></i> 4.9 (480g - 500g)
+                </div>
+                <div class="menu_swiggy_desc">
+                  Fresh and tender mutton curry cuts, perfect for a flavorful meal. Handpicked quality.
+                </div>
+              </div>
+              <!-- Image Right & Add -->
+              <div class="menu_swiggy_image_box">
+                <div class="menu_swiggy_img_wrapper">
+                  <a href="product_details.html?id=pure-mutton-curry-cuts">
+                    <img src="images/items/IMG_1993.PNG" alt="Pure Mutton Curry Cuts" />
+                  </a>
+                </div>
+                <button class="btn-add-glass menu_swiggy_add_btn" data-id="Pure Mutton Curry Cuts"
+                  data-category="mutton">ADD</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+  </section>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/Font-Awesome.js"></script>
+  <script src="js/slick.min.js"></script>
+  <script src="js/isotope.pkgd.min.js"></script>
+  <script src="js/jquery.waypoints.min.js"></script>
+  <script src="js/jquery.countup.min.js"></script>
+  <script src="js/jquery.nice-select.min.js"></script>
+  <script src="js/venobox.min.js"></script>
+  <script src="js/sticky_sidebar.js"></script>
+  <script src="js/wow.min.js"></script>
+  <script src="js/jquery.exzoom.js"></script>
+
+  <script src="js/main.js?v=4"></script>
+  <script type="module" src="js/cart.js?v=4"></script>
+  <script type="module" src="js/stock_manager.js?v=4"></script>
+  <script type="module" src="js/support-bot.js?v=4"></script>
+  <script type="module" src="js/review-popup.js?v=4"></script>
+  <script type="module" src="js/order-notifier.js?v=4"></script>
+
+
+  <div id="mobile-nav-placeholder"></div>
+  <div id="buy-now-placeholder"></div>
+  <div id="custom-popup-placeholder"></div>
+  <div id="support-bot-placeholder"></div>
+
+  <!-- Component Loader -->
+  <script src="js/layout-loader.js?v=5"></script>
+
+</body>
+
+</html>

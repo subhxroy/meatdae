@@ -1,0 +1,54 @@
+<nav class="admin-nav" id="global-staff-nav">
+    <div class="container nav-content">
+        <div class="brand-text">Meat<span>Dae</span> <span id="staff-portal-title">Staff</span></div>
+        <div class="nav-links d-none d-lg-flex align-items-center">
+            <!-- Admin Only Links -->
+            <div id="admin-links" style="display: none;" class="d-flex">
+                <a href="admin_dashboard.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3 me-2">
+                    <i class="fas fa-chart-line me-1"></i> Dashboard
+                </a>
+                <a href="stock_control.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3 me-2">
+                    <i class="fas fa-boxes me-1"></i> Stock
+                </a>
+            </div>
+            
+            <!-- Shared Links -->
+            <a href="preparer.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3 me-2">
+                <i class="fas fa-fire me-1"></i> Kitchen
+            </a>
+            <a href="rider.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3 me-2">
+                <i class="fas fa-motorcycle me-1"></i> Rider
+            </a>
+            <a href="https://meatdae.com" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                <i class="fas fa-home me-1"></i> Home
+            </a>
+        </div>
+        
+        <!-- Mobile Actions -->
+        <div class="d-flex d-lg-none gap-2">
+            <div id="admin-mobile-links" style="display: none;" class="d-flex gap-2">
+                <a href="stock_control.html" class="btn btn-sm btn-outline-secondary rounded-pill px-3" style="height: 34px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12px; white-space: nowrap;">
+                    <i class="fas fa-boxes"></i>
+                    <span>Stock Control</span>
+                </a>
+            </div>
+            <a href="https://meatdae.com" class="btn btn-sm btn-outline-dark rounded-circle" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-home"></i>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<script>
+    // Title mapping based on current page
+    const pageTitles = {
+        'admin_dashboard.html': 'Admin',
+        'preparer.html': 'Kitchen',
+        'rider.html': 'Rider',
+        'stock_control.html': 'Stock'
+    };
+    const currentPage = window.location.pathname.split('/').pop();
+    if (pageTitles[currentPage]) {
+        document.getElementById('staff-portal-title').textContent = pageTitles[currentPage];
+    }
+</script>

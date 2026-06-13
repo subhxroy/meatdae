@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PK393WSLT7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PK393WSLT7');
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densityDpi=device-dpi" />
+  <title>Checkout - MeatDae | Fresh Meat Delivery in Silchar</title>
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }</script>
+  <link rel="stylesheet" href="css/all.min.css" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/custom-popup.css" />
+  <script src="js/Font-Awesome.js"></script>
+  <!-- MapTiler SDK JS (includes MapLibre + MapTiler optimizations) -->
+  <script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.umd.min.js"></script>
+  <link href="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.css" rel="stylesheet" />
+  <!-- Swiggy Theme -->
+  <link rel="stylesheet" href="css/swiggy-theme.css?v=4" />
+  <link rel="stylesheet" href="css/premium-theme.css?v=4" />
+  <link rel="stylesheet" href="css/cart-redesign.css" />
+
+  <style>
+    :root {
+      --primary: #ff7c08;
+      --bg-light: #f8f9fa;
+      --text-main: #1a1a1a;
+      --text-sec: #777;
+      --card-bg: #fff;
+      --radius-main: 24px;
+      --radius-sub: 16px;
+    }
+
+    /* Logo fix */
+    .header-logo-img,
+    .footer_logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header-logo-img img,
+    .sidebar-logo {
+      display: block;
+      width: auto !important;
+      height: 18px !important;
+      object-fit: contain !important;
+    }
+
+    /* Add top padding for mobile status bar / notch */
+    body {
+      background-color: var(--bg-light);
+      font-family: 'Outfit', sans-serif;
+      padding-bottom: 75px;
+      padding-top: 0;
+      color: var(--text-main);
+    }
+
+    /* Surgical Map Attribution Fix (Opacity to avoid SDK crash) */
+    .maplibregl-ctrl-attrib,
+    .maplibregl-ctrl-logo,
+    .maptilersdk-logo,
+    .maptilersdk-attribution {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    /* Sticky Header - Adjust for safe area */
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 1000;
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .header-left i {
+      font-size: 18px;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .header-logo {
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--primary);
+    }
+
+    .header-right i {
+      font-size: 18px;
+      color: #333;
+    }
+
+    /* Free Delivery Banner (Orange Global one) Styling Fix */
+    .free-delivery-banner {
+      position: relative;
+      margin-top: 0;
+      z-index: 1001;
+      margin-bottom: 10px;
+    }
+
+    /* Progress Banner (Checkout Specific) */
+    .delivery-progress-banner {
+      background: #fff5ee;
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #ffe8d6;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .progress-info .amt {
+      color: var(--primary);
+    }
+
+    .progress-bar-outer {
+      height: 8px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar-inner {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.6s ease;
+      border-radius: 20px;
+    }
+
+    .progress-note {
+      font-size: 11px;
+      color: var(--text-sec);
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .unlocked-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--primary);
+      font-weight: 800;
+      background: white;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 13px;
+      box-shadow: 0 2px 6px rgba(255, 124, 8, 0.1);
+    }
+
+    /* Sections */
+    .checkout-container {
+      padding: 15px 12px 0;
+    }
+
+    .section-card {
+      background: white;
+      border-radius: var(--radius-sub);
+      padding: 10px;
+      margin-bottom: 6px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .section-title i {
+      color: var(--primary);
+      font-size: 17px;
+    }
+
+    /* Inputs */
+    .input-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-sec);
+      margin-bottom: 3px;
+      display: block;
+    }
+
+    .checkout-input {
+      width: 100%;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid #eee;
+      background: #fff;
+      font-size: 13.5px;
+      transition: 0.3s;
+      margin-bottom: 6px;
+    }
+
+    .checkout-input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(255, 124, 8, 0.05);
+    }
+
+    /* GPS Button */
+    .gps-btn {
+      background: #fff5ee;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 50px;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Map Box */
+    .map-preview-box {
+      height: 120px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #eee;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    #pinmap {
+      height: 100%;
+      width: 100%;
+    }
+
+    /* Coupon Input */
+    .coupon-group {
+      display: flex;
+      gap: 10px;
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 4px 4px 4px 15px;
+      align-items: center;
+    }
+
+    .coupon-group i {
+      color: #aaa;
+    }
+
+    .coupon-group input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 15px;
+    }
+
+    .btn-apply {
+      background: var(--primary);
+      color: white !important;
+      border: 1px solid var(--primary);
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+
+    .btn-apply:hover {
+      background: white !important;
+      color: var(--primary) !important;
+      border-color: var(--primary) !important;
+    }
+
+    /* Order Summary Card */
+    .summary-card {
+      background: white;
+      border-radius: var(--radius-sub);
+      padding: 10px;
+      margin-bottom: 8px;
+      border: 1px solid #f0f0f0;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+      font-size: 12.5px;
+      color: var(--text-sec);
+    }
+
+    .summary-row.total-row {
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px dashed #eee;
+      color: var(--text-main);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .summary-row.total-row .total-amt {
+      color: var(--primary);
+      font-size: 15px;
+    }
+
+    .text-discount {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Main Action Button */
+    .btn-proceed {
+      background: var(--primary);
+      color: white !important;
+      border: none;
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(255, 124, 8, 0.25);
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-proceed:hover {
+      background: white !important;
+      color: var(--primary) !important;
+      border: 1px solid var(--primary) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(255, 124, 8, 0.2);
+    }
+
+    /* Bottom Nav Styles */
+
+
+    @media (max-width: 768px) {}
+
+
+
+    @media (min-width: 992px) {
+      .checkout-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding-top: 40px;
+      }
+    }
+
+    /* Auth Required View */
+    .auth-required-view {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .auth-card {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+      max-width: 380px;
+      width: 100%;
+    }
+
+    .auth-icon {
+      font-size: 50px;
+      color: var(--primary);
+      margin-bottom: 20px;
+      background: #fff5ee;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .auth-card h4 {
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+
+    .auth-card p {
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .auth-btn {
+      background: var(--primary);
+      color: white !important;
+      padding: 14px 40px;
+      border-radius: 50px;
+      font-weight: 800;
+      text-decoration: none;
+      display: inline-block;
+      transition: 0.3s;
+      width: 100%;
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 124, 8, 0.3);
+    }
+
+    /* Location Banner Hover */
+    #btn-detect-location-banner:hover {
+      background: #fff5ee !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+  <style>
+    /* Compact Delivery Details (Swiggy Style) */
+    .delivery-details-compact {
+      background: #fff;
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      margin-bottom: 8px;
+      border: 1px solid #f0f0f0;
+      position: relative;
+    }
+
+    .delivery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .delivery-header h6 {
+      margin: 0;
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .delivery-header h6 i {
+      color: var(--primary);
+    }
+
+    .edit-delivery-btn {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 13px;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .saved-address-view {
+      display: block;
+    }
+
+    .saved-address-view.hidden {
+      display: none;
+    }
+
+    .address-line {
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 2px;
+      font-weight: 700;
+    }
+
+    .address-subline {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.3;
+    }
+
+    .edit-address-form {
+      display: none;
+    }
+
+    .edit-address-form.active {
+      display: block;
+    }
+
+    .required-star {
+      color: #ff4d4d;
+      margin-left: 2px;
+      font-weight: bold;
+    }
+
+    .form-group-compact {
+      margin-bottom: 12px;
+    }
+
+    .form-group-compact label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #999;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .form-control-compact {
+      width: 100%;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: border-color 0.2s;
+    }
+
+    .form-control-compact:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .save-address-btn {
+      background: var(--primary);
+      color: white !important;
+      border: none;
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .save-address-btn:hover {
+      background: white !important;
+      color: var(--primary) !important;
+      border: 1px solid var(--primary) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 124, 8, 0.15);
+    }
+
+    /* Validation Popup/Toast Styles - CENTERED POPUP */
+    #validation-toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: #ffffff;
+      color: #1a1a1a;
+      padding: 24px;
+      border-radius: 24px;
+      font-size: 15px;
+      font-weight: 700;
+      z-index: 2200;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2), 0 0 0 100vh rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      width: 85%;
+      max-width: 320px;
+      border: none;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #validation-toast.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #validation-toast i {
+      color: var(--primary);
+      font-size: 40px;
+      background: #fff5ee;
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    #validation-msg {
+      line-height: 1.5;
+      display: block;
+      word-wrap: break-word;
+    }
+
+    .toast-close-btn {
+      margin-top: 5px;
+      background: var(--primary);
+      color: white;
+      border: 1px solid var(--primary);
+      padding: 10px 30px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .toast-close-btn:hover {
+      background: white !important;
+      color: var(--primary) !important;
+      border-color: var(--primary) !important;
+    }
+
+    /* Checkout Items List Enhancements */
+    .checkout-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      /* Reduced from 12px */
+    }
+
+    .checkout-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      /* Reduced from 12px */
+      padding-bottom: 8px;
+      /* Reduced from 12px */
+      border-bottom: 1px solid #f8f9fa;
+    }
+
+    .checkout-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .checkout-item-img {
+      width: 65px !important;
+      height: 65px !important;
+      flex-shrink: 0 !important;
+      border-radius: 12px;
+      object-fit: cover;
+      background: #f8f9fa;
+      border: 1px solid #eee;
+    }
+
+    .checkout-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .checkout-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0;
+      color: #333;
+      white-space: normal;
+      line-height: 1.3;
+    }
+
+    .checkout-item-sub {
+      font-size: 12px;
+      color: #777;
+    }
+
+    .checkout-item-price {
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .stock-out-badge {
+      font-size: 10px;
+      font-weight: 800;
+      color: #ff4d4d;
+      background: #fff5ee;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-top: 4px;
+      display: inline-block;
+      text-transform: uppercase;
+    }
+
+    .checkout-stock-out {
+      opacity: 0.6;
+      filter: grayscale(1);
+    }
+  </style>
+</head>
+
+<body data-requires-auth>
+  <!-- Validation Popup -->
+  <div id="validation-toast">
+    <i class="fas fa-exclamation-circle"></i>
+    <span id="validation-msg">Please fill all required fields</span>
+    <button class="toast-close-btn"
+      onclick="document.getElementById('validation-toast').classList.remove('show')">OK</button>
+  </div>
+  <!-- Dynamic Layout Components -->
+  <div id="sidebar-placeholder"></div>
+  <div id="header-placeholder"></div>
+
+  <!-- Location Detection Prompt Banner -->
+  <div id="location-prompt-banner"
+    style="margin: 8px 12px 6px; padding: 8px 12px; background: #ff7c08; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: white !important; box-shadow: 0 4px 12px rgba(255, 124, 8, 0.12);">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <div
+        style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <i class="fas fa-location-dot" style="font-size: 13px; color: white !important;"></i>
+      </div>
+      <span style="font-size: 12.5px; font-weight: 700; line-height: 1.2; color: white !important;">Provide exact
+        location for smooth delivery.</span>
+    </div>
+    <button id="btn-detect-location-banner"
+      style="background: white; border: none; color: #ff7c08 !important; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+      Detect Location
+    </button>
+  </div>
+  <div id="checkout-free-delivery-banner" class="delivery-promo-banner"
+    style="margin: 10px 12px 10px; padding: 8px 12px; background: #fff8f4; border: 1px dashed #ff7c08; border-radius: 10px; display: none; flex-direction: column; gap: 6px;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <i id="checkout-free-delivery-icon" class="fas fa-truck-fast" style="color: #ff7c08; font-size: 15px;"></i>
+      <span id="checkout-free-delivery-text" style="font-size: 12px; font-weight: 600; color: #333;">Enjoy <span
+          style="color: #ff7c08;">FREE DELIVERY</span> on orders of ₹350 or above!</span>
+    </div>
+    <div class="free-delivery-progress-container"
+      style="width: 100%; height: 5px; background: #f0e0d6; border-radius: 10px; overflow: hidden;">
+      <div id="checkout-free-delivery-progress-bar"
+        style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff7c08, #ff9f43); transition: width 0.4s ease-in-out;">
+      </div>
+    </div>
+  </div>
+
+
+  <div class="auth-required-view" id="auth-required-view">
+    <div class="auth-card">
+      <div class="auth-icon">
+        <i class="fas fa-user-lock"></i>
+      </div>
+      <h4>Login Required</h4>
+      <p>You need to be logged in to access the checkout. Please sign in to continue with your order.</p>
+      <a href="javascript:void(0)" onclick="goToLogin()" class="auth-btn">Sign In Now</a>
+      <div class="mt-3">
+        <a href="index.html" style="color: #999; font-size: 13px; text-decoration: none;">Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="checkout-container" id="checkout-main-view" style="display: none;">
+
+    <!-- Section 1: Compact Delivery Details -->
+    <div class="delivery-details-compact">
+      <div class="delivery-header">
+        <h6><i class="fas fa-map-marker-alt"></i> DELIVERY DETAILS</h6>
+        <button class="edit-delivery-btn" id="btn-edit-delivery">EDIT</button>
+      </div>
+
+      <!-- Saved View -->
+      <div class="saved-address-view" id="saved-address-view">
+        <div class="address-line" id="saved-name">Loading...</div>
+        <div class="address-subline" id="saved-address-full">
+          <span id="saved-phone"></span><br>
+          <span id="saved-address-text"></span>, <span id="saved-pincode"></span>
+        </div>
+      </div>
+
+      <!-- Edit Form (Hidden initially) -->
+      <div class="edit-address-form" id="edit-address-form">
+        <div class="form-group-compact">
+          <label>Full Name<span class="required-star">*</span></label>
+          <input type="text" id="user-name" class="form-control-compact" placeholder="Enter full name" />
+        </div>
+        <div class="form-group-compact">
+          <label>Email Address</label>
+          <input type="email" id="user-email" class="form-control-compact" placeholder="Update your email (Optional)" />
+        </div>
+        <div class="row g-2">
+          <div class="col-7">
+            <div class="form-group-compact">
+              <label>Phone Number<span class="required-star">*</span></label>
+              <input type="text" id="user-phone" class="form-control-compact" placeholder="+91 00000 00000" />
+            </div>
+          </div>
+          <div class="col-5">
+            <div class="form-group-compact">
+              <label>Pin Code<span class="required-star">*</span></label>
+              <input type="text" id="user-pincode" class="form-control-compact" placeholder="788001" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group-compact">
+          <label>Detailed Address<span class="required-star">*</span></label>
+          <textarea id="user-address" class="form-control-compact" rows="2"
+            placeholder="House/Flat No, Street, Landmark"></textarea>
+        </div>
+        <button class="save-address-btn" id="btn-save-address">SAVE & PROCEED</button>
+      </div>
+      <div id="pincode-error" class="text-danger small mt-1" style="display: none;">Sorry, we don't deliver here.</div>
+    </div>
+
+    <!-- Section 2: Delivery Location -->
+    <div class="section-card" style="padding-top: 8px; padding-bottom: 2px;">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <h6 class="section-title m-0"><i class="fas fa-location-dot"></i> Delivery Location <span
+            style="font-size: 11px; color: #777; font-weight: 500;">(Optional)</span></h6>
+        <button type="button" id="btn-use-gps" class="gps-btn"><i class="fas fa-crosshairs"></i> Use My GPS</button>
+      </div>
+
+      <div id="map-expand-toggle" style="text-align: center; margin-bottom: 2px;">
+        <button type="button" id="btn-toggle-map"
+          style="background: none; border: none; color: var(--primary); font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 100%; gap: 6px; padding: 4px 0;">
+          <i class="fas fa-map-marked-alt"></i> Adjust on Map <i class="fas fa-chevron-down" id="map-chevron"></i>
+        </button>
+      </div>
+
+      <div id="map-collapsible" style="display: none;">
+        <div class="map-preview-box">
+          <div id="pinmap"></div>
+          <button type="button" id="btn-toggle-style" class="btn btn-sm btn-light position-absolute shadow-sm"
+            style="bottom: 10px; right: 10px; z-index: 10; font-size: 11px; font-weight: 700;">
+            <i class="fas fa-layer-group me-1"></i> Satellite
+          </button>
+        </div>
+        <p
+          style="color: #ff4d4d; font-size: 11px; font-weight: 700; margin-top: -5px; margin-bottom: 12px; text-align: center;">
+          <i class="fas fa-hand-pointer me-1"></i> use two fingers for better precision
+        </p>
+      </div>
+
+      <!-- Hidden address card (Redundant) -->
+      <!-- <div id="selected-address-card" class="p-2 border rounded-3 bg-light" style="display: none;">
+        <div class="d-flex gap-2">
+          <i class="fas fa-map-marker-alt text-primary mt-1"></i>
+          <span id="readable-address" class="small fw-semibold">Fetching address...</span>
+        </div>
+      </div> -->
+    </div>
+
+    <style>
+      /* Modification Mode Styles */
+      .modify-qty-control {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        background: #f8f9fa;
+        padding: 4px 8px;
+        border-radius: 50px;
+        border: 1px solid #eee;
+      }
+
+      .checkout-item.modify-active .modify-qty-control {
+        display: flex;
+      }
+
+      .checkout-item.modify-active .checkout-item-total-qty {
+        display: none;
+      }
+
+      .modify-qty-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: none;
+        background: white;
+        color: var(--primary);
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .modify-qty-val {
+        font-weight: 800;
+        font-size: 14px;
+        min-width: 20px;
+        text-align: center;
+      }
+
+      .btn-delete-item {
+        display: none;
+        color: #ff4d4d;
+        background: #fff5ee;
+        border: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      .checkout-item.modify-active .btn-delete-item {
+        display: flex;
+      }
+
+      #btn-toggle-modify.active {
+        background: var(--primary) !important;
+        color: white !important;
+      }
+    </style>
+
+    <!-- Section: Order Items -->
+    <div class="section-card" id="cart-items-section" style="display: none;">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <h6 class="section-title m-0"><i class="fas fa-shopping-basket"></i> Order Items</h6>
+        <button id="btn-toggle-modify" class="btn btn-sm btn-outline-secondary rounded-pill border-0"
+          style="font-size: 11px; font-weight: 700;">
+          MODIFY <i class="fas fa-pen ms-1"></i>
+        </button>
+      </div>
+      <div id="checkout-items-list" class="checkout-items-list">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Section 3: Offers & Coupons -->
+    <div class="section-card">
+      <h6 class="section-title"><i class="fas fa-tag"></i> Offers & Coupons</h6>
+      <div class="coupon-group">
+        <i class="fas fa-ticket-alt"></i>
+        <input type="text" id="coupon-code-input" placeholder="Enter coupon code">
+        <button type="button" id="btn-apply-coupon" class="btn-apply">APPLY</button>
+      </div>
+      <div id="coupon-msg" class="small mt-2" style="display:none;"></div>
+    </div>
+
+    <!-- Free Delivery Promotion Banner (Compact centered design) -->
+    <div id="free-delivery-banner" class="delivery-promo-banner"
+      style="margin: 0 auto 12px; width: 92%; padding: 8px 12px; background: #fff8f4; border-radius: 12px; display: none; flex-direction: column; gap: 4px; box-shadow: 0 4px 12px rgba(255, 124, 8, 0.08); border: 1px solid #fff3e8;">
+      <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+        <i id="free-delivery-icon" class="fas fa-truck-fast" style="color: #ff7c08; font-size: 14px;"></i>
+        <span id="free-delivery-text" style="font-size: 11px; font-weight: 700; color: #333; white-space: nowrap;">Enjoy
+          <span style="color: #ff7c08;">FREE DELIVERY</span>!</span>
+      </div>
+      <div class="free-delivery-progress-container"
+        style="width: 100%; height: 5px; background: #f0e0d6; border-radius: 10px; overflow: hidden; margin-top: 2px;">
+        <div id="free-delivery-progress-bar"
+          style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff7c08, #ff9f43); transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Order Summary -->
+    <div class="summary-card">
+      <h6 class="section-title mb-1" id="summary-title" style="font-size: 15px;">Order Summary</h6>
+
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="summary-subtotal">₹0.00</span>
+      </div>
+      <div class="summary-row">
+        <span>Delivery Fee</span>
+        <span id="summary-delivery">₹0.00</span>
+      </div>
+      <div class="summary-row text-discount" id="summary-discount-row" style="display: none;">
+        <span>Coupon Discount</span>
+        <span id="summary-discount">- ₹0.00</span>
+      </div>
+
+      <div class="summary-row total-row">
+        <span>Total to pay</span>
+        <span class="total-amt" id="summary-total">₹0.00</span>
+      </div>
+
+      <div id="operating-hours-message" class="alert alert-warning py-2 px-3 mt-3 border-0 small"
+        style="display: none; border-radius: 10px;">
+        <i class="fas fa-clock me-1"></i> <span id="op-hours-text">Deliveries available 8 AM - 8 PM IST.</span>
+        <div id="next-delivery-time" class="fw-bold mt-1"></div>
+      </div>
+    </div>
+
+    <div id="checkout-error-banner" class="alert alert-danger py-2 px-3 mb-2 rounded-3 border-0 small"
+      style="display: none; position: relative;">
+      <span id="checkout-error-text"></span>
+      <i class="fas fa-times position-absolute" style="top: 10px; right: 10px; cursor: pointer;"
+        onclick="closeErrorBanner()"></i>
+    </div>
+
+    <!-- Section 5: Order Notes -->
+    <div class="section-card">
+      <h6 class="section-title"><i class="fas fa-sticky-note"></i> Special Instructions (Optional)</h6>
+      <textarea id="order-notes" class="checkout-input" rows="2"
+        placeholder="e.g., Please cut into small pieces, or any specific carving requests..."></textarea>
+    </div>
+
+    <button type="button" id="proceed-to-payment-btn" class="btn-proceed">
+      Proceed to Payment <i class="fas fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <div id="mobile-nav-placeholder"></div>
+  <div id="buy-now-placeholder"></div>
+  <div id="custom-popup-placeholder"></div>
+  <div id="support-bot-placeholder"></div>
+
+  <!-- Component Loader -->
+  <script src="js/layout-loader.js"></script>
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js?v=5"></script>
+  <script type="module" src="js/firebase-auth.js?v=101"></script>
+  <script type="module" src="js/check_out.js?v=6"></script>
+  <script type="module" src="js/cart.js?v=5"></script>
+  <script type="module" src="js/stock_manager.js?v=5"></script>
+  <script type="module" src="js/support-bot.js?v=5"></script>
+  <script src="js/checkout_map.js?v=5"></script>
+</body>
+
+</html>

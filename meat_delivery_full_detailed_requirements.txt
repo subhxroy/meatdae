@@ -1,0 +1,490 @@
+MEAT DELIVERY PLATFORM - FULL DETAILED REQUIREMENT DOCUMENT
+Swiggy/Blinkit Style Meat Delivery System
+
+====================================================
+1. PROJECT OVERVIEW
+====================================================
+
+Project Type:
+Full-stack logistics-enabled meat delivery web application.
+
+Goal:
+Create a professional meat delivery platform where:
+- Customers order meat online
+- Riders deliver orders
+- Admin manages operations
+- Entire business can run through CRM/CMS
+
+Target:
+A complete handover-ready business system.
+
+Core Concept:
+A mini Swiggy/Blinkit for meat delivery.
+
+Main Portals:
+1. Customer Portal
+2. Rider Portal
+3. Admin CRM/CMS Portal
+
+====================================================
+2. CUSTOMER PORTAL REQUIREMENTS
+====================================================
+
+2.1 Homepage
+
+Features:
+- Hero banner slider
+- Dynamic advertisements
+- Categories section
+- Featured products
+- Best sellers
+- Trending products
+- Combo offers
+- Limited-time offers
+- Delivery location selector
+- Search bar
+- Sticky cart
+
+Homepage Sections:
+1. Hero Banner
+2. Today's Offers
+3. Chicken Section
+4. Mutton Section
+5. Fish/Seafood Section
+6. Ready-to-Cook Section
+7. Combos
+8. Recommended Products
+9. Footer
+
+Everything should be controlled via CMS.
+
+2.2 Product Listing
+
+Each product should contain:
+
+- Product Image
+- Product Name
+- Description
+- Weight Variants
+- Price
+- Sale Price
+- Stock Status
+- Delivery Time
+- Add To Cart
+- Buy Now
+- Favorite/Wishlist
+- Ratings (optional)
+
+Example:
+
+Chicken Curry Cut
+
+250g - ₹90
+500g - ₹180
+1kg - ₹340
+
+Add to Cart
+
+2.3 Product Page
+
+Must include:
+- Multiple product images
+- Description
+- Nutritional info (optional)
+- Available weights
+- Quantity selector
+- Add-ons
+- Cooking instructions
+- Estimated delivery time
+- Related products
+- Offers applicable
+
+2.4 Cart System
+
+Features:
+- Add/remove quantity
+- Update weight
+- Add-ons
+- Coupon system
+- Price breakdown
+
+Calculation:
+
+Product Total
++ Taxes
++ Packing Fee
++ Delivery Fee
+- Discount
+= Final Total
+
+2.5 Checkout Page
+
+Features:
+- Address selection
+- Map picker
+- Saved addresses
+- Delivery notes
+- Coupon apply
+- Dynamic delivery charge
+- Payment selection
+- COD
+- Online payment
+
+2.6 Payment System
+
+Methods:
+1. Cash On Delivery
+2. Razorpay Online Payment
+
+Flow:
+
+Online:
+Order → Payment → Success → Confirmed
+
+COD:
+Order → Confirmed → Rider Collects Cash
+
+2.7 Order Tracking
+
+Status:
+
+Pending
+Accepted
+Preparing
+Packed
+Rider Assigned
+Out For Delivery
+Delivered
+Cancelled
+
+Live updates via Socket.IO
+
+2.8 User Profile
+
+Features:
+- Order history
+- Saved addresses
+- Coupons
+- Saved payment methods
+- Edit profile
+- Logout
+
+====================================================
+3. RIDER PORTAL REQUIREMENTS
+====================================================
+
+3.1 Rider Dashboard
+
+Features:
+- Assigned deliveries
+- Earnings
+- COD pending
+- Completed orders
+- Delivery stats
+
+3.2 Delivery Details
+
+Should show:
+
+- Customer name
+- Address
+- Phone number
+- Google Maps route
+- Product list
+- Order amount
+- Payment type
+- Delivery instructions
+
+3.3 Navigation
+
+Google Maps integration:
+- Open map
+- Route navigation
+
+3.4 Delivery Actions
+
+Buttons:
+
+Accept Delivery
+Picked Up
+Out for Delivery
+Delivered
+
+3.5 COD Collection
+
+For COD:
+- Rider marks cash collected
+- Admin approval required
+
+====================================================
+4. ADMIN CRM/CMS PORTAL
+====================================================
+
+4.1 Dashboard
+
+Metrics:
+- Revenue
+- Orders today
+- Pending orders
+- Delivered orders
+- COD pending
+- Rider analytics
+- Best sellers
+- Low stock alerts
+
+4.2 Product Management
+
+Admin can:
+
+- Add products
+- Edit products
+- Delete products
+- Change pricing
+- Upload images
+- Add variants
+- Manage inventory
+
+Fields:
+
+Name
+Slug
+Description
+Category
+Images
+Price
+Sale Price
+Stock
+Weight
+SKU
+Featured
+
+4.3 Inventory Management
+
+Features:
+
+Stock In
+Stock Out
+Auto Stock Reduction
+Low Stock Alert
+Out Of Stock
+
+4.4 Banner Management
+
+Admin can:
+
+- Upload banner
+- Change image
+- Add title
+- Add CTA
+- Schedule timing
+- Enable/disable
+
+4.5 Homepage CMS
+
+Admin controls:
+- Homepage layout
+- Product sections
+- Banner order
+- Promotions
+- Featured products
+
+4.6 Offer Management
+
+Admin can create:
+- Flash sale
+- Happy hour
+- Combo offer
+- Festival discount
+
+4.7 Coupon Management
+
+Coupon fields:
+
+Code
+Discount Type
+Expiry
+Minimum Order
+Usage Limit
+
+4.8 Order Management
+
+Actions:
+- Accept order
+- Reject order
+- Cancel order
+- Assign rider
+- Refund
+- Track delivery
+
+4.9 Rider Management
+
+Features:
+- Add rider
+- Suspend rider
+- Assign orders
+- Performance report
+- COD settlement
+
+4.10 Ledger System
+
+Track:
+- Rider COD cash
+- Settlements
+- Revenue
+- Expenses
+
+====================================================
+5. DELIVERY SYSTEM
+====================================================
+
+Dynamic pricing formula:
+
+Base Fee + Distance Fee
+
+Example:
+
+0-2km → ₹20
+2-5km → ₹40
+5-8km → ₹70
+
+OR
+
+₹25 + ₹8/km
+
+Google Maps distance calculation.
+
+====================================================
+6. TECH STACK
+====================================================
+
+Frontend:
+- Next.js
+- Tailwind CSS
+- Zustand
+
+Backend:
+- Node.js
+- Express.js
+
+Database:
+- PostgreSQL
+
+Realtime:
+- Socket.IO
+
+Authentication:
+- Firebase Auth
+
+Payments:
+- Razorpay
+
+Maps:
+- Google Maps API
+
+Storage:
+- Cloudinary
+
+Notifications:
+- Firebase Cloud Messaging
+
+Hosting:
+Frontend:
+Vercel
+
+Backend:
+Railway / Render
+
+Database:
+Neon PostgreSQL
+
+====================================================
+7. DATABASE TABLES
+====================================================
+
+users
+addresses
+products
+categories
+product_variants
+inventory
+orders
+order_items
+payments
+riders
+rider_assignments
+coupons
+offers
+promotions
+banners
+notifications
+ledger
+reviews
+settings
+
+====================================================
+8. USER ROLES
+====================================================
+
+Super Admin
+Store Manager
+Inventory Staff
+Rider Manager
+Support Staff
+Rider
+Customer
+
+====================================================
+9. API REQUIREMENTS
+====================================================
+
+Google Maps APIs:
+- Places API
+- Geocoding API
+- Directions API
+
+Razorpay API
+
+Firebase Authentication API
+
+Cloudinary Upload API
+
+Socket.IO Realtime Events
+
+====================================================
+10. MVP ROADMAP
+====================================================
+
+Phase 1:
+Customer Portal
+
+Phase 2:
+Checkout + Payments
+
+Phase 3:
+Admin CRM
+
+Phase 4:
+Rider Portal
+
+Phase 5:
+Realtime Tracking
+
+Phase 6:
+Advanced CRM Features
+
+====================================================
+11. FUTURE FEATURES
+====================================================
+
+- Subscription orders
+- Scheduled delivery
+- Loyalty points
+- AI recommendations
+- WhatsApp notifications
+- Referral system
+- Multi-store support
+- Franchise system
+
+====================================================
+END OF DOCUMENT
+====================================================

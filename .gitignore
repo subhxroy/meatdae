@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.local
+.env.*.local
+*.log
+firebase-debug.log
+firebase-debug.*.log
+temporary/
+# Firebase Admin SDK private key (VERY IMPORTANT: DO NOT COMMIT TO GIT)
+meatdae-2nd-firebase-adminsdk-fbsvc-342bee6d2c.json
+*-firebase-adminsdk-*.json
+*.json.key
+key.json

@@ -1,0 +1,29 @@
+<!-- Support Bot UI Components -->
+<div class="support-bot-fab" onclick="toggleChat()">
+  <i class="fas fa-question-circle"></i>
+</div>
+
+<div id="support-chat-modal" class="support-chat-modal">
+  <div class="chat-header">
+    <div class="header-left">
+      <span class="chat-back" onclick="toggleChat()"><i class="fas fa-chevron-left"></i></span>
+      <div class="header-info">
+        <h6>MeatDae Support</h6>
+        <span class="status-msg">LIVE ASSISTANT</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="chat-menu" onclick="toggleChatMenu()"><i class="fas fa-ellipsis-v"></i></span>
+    </div>
+  </div>
+  <div id="chat-body" class="chat-body">
+    <!-- Logic will render Today/Bot message here -->
+  </div>
+  <div class="chat-footer-redesign">
+    <div class="input-container">
+      <button class="plus-btn"><i class="fas fa-plus"></i></button>
+      <input type="text" id="chat-input" class="chat-input-new" placeholder="Type message...">
+      <button class="chat-send-new" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>

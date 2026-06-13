@@ -1,0 +1,34 @@
+<!-- Product Selection Modal -->
+<div id="buy-now-modal" class="buy-now-overlay">
+  <div class="buy-now-box">
+    <button class="buy-now-close" onclick="closeBuyNowModal()">&times;</button>
+    <div class="buy-now-product">
+      <img id="buy-now-img" src="" alt="Product">
+      <h3 id="buy-now-name">Product Name</h3>
+    </div>
+    <div class="buy-now-options">
+      <h4>Select Size</h4>
+      <div id="size-options" class="size-options"></div>
+    </div>
+    <div class="buy-now-quantity">
+      <h4>Quantity</h4>
+      <div class="quantity-selector">
+        <button type="button" class="qty-btn" onclick="changeQty(-1)">-</button>
+        <span id="buy-now-qty">1</span>
+        <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+    </div>
+    <div class="buy-now-total">
+      <span>Total:</span>
+      <span id="buy-now-total">₹259</span>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-add-cart" onclick="addToCartFromModal()">
+        <i class="fa-solid fa-cart-plus"></i> Add to Cart
+      </button>
+      <button type="button" class="btn-buy-now" onclick="confirmBuyNow()">
+        <i class="fa-solid fa-bolt"></i> Buy Now
+      </button>
+    </div>
+  </div>
+</div>

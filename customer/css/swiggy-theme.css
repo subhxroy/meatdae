@@ -1,0 +1,883 @@
+/* ==============================================================
+   SWIGGY / MODERN GLASSMORPHISM THEME 
+   Overrides existings styles for a fresh, rounded, app-like feel
+   ============================================================== */
+
+:root {
+    /* Core Swiggy-inspired Colors */
+    --sw-primary: #fc8019;       /* Swiggy Orange */
+    --sw-primary-hover: #e57317;
+    --sw-bg: #f4f4f5;            /* Soft off-white background */
+    --sw-surface: #ffffff;
+    --sw-text-main: #000000;     /* Deep slate */
+    --sw-text-light: #686b78;
+    --sw-border: #e9e9eb;
+    --sw-success: #60b246;
+
+    /* Glassmorphism Variables */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-blur: blur(12px);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+    --glass-shadow: 0 8px 32px rgba(40, 44, 63, 0.08);
+
+    /* Radii */
+    --rad-sm: 8px;
+    --rad-md: 16px;
+    --rad-lg: 24px;
+    --rad-pill: 50px;
+}
+
+body {
+    background-color: var(--sw-bg) !important;
+    color: var(--sw-text-main) !important;
+    font-family: 'Manrope', sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 300 !important;
+}
+
+/* =======================================
+   1. BUTTONS & CONTROLS
+   ======================================= */
+.common_btn {
+    background: var(--sw-primary) !important;
+    color: white !important;
+    border-radius: var(--rad-md) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px;
+    text-transform: none !important;
+    box-shadow: 0 4px 14px rgba(252, 128, 25, 0.3) !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.common_btn:hover {
+    background: var(--sw-primary-hover) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(252, 128, 25, 0.4) !important;
+    color: white !important;
+}
+
+/* Float ADD button for item cards */
+.btn-add-glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--sw-primary);
+    color: var(--sw-primary);
+    font-weight: 800;
+    padding: 8px 24px;
+    border-radius: var(--rad-sm);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+    min-width: 100px;
+}
+.btn-add-glass:hover {
+    background: var(--sw-primary) !important;
+    color: white !important;
+    border: 1px solid var(--sw-primary) !important;
+    box-shadow: 0 6px 20px rgba(252, 128, 25, 0.15) !important;
+}
+
+/* Stock Out State */
+.btn-stock-out {
+    background: #eee !important;
+    color: #999 !important;
+    border-color: #ddd !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    font-size: 11px !important;
+}
+
+/* =======================================
+   2. CARDS & CONTAINERS (Glassmorphism)
+   ======================================= */
+.glass-card {
+    background: var(--sw-surface);
+    border-radius: var(--rad-lg);
+    box-shadow: var(--glass-shadow);
+    border: var(--glass-border);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(40, 44, 63, 0.12);
+}
+
+/* =======================================
+   3. HORIZONTAL MENU ITEMS (Swiggy Style)
+   ======================================= */
+.menu_swiggy_card {
+    display: flex;
+    background: var(--sw-surface);
+    border-radius: var(--rad-md);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    border: 1px solid var(--sw-border);
+    transition: all 0.3s ease;
+    position: relative;
+    gap: 20px;
+}
+.menu_swiggy_card:hover {
+    box-shadow: var(--glass-shadow);
+}
+
+/* Left side: Text details */
+.menu_swiggy_details {
+    flex: 1;
+}
+.menu_swiggy_type {
+    font-size: 12px;
+    color: var(--sw-primary);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 4px;
+}
+.menu_swiggy_title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--sw-text-main);
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+.menu_swiggy_price {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--sw-text-main);
+    margin-bottom: 8px;
+}
+.menu_swiggy_rating {
+    color: var(--sw-success);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 4px;
+    margin-bottom: 8px;
+}
+.menu_swiggy_desc {
+    font-size: 14px;
+    color: var(--sw-text-light);
+    line-height: 1.5;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Right side: Image & Add Button */
+.menu_swiggy_image_box {
+    width: 140px;
+    height: 140px;
+    position: relative;
+    flex-shrink: 0;
+}
+.menu_swiggy_img_wrapper {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--rad-md);
+    overflow: hidden;
+    position: relative;
+}
+.menu_swiggy_img_wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.menu_swiggy_card:hover .menu_swiggy_img_wrapper img {
+    transform: scale(1.05);
+}
+.menu_swiggy_add_btn {
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    z-index: 5;
+}
+.menu_swiggy_add_btn button {
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
+}
+
+@media (max-width: 576px) {
+    .menu_swiggy_card { padding: 15px; gap: 15px; }
+    .menu_swiggy_image_box { width: 110px; height: 110px; }
+    .menu_swiggy_title { font-size: 16px; }
+    .menu_swiggy_desc { font-size: 13px; line-clamp: 2; -webkit-line-clamp: 2;}
+    .menu_swiggy_add_btn { width: 95%; bottom: -10px; }
+}
+
+/* =======================================
+   4. SECTIONS & HEADINGS
+   ======================================= */
+.section_heading h2 {
+    font-family: 'Barlow', sans-serif !important;
+    font-weight: 800 !important;
+    color: var(--sw-text-main) !important;
+    font-size: 28px !important;
+    text-transform: none !important;
+    letter-spacing: -0.5px;
+}
+.section_heading h4 {
+    color: var(--sw-primary) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 2px !important;
+    font-size: 14px !important;
+}
+
+/* Sub-page header overlay trick (to match nav) */
+.page_breadcrumb {
+    border-radius: 0 0 var(--rad-lg) var(--rad-lg);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    background-position: center center !important;
+    background-size: cover !important;
+    position: relative;
+}
+.breadcrumb_overlay {
+    background: rgba(0,0,0,0.6) !important;
+    backdrop-filter: blur(4px);
+    border-radius: 0 0 var(--rad-lg) var(--rad-lg);
+}
+
+/* =======================================
+   5. NAVBAR / TOPBAR OVERRIDES
+   ======================================= */
+.topbar {
+    background: var(--sw-text-main) !important;
+}
+.main_menu {
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05) !important;
+    background: rgba(255,255,255,0.95) !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+/* =======================================
+   6. FOOTER OVERRIDES
+   ======================================= */
+footer {
+    background: var(--sw-text-main) !important; /* Dark solid footer */
+}
+.footer_overlay {
+    background: transparent !important;
+}
+.footer_content h3 { color: white !important; font-family: 'Barlow', sans-serif !important; }
+.footer_content p, .footer_content span, .footer_content ul li a { color: #ffffff !important; }
+.footer_content ul li a:hover { color: var(--sw-primary) !important; }
+
+/* =======================================
+   7. INPUTS & FORMS
+   ======================================= */
+input.form-control, textarea.form-control, .login_imput input, .login_imput textarea {
+    background: var(--sw-bg) !important;
+    border: 1px solid var(--sw-border) !important;
+    border-radius: var(--rad-sm) !important;
+    padding: 14px 18px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: none !important;
+}
+input.form-control:focus, textarea.form-control:focus, .login_imput input:focus {
+    background: white !important;
+    border-color: var(--sw-primary) !important;
+    box-shadow: 0 0 0 3px rgba(252, 128, 25, 0.15) !important;
+}
+
+/* =======================================
+   9. SWIGGY-STYLE LOGIN & SIGNUP
+   ======================================= */
+
+.login_area {
+    background: white !important;
+    padding: 40px !important;
+    border-radius: var(--rad-lg) !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.06) !important;
+    border: none !important;
+    text-align: left !important;
+}
+
+.login_area h2 {
+    font-size: 32px !important;
+    font-weight: 800 !important;
+    color: var(--sw-text-main) !important;
+    margin-bottom: 8px !important;
+    letter-spacing: -0.5px !important;
+}
+
+.login_area p {
+    color: var(--sw-text-light) !important;
+    font-size: 15px !important;
+    margin-bottom: 30px !important;
+}
+
+.login_imput {
+    margin-bottom: 20px !important;
+}
+
+.login_imput input {
+    width: 100% !important;
+    border: 1px solid var(--sw-border) !important;
+    border-radius: var(--rad-sm) !important;
+    padding: 16px 20px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    background: #fff !important;
+    transition: all 0.2s ease !important;
+    color: var(--sw-text-main) !important;
+}
+
+.login_imput input:focus {
+    border-color: var(--sw-primary) !important;
+    box-shadow: 0 0 0 4px rgba(252, 128, 25, 0.1) !important;
+    outline: none !important;
+}
+
+.login_imput .common_btn {
+    width: 100% !important;
+    padding: 16px !important;
+    font-size: 16px !important;
+    margin-top: 10px !important;
+    box-shadow: 0 4px 14px rgba(252, 128, 25, 0.2) !important;
+}
+
+.or {
+    position: relative;
+    text-align: center;
+    margin: 25px 0 !important;
+    font-weight: 600 !important;
+    color: var(--sw-text-light) !important;
+}
+
+.or::before, .or::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 45%;
+    height: 1px;
+    background: var(--sw-border);
+}
+
+.or::before { left: 0; }
+.or::after { right: 0; }
+
+.or span {
+    background: white;
+    padding: 0 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.google_btn {
+    width: 100% !important;
+    background: white !important;
+    border: 1px solid var(--sw-border) !important;
+    border-radius: var(--rad-sm) !important;
+    padding: 14px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    color: var(--sw-text-main) !important;
+    transition: all 0.2s ease !important;
+}
+
+.google_btn:hover {
+    background: #f9f9f9 !important;
+    border-color: #d0d0d0 !important;
+    transform: translateY(-1px) !important;
+}
+
+.google_btn svg {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.create_account {
+    text-align: center !important;
+    margin-top: 30px !important;
+    font-size: 14px !important;
+    color: var(--sw-text-light) !important;
+    font-weight: 600 !important;
+}
+
+.create_account a {
+    color: var(--sw-primary) !important;
+    font-weight: 700 !important;
+    margin-left: 4px;
+}
+
+/* Phone Auth Section Styles */
+#phone-auth-container {
+    background: #fcfcfc;
+    border: 1px dashed var(--sw-border);
+    border-radius: var(--rad-sm);
+    padding: 20px;
+}
+
+
+/* Page breadcrumb tweak for login */
+.page_breadcrumb {
+    margin-bottom: 0 !important;
+}
+
+/* Responsive fixes */
+@media (max-width: 576px) {
+    .login_area {
+        padding: 30px 20px !important;
+    }
+    .login_area h2 {
+        font-size: 26px !important;
+    }
+}
+
+.signin {
+    background-color: #f4f4f5 !important;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+
+/* Cart Header */
+.myntra-cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--sw-border);
+}
+
+.myntra-cart-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--sw-text-main);
+    font-family: 'Outfit', sans-serif;
+}
+
+.myntra-cart-title i {
+    color: var(--sw-primary);
+    font-size: 22px;
+}
+
+.myntra-cart-count {
+    font-weight: 400;
+    color: var(--sw-text-light);
+    font-size: 14px;
+}
+
+.myntra-clear-all {
+    color: #e74c3c !important;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: var(--rad-pill);
+    border: 1px solid #fce4e4;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.myntra-clear-all:hover {
+    background: #fce4e4;
+    color: #c0392b !important;
+}
+
+/* Items Container */
+.myntra-cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Individual Cart Item Card */
+.myntra-cart-card {
+    display: flex;
+    gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+    transition: background 0.2s ease;
+}
+
+.myntra-cart-card:last-child {
+    border-bottom: none;
+}
+
+.myntra-cart-card:hover {
+    background: #fafafa;
+}
+
+/* Product Image */
+.myntra-cart-img {
+    flex-shrink: 0;
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8f8f8;
+    border: 1px solid #eee;
+}
+
+.myntra-cart-img a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.myntra-cart-img img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* Product Info Section */
+.myntra-cart-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0; /* prevents text overflow */
+}
+
+/* Product Name */
+.myntra-cart-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--sw-text-main);
+    text-decoration: none;
+    margin-bottom: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+}
+
+.myntra-cart-name:hover {
+    color: var(--sw-primary);
+}
+
+/* Weight Label */
+.myntra-cart-weight {
+    font-size: 12px;
+    color: var(--sw-text-light);
+    margin-bottom: 8px;
+}
+
+/* Price Row */
+.myntra-cart-price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.myntra-cart-price {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--sw-text-main);
+}
+
+.myntra-cart-price-total {
+    font-size: 12px;
+    color: var(--sw-text-light);
+    font-weight: 400;
+}
+
+/* Quantity Controls — Myntra Style */
+.myntra-qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: fit-content;
+}
+
+.myntra-qty-btn {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid #d4d5d9;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--sw-text-main);
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+    padding: 0;
+}
+
+.myntra-qty-btn:hover {
+    border-color: var(--sw-primary);
+    color: var(--sw-primary);
+    background: #fff5ee;
+}
+
+.myntra-qty-btn:active {
+    transform: scale(0.9);
+}
+
+.myntra-qty-btn.minus-btn {
+    color: #e74c3c;
+    border-color: #fce4e4;
+}
+
+.myntra-qty-btn.minus-btn:hover {
+    background: #fce4e4;
+    border-color: #e74c3c;
+}
+
+.myntra-qty-value {
+    width: 40px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    color: var(--sw-text-main) !important;
+    border: none !important;
+    background: transparent !important;
+    pointer-events: none;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-block;
+}
+
+/* Close / Remove Button */
+.myntra-cart-remove {
+    position: absolute;
+    top: 20px;
+    right: 4px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #aaa;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.myntra-cart-remove:hover {
+    background: #fce4e4;
+    color: #e74c3c;
+}
+
+/* Empty Cart */
+.myntra-cart-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--sw-text-light);
+}
+
+.myntra-cart-empty i {
+    font-size: 48px;
+    color: #ddd;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.myntra-cart-empty p {
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.myntra-cart-empty a {
+    display: inline-block;
+    padding: 10px 28px;
+    background: var(--sw-primary);
+    color: #fff;
+    border-radius: var(--rad-pill);
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.myntra-cart-empty a:hover {
+    background: var(--sw-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(252, 128, 25, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .myntra-cart-img {
+        width: 85px;
+        height: 85px;
+        border-radius: 10px;
+    }
+
+    .myntra-cart-name {
+        font-size: 14px;
+    }
+
+    .myntra-cart-price {
+        font-size: 15px;
+    }
+
+    .myntra-cart-card {
+        padding: 16px 0;
+        gap: 12px;
+    }
+
+    .myntra-cart-header {
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+    }
+
+    .myntra-cart-title {
+        font-size: 16px;
+    }
+
+    .myntra-qty-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+
+    .myntra-qty-value {
+        width: 32px;
+        font-size: 14px;
+    }
+}
+/* =======================================
+   10. OFFICIAL MEATDAE DESIGN SPECIFICATION
+   ======================================= */
+.testimonial_scroll_wrapper {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 30px;
+    padding: 100px 25px 60px 25px; /* Room for floating head */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    background: #fdfdfd; 
+}
+.testimonial_scroll_wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.testimonial_scroll_item {
+    flex: 0 0 92%;
+    max-width: 420px;
+    scroll-snap-align: center;
+    position: relative;
+    margin-top: 40px; /* Offset for overlap */
+}
+
+@media (min-width: 992px) {
+    .testimonial_scroll_item { flex: 0 0 32%; }
+}
+
+/* Layered Card: White Container + Dark Inner */
+.single_testimonial {
+    background: #ffffff !important; /* The white border effect base */
+    border-radius: 30px !important;
+    padding: 10px !important; /* This creates the 10px white border */
+    position: relative;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.06) !important;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+}
+
+/* Floating Profile Image exactly at -70px */
+.single_testimonial_img {
+    position: absolute;
+    top: -70px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #ffffff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    background: #fff;
+    z-index: 10;
+}
+
+.single_testimonial_img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover !important;
+}
+
+/* Dark Inner Card */
+.single_testimonial_text {
+    background: #1e2029 !important; /* Exact live dark charcoal */
+    border-radius: 25px !important;
+    padding: 85px 25px 35px 25px !important; /* 85px top padding for head */
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.single_testimonial_text h4 {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin-bottom: 20px !important;
+    font-family: 'Barlow', sans-serif !important;
+}
+
+.single_testimonial_text .feedback {
+    font-size: 15px !important;
+    color: #f0f0f0 !important;
+    line-height: 1.5 !important;
+    margin-bottom: 25px !important;
+    font-weight: 500 !important;
+    height: 4.5em; /* Match live height clamp logic */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.single_testimonial_text .rating {
+    margin-top: auto;
+}
+
+.single_testimonial_text .rating i {
+    color: #ffd700; /* Gold stars */
+    font-size: 18px;
+    margin: 0 3px;
+}
+
+/* Orange Accent Bar Behind the Card */
+.single_testimonial::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 40%;
+    height: 80%;
+    background: #fc8019; /* Swiggy Orange */
+    z-index: -1;
+    transform: translateY(-50%);
+    border-radius: 20px 0 0 20px;
+}

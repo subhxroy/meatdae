@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PK393WSLT7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PK393WSLT7');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - MeatDae Admin</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- MapTiler SDK JS -->
+    <script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.umd.min.js"></script>
+    <link href="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.css" rel="stylesheet" />
+    <!-- Swiggy Theme -->
+    <link rel="stylesheet" href="css/swiggy-theme.css" />
+    <link rel="stylesheet" href="css/premium-theme.css" />
+    <link rel="stylesheet" href="css/cart-redesign.css" />
+    <style>
+        :root { --primary: #ff7c08; --dark: #101010; }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            margin: 0; padding: 0;
+            background: #f4f6f8;
+        }
+
+        /* --- Navbar --- */
+        .track-nav {
+            background: white; padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .nav-back {
+            color: var(--dark); font-size: 20px; text-decoration: none;
+        }
+        .nav-title {
+            font-family: 'Barlow', sans-serif; font-weight: 700;
+            font-size: 18px; color: var(--dark); text-align: center;
+        }
+        .nav-subtitle {
+            font-size: 12px; color: var(--text-sec); font-family: 'Manrope', sans-serif; font-weight: 500;
+        }
+        .nav-options {
+            color: var(--dark); font-size: 20px; text-decoration: none;
+        }
+
+        /* --- Map Area & Rider Overlays --- */
+        .map-section {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: #e0e0e0;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .maplibregl-ctrl-attrib, .maplibregl-ctrl-logo, .maptilersdk-attribution, .maptilersdk-logo {
+            display: none !important;
+        }
+        
+        .rider-overlay {
+            display: none;
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        
+        .rider-overlay-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .rider-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #eee;
+        }
+        
+        .rider-details {
+            flex-grow: 1;
+        }
+        .rider-label {
+            font-size: 11px; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 2px;
+        }
+        .rider-name {
+            font-size: 18px; font-weight: 700; color: var(--dark); font-family: 'Barlow', sans-serif;
+        }
+        
+        .rider-actions {
+            display: flex; gap: 10px;
+        }
+        .rider-btn {
+            width: 45px; height: 45px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            text-decoration: none;
+        }
+        .btn-call { background: #feebe0; color: var(--primary); }
+
+        /* --- Main Content Area --- */
+        .track-content {
+            padding: 50px 20px 50px;
+            background: #f8f9fa;
+        }
+
+        .status-header {
+            text-align: center; margin-bottom: 30px;
+        }
+        .status-badge {
+            display: inline-block;
+            background: #feebe0; color: var(--primary);
+            font-size: 12px; font-weight: 700; padding: 5px 15px;
+            border-radius: 20px; margin-bottom: 15px;
+        }
+        .status-title {
+            font-family: 'Barlow', sans-serif; font-size: 32px; font-weight: 700;
+            color: var(--dark); margin-bottom: 5px;
+        }
+        .status-eta {
+            color: var(--text-sec); font-size: 15px;
+        }
+
+        .timeline-card {
+            background: white; border-radius: 24px; padding: 25px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.03); margin-bottom: 20px;
+        }
+        
+        .tracking-progress {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .progress-line {
+            position: absolute;
+            left: 20px; top: 40px; bottom: 40px;
+            width: 2px; background: #eee;
+            z-index: 1;
+        }
+        
+        .progress-line-fill {
+            position: absolute;
+            left: 20px; top: 40px; bottom: 40px;
+            width: 2px; background: var(--primary);
+            z-index: 2; height: 0%; transition: height 0.5s ease;
+        }
+        
+        .progress-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 3;
+        }
+        .progress-step:last-child { margin-bottom: 0; }
+        
+        .step-icon {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: white; border: 2px solid #eee;
+            display: flex; align-items: center; justify-content: center;
+            color: #ccc; font-size: 16px;
+            flex-shrink: 0; transition: all 0.3s;
+        }
+        
+        .progress-step.done .step-icon {
+            background: var(--primary); border-color: var(--primary); color: white;
+        }
+        .progress-step.active .step-icon {
+            border-color: var(--primary); border-width: 4px; color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255,124,8,0.1);
+        }
+        
+        .step-content {
+            padding-top: 8px;
+        }
+        .step-title {
+            font-size: 16px; font-weight: 700; color: #a0a0a0; margin-bottom: 4px;
+        }
+        .step-desc {
+            font-size: 13px; color: #aaa;
+        }
+        
+        .progress-step.done .step-title,
+        .progress-step.active .step-title {
+            color: var(--dark);
+        }
+
+        .order-details-card {
+            background: white; border-radius: 24px; padding: 25px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.03); margin-bottom: 30px;
+        }
+        .order-details-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;
+        }
+        .od-title { font-size: 18px; font-weight: 700; font-family: 'Barlow', sans-serif; color: var(--dark); }
+        .od-total { font-size: 18px; font-weight: 700; color: var(--primary); }
+        
+        .item-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .item-info { flex-grow: 1; padding-right: 15px; }
+        .item-name { font-weight: 600; font-size: 15px; color: var(--dark); margin-bottom: 2px; }
+        .item-variant { font-size: 13px; color: var(--text-sec); }
+        .item-price { font-weight: 600; font-size: 15px; color: var(--dark); }
+        
+        .total-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;
+            font-size: 18px; font-weight: 700; color: var(--dark);
+        }
+    </style>
+</head>
+
+<body data-requires-auth="true">
+    <!-- Top Header -->
+    <header class="track-nav">
+        <a href="admin_dashboard.html" class="nav-back"><i class="fas fa-arrow-left"></i></a>
+        <div>
+            <div class="nav-title">Admin Tracking View</div>
+            <div class="nav-subtitle" id="display-order-id">Loading...</div>
+        </div>
+        <div></div>
+    </header>
+
+    <!-- Map & Rider Overlay -->
+    <section class="map-section">
+        <div id="map"></div>
+        
+        <div class="rider-overlay" id="rider-info-section">
+            <div class="rider-overlay-content">
+                <div class="rider-image-wrapper">
+                    <img src="https://ui-avatars.com/api/?name=Rider&background=101010&color=fff" alt="Rider" class="rider-image" id="rider-avatar-img">
+                </div>
+                <div class="rider-details">
+                    <div class="rider-label">COURIER</div>
+                    <div class="rider-name" id="rider-name">Assigning...</div>
+                </div>
+                <div class="rider-actions">
+                    <a href="#" id="call-rider" class="rider-btn btn-call"><i class="fas fa-phone-alt"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Tracking Details -->
+    <section class="track-content">
+        <div class="status-header">
+            <div class="status-badge" id="top-status-badge">Updating</div>
+            <h1 class="status-title" id="order-status-text">Loading Status...</h1>
+            <div class="status-eta" id="arrival-time-display" style="display: none;">
+                Estimated delivery in <span id="eta-mins">--</span>
+            </div>
+        </div>
+
+        <div class="timeline-card">
+            <div class="tracking-progress" id="progress-tracker">
+                <div class="progress-line"></div>
+                <div class="progress-line-fill" id="progress-fill" style="height: 0%;"></div>
+
+                <div class="progress-step" id="stage-pending-approval">
+                    <div class="step-icon"><i class="fas fa-check"></i></div>
+                    <div class="step-content">
+                        <div class="step-title">Order Placed</div>
+                        <div class="step-desc">Received</div>
+                    </div>
+                </div>
+
+                <div class="progress-step" id="stage-preparing">
+                    <div class="step-icon"><i class="fas fa-utensils"></i></div>
+                    <div class="step-content">
+                        <div class="step-title">Preparing</div>
+                        <div class="step-desc">In Kitchen</div>
+                    </div>
+                </div>
+
+                <div class="progress-step" id="stage-ready-pickup">
+                    <div class="step-icon"><i class="fas fa-box-open"></i></div>
+                    <div class="step-content">
+                        <div class="step-title">Ready</div>
+                        <div class="step-desc">Waiting for rider</div>
+                    </div>
+                </div>
+
+                <div class="progress-step" id="stage-out-for-delivery">
+                    <div class="step-icon"><i class="fas fa-motorcycle"></i></div>
+                    <div class="step-content">
+                        <div class="step-title">Out for Delivery</div>
+                        <div class="step-desc" id="out-desc">In Transit</div>
+                    </div>
+                </div>
+
+                <div class="progress-step" id="stage-delivered">
+                    <div class="step-icon"><i class="fas fa-check"></i></div>
+                    <div class="step-content">
+                        <div class="step-title">Delivered</div>
+                        <div class="step-desc">Complete</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-details-card">
+            <div class="order-details-header">
+                <div class="od-title">Order Summary</div>
+                <div class="od-total" id="summary-top-total">₹0.00</div>
+            </div>
+            <div id="order-items-container"></div>
+            <div class="total-row">
+                <span>Total</span>
+                <span id="summary-final">₹0.00</span>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/bootstrap.bundle.min.js" defer></script>
+    <script src="js/font-awesome.js" defer></script>
+    <script type="module" src="js/order_track.js" defer></script>
+
+</body>
+</html>
