@@ -1,87 +1,110 @@
-# MeatDae - Meat Delivery Web Application
+# 🥩 MeatDae - Meat Delivery Web Application
 
-MeatDae is a full-stack, logistics-enabled meat delivery platform designed with a mini Swiggy/Blinkit architecture. The project is structured to support customers, delivery riders, store managers, and system administrators through specialized portal views.
-
----
-
-## 🏗️ Architecture & Directory Structure
-
-The repository is organized into three major components:
-
-*   **`customer/`**: The customer-facing web portal. Contains the homepage, product categories, detailed product views, shopping cart management, interactive MapTiler-based checkout maps, Razorpay/COD payment portals, and live order tracking.
-*   **`staff/`**: The backend operational portal. Houses distinct sub-interfaces for:
-    *   *Store Manager / Admin*: Full CRM/CMS analytics, ledger tracking, coupon management, and order staging.
-    *   *Order Preparer*: Real-time order packaging checklists.
-    *   *Delivery Rider*: Navigation routes, active delivery logs, and Cash on Delivery (COD) settlement.
-*   **`functions/`**: Firebase Cloud Functions (Node.js v20) providing serverless API endpoints (such as Gemini-powered customer support bot, notifications, and mail services).
-*   **`server.js`**: A lightweight local development server to serve the frontend portals concurrently.
-*   **`seed_database.js`**: A database utility to seed the initial categories, products, and inventory stock inside Google Cloud Firestore.
+MeatDae is a full-stack, logistics-enabled meat delivery platform built with a micro-portal architecture. Designed as a mini Swiggy/Blinkit system for meat logistics, it offers distinct interfaces for Customers, Delivery Riders, Store Managers, and Kitchen Staff.
 
 ---
 
-## 🛠️ Technology Stack
+## 🏗️ System Architecture & Workflow
 
-*   **Frontend**: HTML5, Vanilla CSS3 (with premium transitions and responsiveness), Vanilla JavaScript.
-*   **Backend & Serverless**: Firebase Cloud Functions (Node.js).
-*   **Database**: Google Cloud Firestore (Security governed by `firestore.rules`).
-*   **Authentication**: Firebase Auth (email/password & phone verification integration).
-*   **Geospatial / Maps**: MapTiler SDK & Google Maps APIs.
-*   **Local Routing & Log Server**: Express-based Node HTTP server.
+Below is the workflow showing the journey of an order from placement to delivery:
+
+```mermaid
+graph TD
+    A[Customer Portal] -->|Places Order COD or Razorpay| B(Firestore Database)
+    B -->|Triggers Notification| C[Admin CRM Dashboard]
+    C -->|Accepts & Routes| D[Preparer Screen]
+    D -->|Assembles & Marks Packed| C
+    C -->|Assigns Order| E[Rider Portal]
+    E -->|Accepts & Navigates Route| F{Payment Type}
+    F -->|COD| G[Collects Cash]
+    F -->|Paid Online| H[Direct Handover]
+    G -->|Submits Cash| I[Ledger Settlement]
+    H -->|Mark Delivered| J[Complete Order]
+    I -->|Admin Approves| J
+```
 
 ---
 
-## 🚀 Setup & Local Execution
+## 📊 Portals & Feature Matrix
 
-Follow these steps to set up and run the MeatDae application locally:
+The platform is split into four custom interfaces to separate responsibilities:
 
-### 1. Prerequisites
-Ensure you have the following installed on your machine:
-*   [Node.js](https://nodejs.org/) (version 18 or 20 recommended)
-*   [Firebase CLI](https://firebase.google.com/docs/cli) (`npm install -g firebase-tools`)
+| Portal | Target User Role | Key Features | Tech Helpers |
+| :--- | :--- | :--- | :--- |
+| **Customer Portal** | Customers | Homepage sliders, category lists, cart totals, distance fee calculation, checkout geocoding, order tracking. | MapTiler SDK, Firebase Auth, Razorpay |
+| **Rider Portal** | Delivery Riders | Delivery status steps, Map navigation, cash collection logging, earnings overview. | MapTiler, Firestore Real-time |
+| **Admin CRM/CMS** | Store Managers | Low-stock alerts, revenue reports, courier assignments, promotions/banners management, ledger reconciliation. | Firestore, Node.js |
+| **Preparer Portal** | Packaging Staff | Order items lists, package checklist validation, packing triggers. | Firestore Real-time |
 
-### 2. Configure Firebase Environment
-To connect the web portals to your Firebase project:
-1.  Obtain your Firebase client configuration object from the Firebase Console.
-2.  Update the Firebase configuration inside:
-    *   [`customer/js/firebase-config.js`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/customer/js/firebase-config.js)
-    *   [`staff/js/firebase-config.js`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/staff/js/firebase-config.js)
-3.  Set up your MapTiler API key inside the corresponding layout scripts (`checkout_map.js`, `order_track.js`, etc.).
+---
 
-### 3. Initialize Cloud Functions
-Navigate to the functions folder and install backend dependencies:
+## 📂 Project Directory Structure
+
+| Path | Type | Description |
+| :--- | :--- | :--- |
+| [`customer/`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/customer) | Directory | HTML views, CSS layout templates, and JS scripts for the client shopping experience. |
+| [`staff/`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/staff) | Directory | Dashboards for Riders, Preparers, and Admin Managers, plus supporting assets. |
+| [`functions/`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/functions) | Directory | Firebase Cloud Functions (Node.js 20 serverless backend) for system integrations (Gemini AI Support, Email systems). |
+| [`server.js`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/server.js) | File | Local development HTTP server to host client and staff web portals concurrently on port `8888`. |
+| [`seed_database.js`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/seed_database.js) | File | Utility tool to seed default products, category listings, and initial stock quantities. |
+| [`firestore.rules`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/firestore.rules) | File | Access control security rules for the Cloud Firestore database. |
+
+---
+
+## 🗄️ Database Schema & Collections (Firestore)
+
+| Collection | Scope | Document Properties |
+| :--- | :--- | :--- |
+| **`users`** | Authentication profiles | `uid`, `name`, `email`, `phone`, `role` (Customer/Rider/Manager), `createdAt` |
+| **`products`** | Product catalog | `id`, `name`, `description`, `price`, `salePrice`, `weightVariants` (e.g. 250g, 500g, 1kg), `stock` |
+| **`orders`** | Order management | `orderId`, `customerId`, `items` (List), `total`, `status` (Pending -> Delivered), `paymentType` (COD/Razorpay), `address` |
+| **`ledger`** | Cash settlements | `id`, `riderId`, `amountCollected`, `type` (COD/Settlement), `status` (Pending/Settled), `timestamp` |
+| **`coupons`** | Promotional vouchers | `code`, `discountValue`, `discountType` (percentage/flat), `expiry`, `minOrder` |
+
+---
+
+## ⚙️ Setup & Local Execution
+
+### 1. Configure Firebase App Keys
+To link the frontend portals to your Firebase project:
+1. Obtain the client web configuration object from your Firebase Console.
+2. Overwrite the template configuration block inside:
+   - [`customer/js/firebase-config.js`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/customer/js/firebase-config.js)
+   - [`staff/js/firebase-config.js`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/staff/js/firebase-config.js)
+
+### 2. Install Serverless Dependencies
+Set up the Firebase Cloud Functions node environment:
 ```bash
 cd functions
 npm install
 ```
 
-### 4. Database Seeding
-To populate Firestore with default products, category trees, and initial stocks:
-1.  Download your Firebase service account private key JSON.
-2.  Place it in the root directory and name it `meatdae-2nd-firebase-adminsdk-fbsvc-342bee6d2c.json` (or customize the path inside [`seed_database.js`](file:///c:/Users/Subhankar%20Roy/Downloads/MeatDae_New/seed_database.js)).
-3.  Run the database seeder:
-    ```bash
-    node seed_database.js
-    ```
+### 3. Database Seeding (Firestore)
+To populate the database with categories and inventory:
+1. Export a **Service Account Private Key JSON** file from the Firebase Console (Project Settings -> Service Accounts).
+2. Save it in the project root folder. Name the file: `firebase-service-account.json`. (This file is matching the ignore rules in `.gitignore` and will not be tracked by Git).
+3. Run the database seed command:
+   ```bash
+   node seed_database.js
+   ```
 
-### 5. Launch the Development Server
-Start the local Express server from the root of the project:
+### 4. Run Development Server
+Boot the web portals locally:
 ```bash
 node server.js
 ```
-The server will boot on port `8888`:
-*   **Customer Portal**: [http://localhost:8888/customer/index.html](http://localhost:8888/customer/index.html)
-*   **Staff/Rider Portal**: [http://localhost:8888/staff/index.html](http://localhost:8888/staff/index.html)
+Open the following links in your web browser:
+*   **Customer Web Portal**: [http://localhost:8888/customer/index.html](http://localhost:8888/customer/index.html)
+*   **Staff & Rider Dashboard**: [http://localhost:8888/staff/index.html](http://localhost:8888/staff/index.html)
 
 ---
 
-## 🔒 Security & Credentials Note
+## 🛡️ Security & Credential Rules
 
 > [!IMPORTANT]
-> To prevent security leaks, all sensitive keys and local configs are excluded from the version control system.
-> The root and function-level `.gitignore` files are pre-configured to ignore:
-> *   `meatdae-2nd-firebase-adminsdk-fbsvc-342bee6d2c.json` (Service Account Keys)
-> *   `.env` and `.env.local` files
-> *   `node_modules/` folders
-> *   Debug logs (`firebase-debug.log`, etc.)
-> 
-> Always make sure you do not bypass these ignore rules when committing changes.
+> **No sensitive keys, private certificates, or local settings should ever be committed to the repository.**
+> The `.gitignore` files are pre-configured to block:
+> *   `*.json` files containing service account keys (e.g. `*-firebase-adminsdk-*.json`, `firebase-service-account.json`)
+> *   Environment variables files (`.env`, `.env.local`)
+> *   Dependency directories (`node_modules/`)
+> *   Log files (`*.log`)
