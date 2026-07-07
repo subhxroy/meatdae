@@ -5,16 +5,16 @@ import { doc, setDoc, onSnapshot, collection, serverTimestamp } from "https://ww
 // --- UPDATED CATALOG ---
 const PRODUCT_CATALOG = [
     { name: "Fresh Chicken Curry Cut", opt1: "500g", opt2: "1kg", optSolo: "220g" },
-    { name: "Fresh Chicken Boneless Cut", opt1: "500g", opt2: "1kg" },
-    { name: "Fresh Chicken Legs Cut", opt1: "500g", opt2: "1kg" },
-    { name: "Fresh Chicken Breast Cuts", opt1: "500g", opt2: "1kg" },
-    // { name: "Fresh Clean Gizzard Liver", opt1: "500g", opt2: "1kg" },
+    { name: "Fresh Chicken Boneless", opt1: "500g", opt2: "1kg", optSolo: "200g" },
+    { name: "Fresh Chicken Drumstick (Leg Piece)", opt1: "500g", opt2: "1kg", optSolo: "2 leg pieces" },
+    { name: "Fresh Chicken Breast", opt1: "500g", opt2: "1kg", optSolo: "200g" },
+    // { name: "Fresh Clean Gizzard Liver", opt1: "500g", opt2: "1kg", optSolo: "200g" },
     { name: "Fresh Big Eggs", opt1: "30 Eggs", opt2: "60 Eggs" },
     { name: "Fresh Local Duck Eggs", opt1: "15 Eggs", opt2: "30 Eggs" },
-    { name: "Fresh Chicken Biriyani Cuts", opt1: "500g", opt2: "1kg" },
-    { name: "Fresh Chicken Boneless Keema", opt1: "500g", opt2: "1kg" },
-    { name: "Fresh Chicken Wings", opt1: "500g", opt2: "1kg" },
-    { name: "Pure Mutton Curry Cuts", opt1: "500g", opt2: "1kg" }
+    { name: "Fresh Chicken Biriyani Cut", opt1: "500g", opt2: "1kg", optSolo: "200g" },
+    { name: "Fresh Chicken Mince (Keema)", opt1: "500g", opt2: "1kg", optSolo: "200g" },
+    { name: "Fresh Chicken Wings", opt1: "500g", opt2: "1kg", optSolo: "200g" },
+    { name: "Pure Mutton Curry Cut", opt1: "500g", opt2: "1kg", optSolo: "200g" }
 ];
 
 let inventoryCache = {};

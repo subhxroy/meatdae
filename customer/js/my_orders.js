@@ -217,28 +217,26 @@ function renderActiveOrderCard(order) {
         })
         : 'N/A';
 
-    // Get first item for display
-    const firstItem = (order.items && order.items.length > 0) ? order.items[0] : null;
-    const additionalItems = order.items ? order.items.length - 1 : 0;
-
-    // Product display
+    // Product display for all items
     let productHtml = '';
-    if (firstItem) {
-        const imgSrc = firstItem.image || 'images/dummy.png';
-        const productLink = getProductLink(firstItem.name);
-        productHtml = `
-            <div class="order-product">
-                <div class="order-product-img">
-                    <a href="${productLink}"><img src="${imgSrc}" alt="${firstItem.name}" onerror="this.src='images/dummy.png'"></a>
+    if (order.items && order.items.length > 0) {
+        order.items.forEach(item => {
+            const imgSrc = item.image || item.img || 'images/dummy.png';
+            const productLink = getProductLink(item.name);
+            productHtml += `
+                <div class="order-product">
+                    <div class="order-product-img">
+                        <a href="${productLink}"><img src="${imgSrc}" alt="${item.name}" onerror="this.src='images/dummy.png'"></a>
+                    </div>
+                    <div class="order-product-details">
+                        <a href="${productLink}" style="text-decoration: none; color: inherit;">
+                            <p class="order-product-name">${item.name}${item.name.includes(item.weight || '') ? '' : ' (' + (item.weight || 'Std') + ')'}</p>
+                        </a>
+                        <p class="order-product-qty">Quantity: ${item.quantity}</p>
+                    </div>
                 </div>
-                <div class="order-product-details">
-                    <a href="${productLink}" style="text-decoration: none; color: inherit;"><p class="order-product-name">${firstItem.name}${firstItem.name.includes(firstItem.weight) ? '' : ' (' + (firstItem.weight || 'Std') + ')'}</p></a>
-                    <p class="order-product-qty">Quantity: ${firstItem.quantity}</p>
-                    <p class="order-product-price">₹${(order.totalAmount || 0).toFixed(2)}</p>
-                </div>
-            </div>
-            ${additionalItems > 0 ? `<a href="#" class="more-items-link">+${additionalItems} more item${additionalItems > 1 ? 's' : ''}</a>` : ''}
-        `;
+            `;
+        });
     }
 
     // Status timeline
@@ -267,6 +265,12 @@ function renderActiveOrderCard(order) {
             </div>
 
             ${productHtml}
+            
+            <div class="order-total-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; margin-bottom: 8px; border-top: 1px dashed #f0f0f0;">
+                <span style="font-size: 13px; color: #666; font-weight: 500;">Bill Total</span>
+                <span style="font-size: 16px; color: #ff6b00; font-weight: 700;">₹${(order.totalAmount || 0).toFixed(2)}</span>
+            </div>
+
             ${timelineHtml}
 
             <div class="payment-info">
@@ -300,33 +304,35 @@ function renderHistoryOrderCard(order) {
         })
         : 'N/A';
 
-    // Get first item for display
-    const firstItem = (order.items && order.items.length > 0) ? order.items[0] : null;
-    const additionalItems = order.items ? order.items.length - 1 : 0;
-
-    // Product display
+    // Product display for all items
     let productHtml = '';
-    if (firstItem) {
-        const imgSrc = firstItem.image || 'images/dummy.png';
-        const productLink = getProductLink(firstItem.name);
-        productHtml = `
-            <div class="order-product">
-                <div class="order-product-img">
-                    <a href="${productLink}"><img src="${imgSrc}" alt="${firstItem.name}" onerror="this.src='images/dummy.png'"></a>
+    if (order.items && order.items.length > 0) {
+        order.items.forEach((item, index) => {
+            const imgSrc = item.image || item.img || 'images/dummy.png';
+            const productLink = getProductLink(item.name);
+            const isLast = index === order.items.length - 1;
+            const marginStyle = isLast ? 'margin-bottom: 0;' : 'margin-bottom: 12px;';
+            productHtml += `
+                <div class="order-product" style="${marginStyle}">
+                    <div class="order-product-img">
+                        <a href="${productLink}"><img src="${imgSrc}" alt="${item.name}" onerror="this.src='images/dummy.png'"></a>
+                    </div>
+                    <div class="order-product-details">
+                        <a href="${productLink}" style="text-decoration: none; color: inherit;">
+                            <p class="order-product-name">${item.name}${item.name.includes(item.weight || '') ? '' : ' (' + (item.weight || 'Std') + ')'}</p>
+                        </a>
+                        <p class="order-product-qty">Quantity: ${item.quantity}</p>
+                    </div>
                 </div>
-                <div class="order-product-details">
-                    <a href="${productLink}" style="text-decoration: none; color: inherit;"><p class="order-product-name">${firstItem.name}${firstItem.name.includes(firstItem.weight) ? '' : ' (' + (firstItem.weight || 'Std') + ')'}${additionalItems > 0 ? ` x ${order.items.reduce((sum, item) => sum + item.quantity, 0)}` : ` x ${firstItem.quantity}`}</p></a>
-                    <p class="order-product-price">₹${(order.totalAmount || 0).toFixed(2)}</p>
-                </div>
-            </div>
-        `;
+            `;
+        });
     }
 
     // Cancellation alert for cancelled orders
     let alertHtml = '';
     if (order.status === 'CANCELLED') {
         alertHtml = `
-            <div class="cancellation-alert">
+            <div class="cancellation-alert" style="margin-top: 12px;">
                 <i class="fas fa-exclamation-circle"></i>
                 <div class="cancellation-alert-text">
                     <strong>Your order has been cancelled.</strong>
@@ -357,7 +363,13 @@ function renderHistoryOrderCard(order) {
             </div>
 
             ${productHtml}
-            <div class="payment-info" style="margin-top:12px; border-top:1px solid #f0f0f0; padding-top:10px;">
+
+            <div class="order-total-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; margin-top: 12px; border-top: 1px dashed #f0f0f0;">
+                <span style="font-size: 13px; color: #666; font-weight: 500;">Bill Total</span>
+                <span style="font-size: 16px; color: #ff6b00; font-weight: 700;">₹${(order.totalAmount || 0).toFixed(2)}</span>
+            </div>
+
+            <div class="payment-info" style="margin-top:8px; border-top:1px solid #f0f0f0; padding-top:10px;">
                 <i class="fas fa-credit-card"></i>
                 <span style="font-size:13px; font-weight: 500;">
                     ${(order.status === 'DELIVERED') 

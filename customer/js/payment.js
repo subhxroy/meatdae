@@ -2,7 +2,8 @@ import { app, auth, db } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import {
     doc, getDoc, collection, getDocs,
-    addDoc, serverTimestamp, writeBatch, runTransaction, setDoc
+    addDoc, serverTimestamp, writeBatch, runTransaction, setDoc,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // Helper: show branded popup instead of browser alert
@@ -18,6 +19,27 @@ function showAlert(message, title = 'Notice', type = 'info') {
 
 // Global state for real-time price validation
 let inventoryCache = [];
+let inventoryUnsubscribe = null;
+
+function listenToInventory() {
+    if (inventoryUnsubscribe) inventoryUnsubscribe();
+    inventoryUnsubscribe = onSnapshot(collection(db, "inventory"), (querySnapshot) => {
+        inventoryCache = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            data.id = doc.id;
+            data.name = doc.id;
+            inventoryCache.push(data);
+        });
+        console.log("[REALTIME-PAYMENT] Inventory updated in real time");
+        
+        // Re-trigger display logic if user is authenticated to refresh pricing live
+        const user = auth.currentUser;
+        if (user) {
+            displayOrderSummary(user);
+        }
+    });
+}
 
 function normalizeName(name) {
     if (!name) return "";
@@ -27,6 +49,21 @@ function normalizeName(name) {
 // Unified function to get current price, mrp, and stock status
 function getRealtimeItemData(productName, weight, originalItem) {
     const normalizedTarget = normalizeName(productName).replace(/ cuts?$/i, '');
+
+    // Addon price resolution from cart_addons
+    if (normalizedTarget.includes("pack") && (normalizedTarget.includes("big eggs") || normalizedTarget.includes("duck eggs"))) {
+        const addons = inventoryCache.find(i => (i.id || i.name) === 'cart_addons');
+        if (addons) {
+            const isBig = normalizedTarget.includes("big");
+            const price = isBig ? Number(addons.big_eggs_price || 0) : Number(addons.local_duck_eggs_price || 0);
+            return {
+                price: price || Number(originalItem.price || 0),
+                mrp: price || Number(originalItem.mrp || originalItem.price || 0),
+                isOut: false
+            };
+        }
+    }
+
     const product = inventoryCache.find(i => normalizeName(i.id).replace(/ cuts?$/i, '') === normalizedTarget);
     
     // If not found in live inventory, fallback to cart snapshot values
@@ -42,13 +79,15 @@ function getRealtimeItemData(productName, weight, originalItem) {
     let rPrice = originalItem.price;
     let rMrp = originalItem.mrp || originalItem.price;
     
-    // Check large (opt1) vs small (opt2) based on catalog logic
+    // Check large (opt1) vs small (opt2) vs solo based on catalog logic
     let isLarge = false;
     let isSmall = false;
+    let isSolo = false;
 
     // Standard items
     if (cleanWeight.includes('500g')) isSmall = true;
     if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g')) isLarge = true;
+    if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
     
     // Eggs - Big
     if (cleanWeight.includes('30eggs') && productName.toLowerCase().includes('big')) isSmall = true;
@@ -66,6 +105,10 @@ function getRealtimeItemData(productName, weight, originalItem) {
         if (product.small === false) isOut = true;
         if (product.price_small) rPrice = Number(product.price_small);
         if (product.mrp_small) rMrp = Number(product.mrp_small);
+    } else if (isSolo) {
+        if (product.solo === false) isOut = true;
+        if (product.price_solo !== undefined) rPrice = Number(product.price_solo);
+        if (product.mrp_solo !== undefined) rMrp = Number(product.mrp_solo);
     }
 
     rPrice = Number(rPrice || 0);
@@ -83,6 +126,9 @@ let baseTotalGlobal = 0; // Total before online fee
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Start listening to inventory in real time
+    listenToInventory();
+
     // Auth State Listener
     onAuthStateChanged(auth, user => {
         if (user) {
@@ -164,6 +210,21 @@ function updateFreeDeliveryProgressBar(currentTotal) {
 }
 
 async function displayOrderSummary(user) {
+    // Fetch User Profile Data for role (admin check)
+    let userRole = 'customer';
+    try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+            userRole = userDoc.data().role || 'customer';
+        }
+    } catch (e) {
+        console.error("Error fetching user role:", e);
+    }
+    window.userRole = userRole;
+
+    // Always check operating hours after role resolution to ensure button state is correct
+    checkOperatingHours();
+
     const deliveryDetails = JSON.parse(localStorage.getItem('deliveryDetails'));
     if (!deliveryDetails) {
         showAlert("Delivery details not found. Please go back to checkout.", "Missing Details", "error");
@@ -238,12 +299,7 @@ async function displayOrderSummary(user) {
     let itemsForOrder = [];
     let cartSnapshot = []; // Will be used for deleting items if not Buy Now
 
-    // Fetch Inventory first for real-time price verification
-    const invSnapshot = await getDocs(collection(db, "inventory"));
-    inventoryCache = [];
-    invSnapshot.forEach(docSnap => {
-        inventoryCache.push({ id: docSnap.id, ...docSnap.data() });
-    });
+    // No blocking fetch here; inventoryCache is populated by real-time listener
 
     if (isBuyNowFlow && buyNowData) {
         console.log("[DEBUG] isolated Buy Now flow detected");
@@ -399,6 +455,28 @@ async function displayOrderSummary(user) {
         setTimeout(() => {
             window.location.href = 'menu.html';
         }, 2000);
+        return;
+    }
+
+    // Verify that the order contains at least one regular/main item
+    let hasRegular = false;
+    itemsForOrder.forEach(item => {
+        if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+            hasRegular = true;
+        }
+    });
+
+    if (!hasRegular && !isBuyNowFlow) {
+        const placeBtn = document.getElementById('place-order-btn');
+        if (placeBtn) {
+            placeBtn.disabled = true;
+            placeBtn.textContent = 'Add a Main Item to Order';
+            placeBtn.style.setProperty('background', '#dc3545', 'important');
+        }
+        showAlert("Your order must contain at least one main item (add-ons alone cannot be ordered). Please return to the cart to update.", "Validation Error", "error");
+        setTimeout(() => {
+            window.location.href = 'cart_view.html';
+        }, 3000);
         return;
     }
 
@@ -578,7 +656,7 @@ async function placeOrder(user, deliveryDetails, itemsForOrder, cartSnapshot, to
                         if (invData.small === false) isOut = true;
                     } else if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g')) {
                         if (invData.large === false) isOut = true;
-                    } else if (cleanWeight.includes('220g')) {
+                    } else if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces')) {
                         if (invData.solo === false) isOut = true;
                     } else if (cleanWeight.includes('30') && item.name.toLowerCase().includes('big')) {
                         if (invData.small === false) isOut = true;
@@ -763,9 +841,9 @@ function checkOperatingHours() {
 
     // Developer bypass
     const user = auth.currentUser;
-    if (user && user.email && 
+    if ((user && user.email && 
         (user.email.toLowerCase() === 'aarxslan@gmail.com' || 
-         user.email.toLowerCase() === '10sahilsarkargg@gmail.com')) {
+         user.email.toLowerCase() === '10sahilsarkargg@gmail.com')) || window.userRole === 'admin') {
         isOpen = true;
     }
 

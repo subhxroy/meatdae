@@ -1071,21 +1071,29 @@ function playNotificationSound() {
 /**
  * Normalizes product names to handle minor variations (pluralization, casing, etc.).
  */
-function normalizeProductName(name) {
+function normalizeProductName(name, weight) {
     if (!name) return "Unknown Product";
     const n = name.toLowerCase().trim();
     
+    if (n.includes("legs cut") || n.includes("leg cut") || n.includes("drumstick")) {
+        const w = weight ? weight.toLowerCase().trim().replace(/\s+/g, '') : '';
+        if (w === "2legpieces" || w === "2pieces" || w === "2legpiece") {
+            return "Fresh Chicken Drumstick (Leg Piece) (2 leg pieces)";
+        }
+        return "Fresh Chicken Drumstick (Leg Piece)";
+    }
     if (n.includes("curry cut") && n.includes("chicken")) return "Fresh Chicken Curry Cut";
-    if (n.includes("boneless cut") && n.includes("chicken")) return "Fresh Chicken Boneless Cuts";
-    if (n.includes("breast cut") && n.includes("chicken")) return "Fresh Chicken Breast Cuts";
-    if (n.includes("legs cut") || n.includes("leg cut")) return "Fresh Chicken Legs Cut";
-    if (n.includes("biriyani cut")) return "Fresh Chicken Biriyani Cuts";
-    if (n.includes("keema")) return "Fresh Chicken Boneless Keema";
+    if (n.includes("boneless cut") && n.includes("chicken")) return "Fresh Chicken Boneless";
+    if (n.includes("boneless") && n.includes("chicken")) return "Fresh Chicken Boneless";
+    if (n.includes("breast cut") && n.includes("chicken")) return "Fresh Chicken Breast";
+    if (n.includes("breast") && n.includes("chicken")) return "Fresh Chicken Breast";
+    if (n.includes("biriyani cut")) return "Fresh Chicken Biriyani Cut";
+    if (n.includes("keema") || n.includes("mince")) return "Fresh Chicken Mince (Keema)";
     if (n.includes("wings")) return "Fresh Chicken Wings";
     if (n.includes("gizzard liver")) return "Fresh Clean Gizzard Liver";
     if (n.includes("big egg")) return "Fresh Big Eggs";
     if (n.includes("duck egg")) return "Fresh Local Duck Eggs";
-    if (n.includes("mutton curry cut")) return "Pure Mutton Curry Cuts";
+    if (n.includes("mutton curry cut")) return "Pure Mutton Curry Cut";
 
     return name.trim();
 }
@@ -1132,7 +1140,7 @@ function updateProductDropdown() {
     const products = new Set();
     allOrders.forEach(order => {
         if (order.items) {
-            order.items.forEach(item => products.add(normalizeProductName(item.name)));
+            order.items.forEach(item => products.add(normalizeProductName(item.name, item.weight)));
         }
     });
 
@@ -1179,7 +1187,7 @@ window.applyLedgerFilters = () => {
 
         // Product filter (Always check if selected)
         if (product !== "ALL") {
-            const hasProduct = order.items?.some(item => item.name === product);
+            const hasProduct = order.items?.some(item => normalizeProductName(item.name, item.weight) === product);
             if (!hasProduct) return false;
         }
 
@@ -1262,7 +1270,7 @@ function renderLedger(orders, selectedProduct) {
             let orderItemsTotal = 0;
             if (order.items) {
                 order.items.forEach(item => {
-                    const normalizedName = normalizeProductName(item.name);
+                    const normalizedName = normalizeProductName(item.name, item.weight);
                     const weight = normalizeWeight(item.weight || 'Std');
                     const key = normalizedName; // Group by normalized name
                     

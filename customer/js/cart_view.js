@@ -17,10 +17,25 @@ function listenToInventory() {
         });
         console.log("[REALTIME] Inventory updated:", inventoryCache.length, "items");
         
-        // Re-render cart if user is logged in to reflect stock/price changes instantly
+        // Update addon elements in DOM in real-time
+        const addons = inventoryCache.find(i => i.name === 'cart_addons');
+        if (addons) {
+            if (addons.big_eggs_price) {
+                const el = document.getElementById('addon-price-big-eggs');
+                if (el) el.textContent = `₹${addons.big_eggs_price}`;
+            }
+            if (addons.local_duck_eggs_price) {
+                const el = document.getElementById('addon-price-local-duck-eggs');
+                if (el) el.textContent = `₹${addons.local_duck_eggs_price}`;
+            }
+        }
+
+        // Re-render cart to reflect stock/price changes instantly
         const user = auth.currentUser;
         if (user) {
             displayCartItems(user);
+        } else {
+            displayGuestCart();
         }
     }, (error) => {
         console.error("Error listening to inventory:", error);
@@ -40,6 +55,21 @@ function normalizeName(name) {
 // Unified function to get current price, mrp, and stock status
 function getRealtimeItemData(productName, weight, originalItem) {
     const normalizedTarget = normalizeName(productName);
+    
+    // Addon price resolution from cart_addons
+    if (normalizedTarget.includes("pack") && (normalizedTarget.includes("big eggs") || normalizedTarget.includes("duck eggs"))) {
+        const addons = inventoryCache.find(i => i.name === 'cart_addons');
+        if (addons) {
+            const isBig = normalizedTarget.includes("big");
+            const price = isBig ? Number(addons.big_eggs_price || 0) : Number(addons.local_duck_eggs_price || 0);
+            return {
+                price: price || Number(originalItem.price || 0),
+                mrp: price || Number(originalItem.mrp || originalItem.price || 0),
+                isOut: false
+            };
+        }
+    }
+
     // Find the product by matching normalized name or document ID
     const product = inventoryCache.find(i => {
         const invName = normalizeName(i.name);
@@ -59,13 +89,15 @@ function getRealtimeItemData(productName, weight, originalItem) {
     let rPrice = originalItem.price;
     let rMrp = originalItem.mrp || originalItem.price;
     
-    // Check large (opt1) vs small (opt2) based on catalog logic
+    // Check large (opt1) vs small (opt2) vs solo based on catalog logic
     let isLarge = false;
     let isSmall = false;
+    let isSolo = false;
 
     // Standard items
     if (cleanWeight.includes('500g')) isSmall = true;
     if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('1kilogram')) isLarge = true;
+    if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
     
     // Eggs - Big
     if (cleanWeight.includes('30eggs') && productName.toLowerCase().includes('big')) isSmall = true;
@@ -83,6 +115,10 @@ function getRealtimeItemData(productName, weight, originalItem) {
         if (product.small === false) isOut = true;
         if (product.price_small) rPrice = Number(product.price_small);
         if (product.mrp_small) rMrp = Number(product.mrp_small);
+    } else if (isSolo) {
+        if (product.solo === false) isOut = true;
+        if (product.price_solo !== undefined) rPrice = Number(product.price_solo);
+        if (product.mrp_solo !== undefined) rMrp = Number(product.mrp_solo);
     }
 
     // Default fallback if admin forgot to add mrp
@@ -272,16 +308,24 @@ async function processCartItems(items, isGuest) {
         
         function getProductLink(itemName) {
             const itemMap = {
+                "Fresh Chicken Curry Cut": "product_details.html?id=fresh-chicken-curry-cuts",
                 "Fresh Chicken Curry Cuts": "product_details.html?id=fresh-chicken-curry-cuts",
+                "Fresh Chicken Boneless": "product_details.html?id=chicken-boneless-cut",
                 "Fresh Chicken Boneless Cuts": "product_details.html?id=chicken-boneless-cut",
+                "Fresh Chicken Drumstick (Leg Piece)": "product_details.html?id=chicken-legs-cut",
                 "Fresh Chicken Legs Cuts": "product_details.html?id=chicken-legs-cut",
+                "Fresh Chicken Breast": "product_details.html?id=chicken-breast-cuts",
                 "Chicken Breast Cuts": "product_details.html?id=chicken-breast-cuts",
+                "Fresh Chicken Mince (Keema)": "product_details.html?id=chicken-keema",
+                "Fresh Chicken Boneless Keema": "product_details.html?id=chicken-keema",
                 "Clean Gizzard Liver": "product_details.html?id=clean-gizzard-liver",
                 "Pack of 10 fresh big eggs": "product_details.html?id=fresh-big-eggs",
                 "Pack of 10 Local Duck Eggs": "product_details.html?id=local-duck-eggs",
                 "Fresh Big Eggs": "product_details.html?id=fresh-big-eggs",
                 "Local Duck Eggs": "product_details.html?id=local-duck-eggs",
+                "Fresh Chicken Biriyani Cut": "product_details.html?id=chicken-biriyani-cuts",
                 "Chicken Biriyani Cuts": "product_details.html?id=chicken-biriyani-cuts",
+                "Pure Mutton Curry Cut": "product_details.html?id=pure-mutton-curry-cuts",
                 "Pure Mutton Curry Cuts": "product_details.html?id=pure-mutton-curry-cuts"
             };
             return itemMap[itemName] || "#";
@@ -309,7 +353,7 @@ async function processCartItems(items, isGuest) {
 
             const card = `
                 <div class="cart-item-card ${isOut ? 'stock-out-card' : ''}" data-id="${item.id}" data-name="${item.name}">
-                    <div class="item-img-container" style="${isOut ? 'filter: grayscale(1); opacity: 0.6;' : ''}">
+                    <div class="item-img-container" style="${isOut ? 'filter: grayscale(1) contrast(1.1) brightness(0.92); opacity: 0.7;' : ''}">
                         <a href="${productLink}"><img src="${processedItem.image}" alt="${item.name}"></a>
                     </div>
                     <div class="item-content">
@@ -417,11 +461,27 @@ function updateCartSummary(subtotalMRP, itemCount) {
             checkoutBtn.textContent = 'CART IS EMPTY';
             checkoutBtn.style.boxShadow = 'none';
         } else {
-            checkoutBtn.style.backgroundColor = '#fc8019';
-            checkoutBtn.style.pointerEvents = 'auto';
-            checkoutBtn.style.opacity = '1';
-            checkoutBtn.textContent = 'CHECKOUT';
-            checkoutBtn.style.boxShadow = '0 4px 14px rgba(252, 128, 25, 0.3)';
+            // Check if there is at least one regular/main item in the cart
+            let hasRegular = false;
+            cartItemsCache.forEach(item => {
+                if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+                    hasRegular = true;
+                }
+            });
+
+            if (!hasRegular) {
+                checkoutBtn.style.backgroundColor = '#ccc';
+                checkoutBtn.style.pointerEvents = 'none';
+                checkoutBtn.style.opacity = '0.7';
+                checkoutBtn.textContent = 'ADD A MAIN ITEM TO CHECKOUT';
+                checkoutBtn.style.boxShadow = 'none';
+            } else {
+                checkoutBtn.style.backgroundColor = '#fc8019';
+                checkoutBtn.style.pointerEvents = 'auto';
+                checkoutBtn.style.opacity = '1';
+                checkoutBtn.textContent = 'CHECKOUT';
+                checkoutBtn.style.boxShadow = '0 4px 14px rgba(252, 128, 25, 0.3)';
+            }
         }
 
         // Add Click Listener for OOS Removal if not already added
@@ -576,7 +636,7 @@ function attachActionListeners(user) {
                     if (user) {
                         if (confirm(`Remove this item ("${itemName}") from your cart?`)) {
                             try {
-                                await deleteDoc(doc(db, "carts", user.uid, "items", docId));
+                                await handleItemRemoval(user, docId);
                                 showToast("Item removed", 'success');
                             } catch (err) {
                                 console.error("Remove Error:", err);
@@ -587,11 +647,25 @@ function attachActionListeners(user) {
                         // Guest removal
                         let localCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
                         const idx = parseInt(docId.split('-')[1]);
-                        localCart.splice(idx, 1);
-                        localStorage.setItem('guestCart', JSON.stringify(localCart));
-                        window.dispatchEvent(new Event('storage'));
-                        showToast("Item removed", 'success');
-                        displayCartItems(user);
+                        if (localCart[idx]) {
+                            localCart.splice(idx, 1);
+                            
+                            // Check if any regular/main items remain in guest cart
+                            let hasRegular = false;
+                            localCart.forEach(item => {
+                                if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+                                    hasRegular = true;
+                                }
+                            });
+                            if (!hasRegular) {
+                                localCart = [];
+                            }
+                            
+                            localStorage.setItem('guestCart', JSON.stringify(localCart));
+                            window.dispatchEvent(new Event('storage'));
+                            showToast("Item removed", 'success');
+                            displayCartItems(user);
+                        }
                     }
                 }
                 return;
@@ -648,9 +722,23 @@ function attachActionListeners(user) {
                             // Guest item removal
                             let localCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
                             const idx = parseInt(docId.split('-')[1]);
-                            localCart.splice(idx, 1);
-                            localStorage.setItem('guestCart', JSON.stringify(localCart));
-                            window.dispatchEvent(new Event('storage')); // Trigger re-render
+                            if (localCart[idx]) {
+                                localCart.splice(idx, 1);
+                                
+                                // Check if any regular/main items remain in guest cart
+                                let hasRegular = false;
+                                localCart.forEach(item => {
+                                    if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+                                        hasRegular = true;
+                                    }
+                                });
+                                if (!hasRegular) {
+                                    localCart = [];
+                                }
+                                
+                                localStorage.setItem('guestCart', JSON.stringify(localCart));
+                                window.dispatchEvent(new Event('storage')); // Trigger re-render
+                            }
                         }
                         showToast("Item removed from cart", 'success');
                     }

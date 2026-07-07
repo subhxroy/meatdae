@@ -234,6 +234,24 @@ export async function updateCartItemQuantity(userId, itemName, delta, opts = {})
 
     if (newQty <= 0) {
         await deleteDoc(doc(db, "carts", userId, "items", docSnap.id));
+
+        // Check if any regular/main items remain in the cart. If not, clean up any orphaned add-on items.
+        const remainingSnapshot = await getDocs(cartRef);
+        let hasRegular = false;
+        remainingSnapshot.forEach(d => {
+            const item = d.data();
+            if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+                hasRegular = true;
+            }
+        });
+        if (!hasRegular) {
+            const deletePromises = [];
+            remainingSnapshot.forEach(d => {
+                deletePromises.push(deleteDoc(doc(db, "carts", userId, "items", d.id)));
+            });
+            await Promise.all(deletePromises);
+        }
+
         return 0;
     }
 
@@ -264,6 +282,18 @@ function attachCardQuantityControls() {
                 if (newQty <= 0) {
                     localCart.splice(existingIndex, 1);
                 }
+
+                // Check if any regular/main items remain in guest cart
+                let hasRegular = false;
+                localCart.forEach(item => {
+                    if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+                        hasRegular = true;
+                    }
+                });
+                if (!hasRegular) {
+                    localCart = [];
+                }
+
                 localStorage.setItem('guestCart', JSON.stringify(localCart));
 
                 setHomepageCardQuantity({
@@ -326,6 +356,7 @@ window.repeatLastOrder = async function () {
 
     try {
         const ordersRef = collection(db, "orders");
+        // Query only by userId to avoid needing a composite index in Firestore.
         const q = query(ordersRef, where("userId", "==", user.uid));
         
         let snapshot;
@@ -333,29 +364,29 @@ window.repeatLastOrder = async function () {
             snapshot = await getDocs(q);
         } catch (queryErr) {
             console.error("[RepeatOrder] Firestore Query Failed:", queryErr);
-            showPopupMessage("Info", "You haven't placed any orders yet.");
+            showPopupMessage("No Existing Orders", "No existing orders. Place a new order.", true);
             return;
         }
 
         if (!snapshot || snapshot.empty) {
-            showPopupMessage("No Previous Orders", "You haven't placed any orders with MeatDae yet. Once you place an order, you can easily repeat it with one tap!");
+            showPopupMessage("No Existing Orders", "No existing orders. Place a new order.", true);
             return;
         }
 
         let orders = [];
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
-            // Ensure data is valid
             if (data && data.items) {
                 orders.push(data);
             }
         });
 
         if (orders.length === 0) {
-            showPopupMessage("Info", "We couldn't find any items in your previous orders to repeat.");
+            showPopupMessage("No Existing Orders", "No existing orders. Place a new order.", true);
             return;
         }
 
+        // Sort orders to find the latest order of any status
         orders.sort((a, b) => {
             const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt instanceof Date ? a.createdAt.getTime() : 0);
             const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt instanceof Date ? b.createdAt.getTime() : 0);
@@ -364,7 +395,8 @@ window.repeatLastOrder = async function () {
 
         const lastOrder = orders[0];
         if (!lastOrder || !lastOrder.items || lastOrder.items.length === 0) {
-            showPopupMessage("Info", "Your last order has no items to repeat.");
+            showPopupMessage("No Items Found", "Your last order has no items to repeat. Browse our menu to place a new order!");
+            setTimeout(() => { window.location.href = 'menu.html'; }, 2000);
             return;
         }
 
@@ -375,13 +407,13 @@ window.repeatLastOrder = async function () {
             inventory[docSnap.id.toLowerCase().trim()] = { id: docSnap.id, ...docSnap.data() };
         });
 
-        const cartRef = collection(db, "carts", user.uid, "items");
+        // Store reorder items in sessionStorage and redirect directly to checkout
+        const validItems = [];
 
         for (const item of lastOrder.items) {
             const normName = (item.name || "").toLowerCase().trim();
             let currentItem = inventory[normName];
 
-            // If direct match fails, try fuzzy normalization
             if (!currentItem) {
                 for (const key in inventory) {
                     if (key.replace(/ cuts?$/i, '') === normName.replace(/ cuts?$/i, '')) {
@@ -391,19 +423,16 @@ window.repeatLastOrder = async function () {
                 }
             }
 
-            let currentPrice = item.price;
-            let currentMrp = item.mrp || item.price;
-
             if (currentItem) {
                 const weight = (item.weight || "").toLowerCase();
                 const cleanWeight = weight.replace(/\s+/g, '');
-                
+
                 let isOut = false;
                 if (cleanWeight.includes('500g')) {
                     if (currentItem.small === false) isOut = true;
                 } else if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g')) {
                     if (currentItem.large === false) isOut = true;
-                } else if (cleanWeight.includes('220g')) {
+                } else if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces')) {
                     if (currentItem.solo === false) isOut = true;
                 } else if (cleanWeight.includes('30') && currentItem.name.toLowerCase().includes('big')) {
                     if (currentItem.small === false) isOut = true;
@@ -417,47 +446,39 @@ window.repeatLastOrder = async function () {
 
                 if (isOut) {
                     console.log(`[RepeatOrder] Skipping out-of-stock item: ${item.name}`);
-                    continue; // Skip out-of-stock items
-                }
-
-                const isLarge = weight.includes('1kg') || weight.includes('1000g') || weight.includes('1kilogram') || weight.includes('60') || (weight.includes('30') && currentItem.name.toLowerCase().includes('duck'));
-
-                if (isLarge) {
-                    currentPrice = currentItem.price_large || currentItem.price_small || item.price;
-                    currentMrp = currentItem.mrp_large || currentItem.mrp_small || currentPrice;
-                } else {
-                    currentPrice = currentItem.price_small || item.price;
-                    currentMrp = currentItem.mrp_small || currentPrice;
+                    continue;
                 }
             }
 
-            const qItem = query(cartRef, where("name", "==", item.name), where("weight", "==", item.weight || ""));
-            const itemSnap = await getDocs(qItem);
-
-            if (!itemSnap.empty) {
-                const existingDoc = itemSnap.docs[0];
-                await updateDoc(existingDoc.ref, {
-                    quantity: existingDoc.data().quantity + item.quantity,
-                    price: Number(currentPrice),
-                    mrp: Number(currentMrp)
-                });
-            } else {
-                await addDoc(cartRef, {
-                    name: item.name,
-                    image: item.image || "",
-                    price: Number(currentPrice),
-                    mrp: Number(currentMrp),
-                    weight: item.weight || "",
-                    quantity: item.quantity || 1,
-                    timestamp: serverTimestamp()
-                });
-            }
+            validItems.push({
+                name: item.name,
+                weight: item.weight || "",
+                quantity: item.quantity || 1,
+                image: item.image || ""
+            });
         }
 
-        showPopupMessage("Success", "Last order items added to cart!");
-        setTimeout(() => {
-            window.location.href = 'cart_view.html';
-        }, 1200);
+        if (validItems.length === 0) {
+            showPopupMessage("Info", "All items from your last order are currently out of stock.");
+            return;
+        }
+
+        // Verify that the reordered items contain at least one regular/main item
+        let hasRegular = false;
+        validItems.forEach(item => {
+            if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+                hasRegular = true;
+            }
+        });
+
+        if (!hasRegular) {
+            showPopupMessage("Info", "Your last order only contains add-on items (or the main items are out of stock). Add-ons cannot be ordered without a main item.");
+            setTimeout(() => { window.location.href = 'menu.html'; }, 3000);
+            return;
+        }
+
+        sessionStorage.setItem('reorderItems', JSON.stringify(validItems));
+        window.location.href = 'check_out.html?reorder=true';
 
     } catch (err) {
         console.error("Error repeating order:", err);
@@ -947,6 +968,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!card) return; // Only handle modern-product-card here
 
             const checkPill = card.querySelector('.size-pill.active');
+            let isComingSoon = false;
+            if (checkPill) {
+                const normSz = checkPill.dataset.size.toLowerCase();
+                const isSoloVal = normSz.includes('220g') || normSz.includes('200g') || normSz.includes('2 leg pieces') || normSz.includes('2');
+                const price = parseFloat(checkPill.dataset.price) || 0;
+                if (isSoloVal && price === 0) {
+                    isComingSoon = true;
+                }
+            }
+
+            if (isComingSoon) {
+                showPopupMessage('Coming Soon', 'This variant is coming soon and cannot be ordered yet.', true);
+                return;
+            }
+
             if (btn.classList.contains('btn-stock-out') || card.classList.contains('stock-out-item') ||
                 (checkPill && typeof window.isItemStockOut === 'function' && window.isItemStockOut(btn.dataset.name, checkPill.dataset.size))) {
                 showPopupMessage('Out of Stock', 'This variant is currently out of stock.', true);

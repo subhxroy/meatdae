@@ -172,8 +172,9 @@ function setupRealtimeInventory(productName) {
 
         // Apply either live data or fallback template
         const data = docSnap.exists() ? docSnap.data() : {
-            small: true, price_small: currentProductData.defaultPrice500 || 180, mrp_small: currentProductData.defaultMrp500 || 200,
-            large: true, price_large: currentProductData.defaultPrice1000 || 360, mrp_large: currentProductData.defaultMrp1000 || 400
+            small: true, price_small: currentProductData.defaultPrice500 || 230, mrp_small: currentProductData.defaultMrp500 || 250,
+            large: true, price_large: currentProductData.defaultPrice1000 || 410, mrp_large: currentProductData.defaultMrp1000 || 450,
+            solo: true, price_solo: 120, mrp_solo: 140
         };
         currentPricingData = data;
         
@@ -258,18 +259,20 @@ function setupRealtimeInventory(productName) {
         if (data.price_solo !== undefined || currentProductData.id === 'fresh-chicken-curry-cuts') {
             const checked = (selectedId === 'opt_solo') ? 'checked' : '';
             const statusLabel = isSoloInStock ? '' : '<span class="text-danger small">(Out of Stock)</span>';
-            const disabled = isSoloInStock ? '' : 'disabled';
+            const disabled = '';
             
             let unitLabel = "220 Gram (Premium Solo Pack)";
+            if (productName === 'Fresh Chicken Legs Cut' || productName === 'Fresh Chicken Legs Cuts' || productName === 'Fresh Chicken Drumstick (Leg Piece)') {
+                unitLabel = "2 Leg Pieces";
+            } else if (productName !== 'Fresh Chicken Curry Cut' && productName !== 'Fresh Chicken Curry Cuts') {
+                unitLabel = "200 Gram (Premium Solo Pack)";
+            }
             
             html += `
-                <div class="form-check premium-variant-box mb-3">
+                <div class="form-check">
                     <input class="form-check-input variant-radio" type="radio" name="flexRadioDefault" id="opt_solo" data-price="${data.price_solo || data.mrp_solo || 0}" data-mrp="${data.mrp_solo || 0}" value="${unitLabel}" ${checked} ${disabled} />
-                    <label class="form-check-label w-100" for="opt_solo">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-dark">${unitLabel} ${statusLabel}</span>
-                            <span class="badge bg-warning text-dark premium-badge">SPECIAL</span>
-                        </div>
+                    <label class="form-check-label" for="opt_solo">
+                        ${unitLabel} ${statusLabel}
                     </label>
                 </div>
             `;
@@ -278,7 +281,7 @@ function setupRealtimeInventory(productName) {
         if (data.price_small !== undefined) {
             const checked = (selectedId === 'opt_small') ? 'checked' : '';
             const statusLabel = isSmallInStock ? '' : '<span class="text-danger small">(Out of Stock)</span>';
-            const disabled = isSmallInStock ? '' : 'disabled';
+            const disabled = '';
             
             // Dynamic Label Logic
             let unitLabel = "500 Gram";
@@ -298,7 +301,7 @@ function setupRealtimeInventory(productName) {
         if (data.price_large !== undefined) {
             const checked = (selectedId === 'opt_large') ? 'checked' : '';
             const statusLabel = isLargeInStock ? '' : '<span class="text-danger small">(Out of Stock)</span>';
-            const disabled = isLargeInStock ? '' : 'disabled';
+            const disabled = '';
 
             // Dynamic Label Logic
             let unitLabel = "1 Kilogram";

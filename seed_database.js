@@ -11,15 +11,36 @@ module.paths.push(path.join(__dirname, 'functions', 'node_modules'));
 const admin = require('firebase-admin');
 
 // 1. Authentication and Initialization
-let serviceAccountPath = path.join(__dirname, 'meatdae-2nd-firebase-adminsdk-fbsvc-342bee6d2c.json');
-if (!fs.existsSync(serviceAccountPath)) {
-    serviceAccountPath = path.join(__dirname, 'service-account.json');
-}
-if (!fs.existsSync(serviceAccountPath)) {
-    serviceAccountPath = path.join(__dirname, 'functions', 'service-account.json');
+let serviceAccountPath = null;
+
+try {
+    // Find service account JSON file dynamically in the root directory
+    const filesInRoot = fs.readdirSync(__dirname);
+    const serviceAccountFile = filesInRoot.find(file => 
+        file.includes('-firebase-adminsdk-') && file.endsWith('.json')
+    );
+
+    if (serviceAccountFile) {
+        serviceAccountPath = path.join(__dirname, serviceAccountFile);
+    }
+} catch (e) {
+    console.warn('[INFO] Error scanning root directory for service account keys:', e.message);
 }
 
-if (fs.existsSync(serviceAccountPath)) {
+if (!serviceAccountPath) {
+    const possiblePaths = [
+        path.join(__dirname, 'service-account.json'),
+        path.join(__dirname, 'functions', 'service-account.json')
+    ];
+    for (const p of possiblePaths) {
+        if (fs.existsSync(p)) {
+            serviceAccountPath = p;
+            break;
+        }
+    }
+}
+
+if (serviceAccountPath && fs.existsSync(serviceAccountPath)) {
     console.log(`[INFO] Found service account key at ${serviceAccountPath}. Initializing cert credential...`);
     const serviceAccount = require(serviceAccountPath);
     admin.initializeApp({
@@ -43,45 +64,54 @@ const db = admin.firestore();
 const standardInventory = [
     {
         name: "Fresh Chicken Curry Cut",
-        price_small: 140,
-        mrp_small: 170,
+        price_small: 169,
+        mrp_small: 180,
         small: true,
-        price_large: 260,
-        mrp_large: 310,
+        price_large: 338,
+        mrp_large: 352,
         large: true,
-        price_solo: 70,
-        mrp_solo: 90,
+        price_solo: 99,
+        mrp_solo: 110,
         solo: true,
         category: "chicken"
     },
     {
-        name: "Fresh Chicken Boneless Cut",
-        price_small: 180,
-        mrp_small: 220,
+        name: "Fresh Chicken Boneless",
+        price_small: 209,
+        mrp_small: 230,
         small: true,
-        price_large: 340,
-        mrp_large: 400,
+        price_large: 418,
+        mrp_large: 430,
         large: true,
+        price_solo: 99,
+        mrp_solo: 110,
+        solo: true,
         category: "chicken"
     },
     {
-        name: "Fresh Chicken Legs Cut",
-        price_small: 160,
-        mrp_small: 190,
+        name: "Fresh Chicken Drumstick (Leg Piece)",
+        price_small: 219,
+        mrp_small: 240,
         small: true,
-        price_large: 300,
+        price_large: 438,
         mrp_large: 350,
         large: true,
+        price_solo: 124,
+        mrp_solo: 135,
+        solo: true,
         category: "chicken"
     },
     {
-        name: "Fresh Chicken Breast Cuts",
-        price_small: 170,
-        mrp_small: 200,
+        name: "Fresh Chicken Breast",
+        price_small: 219,
+        mrp_small: 240,
         small: true,
-        price_large: 320,
-        mrp_large: 380,
+        price_large: 438,
+        mrp_large: 450,
         large: true,
+        price_solo: 0,
+        mrp_solo: 0,
+        solo: true,
         category: "chicken"
     },
     {
@@ -92,78 +122,115 @@ const standardInventory = [
         price_large: 170,
         mrp_large: 200,
         large: true,
+        price_solo: 0,
+        mrp_solo: 0,
+        solo: true,
         category: "chicken"
     },
     {
         name: "Fresh Big Eggs",
-        price_small: 210, // 30 eggs
-        mrp_small: 240,
+        price_small: 245, // 30 eggs
+        mrp_small: 255,
         small: true,
-        price_large: 400, // 60 eggs
+        price_large: 0, // 60 eggs
         mrp_large: 460,
         large: true,
         category: "eggs"
     },
     {
         name: "Fresh Local Duck Eggs",
-        price_small: 150, // 15 eggs
-        mrp_small: 180,
+        price_small: 235, // 15 eggs
+        mrp_small: 255,
         small: true,
-        price_large: 280, // 30 eggs
-        mrp_large: 330,
+        price_large: 470, // 30 eggs
+        mrp_large: 490,
         large: true,
         category: "eggs"
     },
     {
-        name: "Fresh Chicken Biriyani Cuts",
-        price_small: 150,
-        mrp_small: 180,
+        name: "Fresh Chicken Biriyani Cut",
+        price_small: 175,
+        mrp_small: 190,
         small: true,
-        price_large: 280,
-        mrp_large: 330,
+        price_large: 349,
+        mrp_large: 360,
         large: true,
+        price_solo: 0,
+        mrp_solo: 0,
+        solo: true,
         category: "chicken"
     },
     {
-        name: "Fresh Chicken Boneless Keema",
-        price_small: 190,
+        name: "Fresh Chicken Mince (Keema)",
+        price_small: 219,
         mrp_small: 230,
         small: true,
-        price_large: 360,
-        mrp_large: 420,
+        price_large: 438,
+        mrp_large: 450,
         large: true,
+        price_solo: 109,
+        mrp_solo: 145,
+        solo: true,
         category: "chicken"
     },
     {
         name: "Fresh Chicken Wings",
-        price_small: 130,
-        mrp_small: 160,
+        price_small: 189,
+        mrp_small: 200,
         small: true,
-        price_large: 240,
-        mrp_large: 290,
+        price_large: 378,
+        mrp_large: 390,
         large: true,
+        price_solo: 99,
+        mrp_solo: 0,
+        solo: true,
         category: "chicken"
     },
     {
-        name: "Pure Mutton Curry Cuts",
-        price_small: 390,
-        mrp_small: 450,
+        name: "Pure Mutton Curry Cut",
+        price_small: 0,
+        mrp_small: 600,
         small: true,
-        price_large: 760,
-        mrp_large: 850,
+        price_large: 0,
+        mrp_large: 1200,
         large: true,
+        price_solo: 0,
+        mrp_solo: 0,
+        solo: true,
         category: "mutton"
     }
 ];
 
 const cartAddons = {
-    big_eggs_price: 75,
-    local_duck_eggs_price: 110,
+    big_eggs_price: 89,
+    local_duck_eggs_price: 165,
     updatedAt: admin.firestore.FieldValue.serverTimestamp()
 };
 
 async function seed() {
     console.log('[INFO] Seeding database...');
+
+    // 0. Clean up old product names to avoid duplicates in Firestore
+    const oldProductNames = [
+        "Fresh Chicken Legs Cut",
+        "Fresh Chicken Legs Cuts",
+        "Fresh Chicken Breast Cuts",
+        "Fresh Chicken Boneless Cut",
+        "Fresh Chicken Boneless Cuts",
+        "Fresh Chicken Boneless Keema",
+        "Fresh Chicken Curry Cuts",
+        "Pure Mutton Curry Cuts",
+        "Fresh Chicken Biriyani Cuts"
+    ];
+    for (const name of oldProductNames) {
+        try {
+            const docRef = db.collection('inventory').doc(name);
+            await docRef.delete();
+            console.log(`[SUCCESS] Deleted old product: ${name}`);
+        } catch (e) {
+            console.warn(`[WARN] Failed to delete old product ${name}:`, e.message);
+        }
+    }
 
     // 1. Seed Inventory
     for (const item of standardInventory) {

@@ -6,7 +6,7 @@
 export const PRODUCTS_METADATA = {
     "chicken-biriyani-cuts": {
         "id": "chicken-biriyani-cuts",
-        "name": "Fresh Chicken Biriyani Cuts",
+        "name": "Fresh Chicken Biriyani Cut",
         "shortDescription": "Naturally grown and fresh, our chicken cuts bring the perfect taste. We hope you enjoy it .",
         "description": "Expertly cut into larger, succulent pieces, our Chicken Biriyani Cuts are designed to lock in flavor\nduring slow cooking. Each piece is perfectly sized to remain juicy and tender, ensuring every grain\nof rice in your biriyani reflects the premium quality of the meat.",
         "nutrition": "Nutritional Value (per 100g):-\nEnergy: 165 Kcal\nCarbohydrate: 0 g\nFat: 8.8 g\nProtein: 20.2 g",
@@ -14,11 +14,12 @@ export const PRODUCTS_METADATA = {
             "images/items/IMG_1987.PNG",
             "images/items/biriyani_cooked.png",
             "images/items/chicken_category.jpg"
-        ]
+        ],
+        "optSolo": "200g"
     },
     "chicken-boneless-cut": {
         "id": "chicken-boneless-cut",
-        "name": "Fresh Chicken Boneless Cuts",
+        "name": "Fresh Chicken Boneless",
         "shortDescription": "Naturally grown and fresh, our chicken cuts bring the perfect taste. We hope you enjoy it .",
         "description": "Tender, lean, and completely bone-free, our Chicken Boneless Cuts is ideal for quick stir-fry,\ncreamy\npastas, or kebabs. With 23.1g protein and only 1.2g fat per 100g, it's a high-protein, low-fat\nchoice\nthat makes healthy cooking effortless and delicious.",
         "nutrition": "Nutritional Value (per 100g):-\nEnergy: 114 Kcal\nCarbohydrate: 0 g\nFat: 1.2 g\nProtein: 23.1 g",
@@ -26,11 +27,12 @@ export const PRODUCTS_METADATA = {
             "images/items/fresh chicken boneless cuts1.webp",
             "images/items/fresh chicken boneless cuts2.webp",
             "images/3rd_image.jpg"
-        ]
+        ],
+        "optSolo": "200g"
     },
     "chicken-breast-cuts": {
         "id": "chicken-breast-cuts",
-        "name": "Fresh Chicken Breast Cuts",
+        "name": "Fresh Chicken Breast",
         "shortDescription": "Naturally grown and fresh, our chicken cuts bring the perfect taste. We hope you enjoy it .",
         "description": "Precision-cut and exceptionally lean, our Chicken Breast Cuts are the peak of healthy eating. High\nin protein (23g per 100g) and extremely low in fat, they are perfect for grilling, salads, or meal\npreps. Guaranteed fresh, tender, and juicy every time.",
         "nutrition": "Nutritional Value (per 100g):-\nEnergy: 110 Kcal\nCarbohydrate: 0 g\nFat: 1.2 g\nProtein: 23.0 g",
@@ -38,11 +40,12 @@ export const PRODUCTS_METADATA = {
             "images/items/fresh chicken breast cuts1.webp",
             "images/items/fresh chicken breast cuts2.webp",
             "images/items/IMG_8033.webp"
-        ]
+        ],
+        "optSolo": "200g"
     },
     "chicken-keema": {
         "id": "chicken-keema",
-        "name": "Fresh Chicken Boneless Keema",
+        "name": "Fresh Chicken Mince (Keema)",
         "shortDescription": "Finely minced fresh chicken, perfect for kebabs, parathas, and keema matar.",
         "description": "Finely minced and lean, our Chicken Keema is made from fresh chicken breast and leg meat. With 21.8g\nprotein and only 6.4g fat per 100g, it’s a versatile ingredient that’s high in nutrition and light\non grease, ideal for your favorite minced meat recipes.",
         "nutrition": "Nutritional Value (per 100g):-\nEnergy: 147 Kcal\nCarbohydrate: 0 g\nFat: 6.4 g\nProtein: 21.8 g",
@@ -50,11 +53,12 @@ export const PRODUCTS_METADATA = {
             "images/items/IMG_1935.PNG",
             "images/items/IMG_1991.PNG",
             "images/3rd_image.jpg"
-        ]
+        ],
+        "optSolo": "200g"
     },
     "chicken-legs-cut": {
         "id": "chicken-legs-cut",
-        "name": "Fresh Chicken Legs Cut",
+        "name": "Fresh Chicken Drumstick (Leg Piece)",
         "shortDescription": "Naturally grown and fresh, our chicken cuts bring the perfect taste. We hope you enjoy it .",
         "description": "Succulent and full of flavor, our Chicken Leg Cut is a favorite for grilling, curries, and\nslow-cooked dishes. With 24.2g protein and 8.1g fat per 100g, it delivers rich taste along with\nbalanced nutrition.",
         "nutrition": "Nutritional Value (per 100g):-\nEnergy: 172 Kcal\nCarbohydrate: 0 g\nFat: 8.1 g\nProtein: 24.2 g",
@@ -62,7 +66,8 @@ export const PRODUCTS_METADATA = {
             "images/items/fresh chicken leg cuts1.webp",
             "images/items/fresh chicken leg cuts2.webp",
             "images/3rd_image.jpg"
-        ]
+        ],
+        "optSolo": "2 leg pieces"
     },
     "chicken-wings": {
         "id": "chicken-wings",
@@ -74,7 +79,8 @@ export const PRODUCTS_METADATA = {
             "images/items/IMG_1988.PNG",
             "images/items/IMG_1990.PNG",
             "images/3rd_image.jpg"
-        ]
+        ],
+        "optSolo": "200g"
     },
     "clean-gizzard-liver": {
         "id": "clean-gizzard-liver",
@@ -86,7 +92,8 @@ export const PRODUCTS_METADATA = {
             "images/items/clean gizzard liver1.webp",
             "images/items/clean gizzard liver2.webp",
             "images/items/clean gizzard liver1.webp"
-        ]
+        ],
+        "optSolo": "200g"
     },
     "fresh-big-eggs": {
         "id": "fresh-big-eggs",
@@ -127,7 +134,7 @@ export const PRODUCTS_METADATA = {
     },
     "pure-mutton-curry-cuts": {
         "id": "pure-mutton-curry-cuts",
-        "name": "Pure Mutton Curry Cuts",
+        "name": "Pure Mutton Curry Cut",
         "shortDescription": "Experience the richness of fresh, hand-picked mutton. Our curry cuts are perfect for slow cooking, ensuring a tender and juicy texture in every bite.",
         "description": "Experience the richness of fresh, hand-picked mutton. Our curry cuts are perfect for slow cooking, ensuring a tender and juicy texture in every bite.",
         "nutrition": "Nutritional Value (per 100g):-\nEnergy: 294 Kcal\nProtein: 25 g\nFat: 21 g\nCarbohydrate: 0 g",
@@ -135,7 +142,8 @@ export const PRODUCTS_METADATA = {
             "images/items/IMG_1993.PNG",
             "images/items/cooked_mutton.png",
             "images/3rd_image.jpg"
-        ]
+        ],
+        "optSolo": "200g"
     }
 };
 
@@ -148,16 +156,24 @@ export function getProductSlugFromName(name) {
     // Quick lookup table for messy names
     const lookup = {
         'fresh chicken curry cut': 'fresh-chicken-curry-cuts',
+        'fresh chicken curry cuts': 'fresh-chicken-curry-cuts',
         'fresh chicken boneless cuts': 'chicken-boneless-cut',
+        'fresh chicken boneless': 'chicken-boneless-cut',
         'fresh chicken breast cuts': 'chicken-breast-cuts',
+        'fresh chicken breast': 'chicken-breast-cuts',
         'fresh chicken legs cuts': 'chicken-legs-cut',
+        'fresh chicken legs cut': 'chicken-legs-cut',
+        'fresh chicken drumstick (leg piece)': 'chicken-legs-cut',
         'fresh clean gizzard liver': 'clean-gizzard-liver',
         'fresh chicken wings': 'chicken-wings',
         'fresh chicken boneless keema': 'chicken-keema',
+        'fresh chicken mince (keema)': 'chicken-keema',
         'fresh chicken biriyani cuts': 'chicken-biriyani-cuts',
+        'fresh chicken biriyani cut': 'chicken-biriyani-cuts',
         'fresh big eggs': 'fresh-big-eggs',
         'fresh local duck eggs': 'local-duck-eggs',
-        'pure mutton curry cuts': 'pure-mutton-curry-cuts'
+        'pure mutton curry cuts': 'pure-mutton-curry-cuts',
+        'pure mutton curry cut': 'pure-mutton-curry-cuts'
     };
     
     const check = name.toLowerCase().trim();

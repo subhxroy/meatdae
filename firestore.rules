@@ -36,10 +36,12 @@ service cloud.firestore {
     // USERS COLLECTION
     // ===============================================
     match /users/{userId} {
-      // 1. Users can manage their own profile
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId && (!('role' in request.resource.data) || request.resource.data.role == 'customer');
+      allow update: if isSignedIn() && request.auth.uid == userId && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
+      allow delete: if isAdmin();
       
-      // 2. Admin can manage everyone
+      // Admin can manage everyone
       allow read, write, list: if isAdmin();
     }
 
@@ -138,8 +140,7 @@ service cloud.firestore {
     // ADMIN NOTIFICATIONS
     // ===============================================
     match /admin_notifications/{notifId} {
-      allow read, update, delete: if isAdmin();
-      allow create: if true; // Allow bot or users to trigger notifications for admin
+      allow read, write: if isAdmin();
     }
 
     // ===============================================
@@ -178,7 +179,7 @@ service cloud.firestore {
     // ===============================================
     match /complaints/{complaintId} {
       allow read, update, delete: if isAdmin();
-      allow create: if true; // Allow guests to file complaints
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
     }
 
   }

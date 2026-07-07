@@ -16,8 +16,9 @@ const STANDARD_DELIVERY_CHARGE = 11; // For Town areas (previously free)
 const deliveryPricesByAddress = [
   { price: 15, keywords: ["meherpur", "mhrpur", "mehepur", "meherfur"] },
   { price: 15, keywords: ["rongpur", "rongpr", "rangpur"] },
-  { price: 17, keywords: ["bagatpur", "bogotpur", "bakatpur", "bhagatpur", "bhagotpur", "bhakatpr", "bhogotpur"] },
+  { price: 17, keywords: ["bagatpur", "bogotpur", "bakatpur", "bhagatpur", "bhagotpur", "bhakatpr", "bhogotpur", "bhakatpur", "bakapur"] },
   { price: 15, keywords: ["tarapur", "trapur", "tarfur", "tarpur"] },
+  { price: 15, keywords: ["itkola", "itkhola", "etkhola", "itkala"] },
   { price: 17, keywords: ["kathal road", "kathol rd", "katal road", "kathal rd", "kathal rd ta"] },
   { price: 15, keywords: ["malugram", "malgram", "mallugram"] },
   { price: 20, keywords: ["suncity", "sunsity"] },
@@ -74,6 +75,8 @@ function listenToInventory() {
         const user = auth.currentUser;
         if (user) {
             fetchUserDataAndCart(user);
+        } else {
+            fetchGuestDataAndCart();
         }
     });
 }
@@ -91,6 +94,21 @@ function normalizeName(name) {
 // Unified function to get current price, mrp, and stock status
 function getRealtimeItemData(productName, weight, originalItem) {
     const normalizedTarget = normalizeName(productName);
+
+    // Addon price resolution from cart_addons
+    if (normalizedTarget.includes("pack") && (normalizedTarget.includes("big eggs") || normalizedTarget.includes("duck eggs"))) {
+        const addons = inventoryCache.find(i => i.name === 'cart_addons');
+        if (addons) {
+            const isBig = normalizedTarget.includes("big");
+            const price = isBig ? Number(addons.big_eggs_price || 0) : Number(addons.local_duck_eggs_price || 0);
+            return {
+                price: price || Number(originalItem.price || 0),
+                mrp: price || Number(originalItem.mrp || originalItem.price || 0),
+                isOut: false
+            };
+        }
+    }
+
     const product = inventoryCache.find(i => normalizeName(i.name) === normalizedTarget);
     // If not found in live inventory, fallback to cart snapshot values
     if (!product) return {
@@ -105,13 +123,15 @@ function getRealtimeItemData(productName, weight, originalItem) {
     let rPrice = originalItem.price;
     let rMrp = originalItem.mrp || originalItem.price;
 
-    // Check large (opt1) vs small (opt2) based on catalog logic
+    // Check large (opt1) vs small (opt2) vs solo based on catalog logic
     let isLarge = false;
     let isSmall = false;
+    let isSolo = false;
 
     // Standard items
     if (cleanWeight.includes('500g')) isSmall = true;
     if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('1kilogram')) isLarge = true;
+    if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
 
     // Eggs - Big
     if (cleanWeight.includes('30eggs') && productName.toLowerCase().includes('big')) isSmall = true;
@@ -129,6 +149,10 @@ function getRealtimeItemData(productName, weight, originalItem) {
         if (product.small === false) isOut = true;
         if (product.price_small) rPrice = Number(product.price_small);
         if (product.mrp_small) rMrp = Number(product.mrp_small);
+    } else if (isSolo) {
+        if (product.solo === false) isOut = true;
+        if (product.price_solo !== undefined) rPrice = Number(product.price_solo);
+        if (product.mrp_solo !== undefined) rMrp = Number(product.mrp_solo);
     }
 
     // Default fallback if admin forgot to add mrp
@@ -390,6 +414,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Check if at least one regular/main item is present
+            const itemsToCheck = window.checkoutItems || [];
+            let hasRegular = false;
+            itemsToCheck.forEach(item => {
+                if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+                    hasRegular = true;
+                }
+            });
+
+            if (!hasRegular && !window.buyNowMode) {
+                showInlineError('Your order must contain at least one main item (add-ons alone cannot be ordered).');
+                e.preventDefault();
+                return;
+            }
+
             // 0. Handle Stock Out removal if button is in that state
             if (proceedBtn.innerHTML.includes('Remove') || proceedBtn.classList.contains('bg-danger')) {
                 const user = auth.currentUser;
@@ -622,6 +661,21 @@ function getDeliveryCharge() {
         }
     }
 
+    // Extra delivery charge for 200g items and 2 leg piece solo packs (+₹7)
+    let hasExtraChargeItem = false;
+    const itemsToCheck = window.checkoutItems || [];
+    if (Array.isArray(itemsToCheck)) {
+        hasExtraChargeItem = itemsToCheck.some(item => {
+            const weight = item.weight || item.size || "";
+            const cleanWeight = weight.toLowerCase().replace(/\s+/g, '');
+            return cleanWeight.includes('200g') || cleanWeight.includes('legpiece');
+        });
+    }
+
+    if (hasExtraChargeItem && baseCharge > 0) {
+        baseCharge += 7;
+    }
+
     // 3. Final free delivery check (Orders >= ₹350)
     if (window.cartSellingPrice >= 350) {
         return 0;
@@ -795,15 +849,16 @@ function processCartItemsArray(itemsArray) {
         window.cartSellingPrice = totalSellingPrice;
         window.buyNowMode = true;
         window.reorderMode = false;
-        window.buyNowItem = { ...item, price: currentPrice };
+        window.buyNowItem = { ...item, price: currentPrice, mrp: itemMrp };
 
-        itemsToRender = [item];
+        itemsToRender = [{ ...item, price: currentPrice, mrp: itemMrp }];
     } else if (isReorder && reorderItemsStr) {
         const items = JSON.parse(reorderItemsStr);
         window.buyNowMode = false;
         window.reorderMode = true;
         window.reorderItems = items;
 
+        const updatedItems = [];
         items.forEach(item => {
             const liveData = getRealtimeItemData(item.name, item.weight, item);
             if (liveData.isOut) {
@@ -816,10 +871,15 @@ function processCartItemsArray(itemsArray) {
             cartSubtotal += liveData.mrp * item.quantity;
             totalSellingPrice += liveData.price * item.quantity;
             cartItemCount += (item.quantity || 1);
+            updatedItems.push({
+                ...item,
+                price: liveData.price,
+                mrp: liveData.mrp
+            });
         });
 
         window.cartSellingPrice = totalSellingPrice;
-        itemsToRender = items;
+        itemsToRender = updatedItems;
     } else {
         // Ensure buyNowMode is false if not in that flow
         window.buyNowMode = false;
@@ -844,7 +904,11 @@ function processCartItemsArray(itemsArray) {
             totalSellingPrice += liveData.price * item.quantity;
             cartItemCount += (item.quantity || 1);
 
-            itemsToRender.push({ ...item });
+            itemsToRender.push({
+                ...item,
+                price: liveData.price,
+                mrp: liveData.mrp
+            });
         });
 
         window.cartSellingPrice = totalSellingPrice;
@@ -881,10 +945,24 @@ function processCartItemsArray(itemsArray) {
             proceedBtn.classList.add('disabled');
             proceedBtn.style.background = '#ccc';
         } else {
-            proceedBtn.innerHTML = 'Proceed to Payment <i class="fas fa-arrow-right"></i>';
-            proceedBtn.classList.remove('disabled');
-            proceedBtn.style.background = 'var(--primary)';
-            checkOperatingHours(); // Re-check operating hours which might disable it
+            // Check if there is at least one regular/main item in the checkout list
+            let hasRegular = false;
+            itemsToRender.forEach(item => {
+                if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+                    hasRegular = true;
+                }
+            });
+
+            if (!hasRegular && !window.buyNowMode) {
+                proceedBtn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Add a Main Item';
+                proceedBtn.classList.add('disabled');
+                proceedBtn.style.background = '#ccc';
+            } else {
+                proceedBtn.innerHTML = 'Proceed to Payment <i class="fas fa-arrow-right"></i>';
+                proceedBtn.classList.remove('disabled');
+                proceedBtn.style.background = 'var(--primary)';
+                checkOperatingHours(); // Re-check operating hours which might disable it
+            }
         }
     }
 
@@ -942,10 +1020,18 @@ function renderCheckoutItems(items) {
                 groups[name].totalEggQty += unitQty * item.quantity;
             } else {
                 let weightVal = 0;
-                const cleanW = item.weight.toLowerCase();
+                const cleanW = item.weight.toLowerCase().replace(/\s+/g, '');
                 if (cleanW.includes('500g')) weightVal = 0.5;
                 else if (cleanW.includes('1kg') || cleanW.includes('1000g')) weightVal = 1.0;
-                else weightVal = parseFloat(item.weight) || 0;
+                else if (cleanW.includes('220g')) weightVal = 0.22;
+                else if (cleanW.includes('200g')) weightVal = 0.20;
+                else if (cleanW.includes('2legpiece')) weightVal = 0.25; // 2 leg pieces ~ 250g
+                else {
+                    weightVal = parseFloat(item.weight) || 0;
+                    if (weightVal > 10) {
+                        weightVal = weightVal / 1000;
+                    }
+                }
                 groups[name].totalWeight += weightVal * item.quantity;
             }
         });
@@ -1022,6 +1108,24 @@ window.updateCheckoutQty = async function(itemId, delta) {
             
             if (newQty <= 0) {
                 await deleteDoc(itemRef);
+
+                // Check if any regular/main items remain in Firestore cart. If not, clean up any orphaned add-on items.
+                const cartRef = collection(db, "carts", user.uid, "items");
+                const remainingSnapshot = await getDocs(cartRef);
+                let hasRegular = false;
+                remainingSnapshot.forEach(d => {
+                    const item = d.data();
+                    if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+                        hasRegular = true;
+                    }
+                });
+                if (!hasRegular) {
+                    const deletePromises = [];
+                    remainingSnapshot.forEach(d => {
+                        deletePromises.push(deleteDoc(doc(db, "carts", user.uid, "items", d.id)));
+                    });
+                    await Promise.all(deletePromises);
+                }
             } else {
                 await updateDoc(itemRef, { quantity: newQty });
             }
@@ -1047,6 +1151,25 @@ window.deleteCheckoutItem = async function(itemId, itemName) {
         try {
             console.log("[Checkout] Deleting item from Firestore...");
             await deleteDoc(doc(db, "carts", user.uid, "items", itemId));
+
+            // Check if any regular/main items remain in Firestore cart. If not, clean up any orphaned add-on items.
+            const cartRef = collection(db, "carts", user.uid, "items");
+            const remainingSnapshot = await getDocs(cartRef);
+            let hasRegular = false;
+            remainingSnapshot.forEach(d => {
+                const item = d.data();
+                if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
+                    hasRegular = true;
+                }
+            });
+            if (!hasRegular) {
+                const deletePromises = [];
+                remainingSnapshot.forEach(d => {
+                    deletePromises.push(deleteDoc(doc(db, "carts", user.uid, "items", d.id)));
+                });
+                await Promise.all(deletePromises);
+            }
+
             console.log("[Checkout] Item deleted successfully.");
             showValidationToast(`${itemName} removed from cart.`);
         } catch (err) {

@@ -6,19 +6,19 @@ import { doc, setDoc, getDocs, getDoc, collection } from "https://www.gstatic.co
 // This list determines what appears in your Admin Panel.
 // Make sure "name" matches the 'data-product-id' in your HTML files exactly.
 const PRODUCT_CATALOG = [
-    { name: "Fresh Chicken Curry Cut", opt1: "500g", opt2: "1kg" },
-    { name: "Fresh Chicken Boneless Cut", opt1: "500g", opt2: "1kg" },
-    { name: "Fresh Chicken Legs Cut", opt1: "500g", opt2: "1kg" },
-    { name: "Fresh Chicken Breast Cuts", opt1: "500g", opt2: "1kg" },
-    // { name: "Fresh Clean Gizzard Liver", opt1: "500g", opt2: "1kg" },
+    { name: "Fresh Chicken Curry Cut", opt1: "500g", opt2: "1kg", optSolo: "220g" },
+    { name: "Fresh Chicken Boneless", opt1: "500g", opt2: "1kg", optSolo: "200g" },
+    { name: "Fresh Chicken Drumstick (Leg Piece)", opt1: "500g", opt2: "1kg", optSolo: "2 leg pieces" },
+    { name: "Fresh Chicken Breast", opt1: "500g", opt2: "1kg", optSolo: "200g" },
+    // { name: "Fresh Clean Gizzard Liver", opt1: "500g", opt2: "1kg", optSolo: "200g" },
 
     // ADDED THESE TWO ITEMS:
     { name: "Fresh Big Eggs", opt1: "30 Eggs", opt2: "60 Eggs" },
     { name: "Fresh Local Duck Eggs", opt1: "15 Eggs", opt2: "30 Eggs" },
-    { name: "Fresh Chicken Biriyani Cuts", opt1: "500g", opt2: "1kg" },
-    { name: "Fresh Chicken Boneless Keema", opt1: "500g", opt2: "1kg" },
-    { name: "Fresh Chicken Wings", opt1: "500g", opt2: "1kg" },
-    { name: "Pure Mutton Curry Cuts", opt1: "500g", opt2: "1kg" }
+    { name: "Fresh Chicken Biriyani Cut", opt1: "500g", opt2: "1kg", optSolo: "200g" },
+    { name: "Fresh Chicken Mince (Keema)", opt1: "500g", opt2: "1kg", optSolo: "200g" },
+    { name: "Fresh Chicken Wings", opt1: "500g", opt2: "1kg", optSolo: "200g" },
+    { name: "Pure Mutton Curry Cut", opt1: "500g", opt2: "1kg", optSolo: "200g" }
 ];
 
 const ALLOWED_ADMINS = [];
@@ -66,13 +66,17 @@ async function loadInventory() {
             // Sane Mapping: opt1 (Small) -> small, opt2 (Large) -> large
             const opt1Stock = data.small !== false;
             const opt2Stock = data.large !== false;
+            const optSoloStock = data.solo !== false;
 
             const p1_price = data.price_small || "";
             const p1_mrp = data.mrp_small || "";
             const p2_price = data.price_large || "";
             const p2_mrp = data.mrp_large || "";
+            const pSolo_price = data.price_solo || "";
+            const pSolo_mrp = data.mrp_solo || "";
 
-            const safeId = item.name.replace(/\s/g, '');
+            const colSize = item.optSolo ? 'col-md-4' : 'col-md-6';
+            const safeId = item.name.replace(/\s+/g, '');
 
             const itemDiv = document.createElement('div');
             itemDiv.className = 'stock-item animate__animated animate__fadeInUp';
@@ -86,7 +90,7 @@ async function loadInventory() {
                 </div>
                 
                 <div class="row g-4">
-                    <div class="col-md-6">
+                    <div class="${colSize}">
                         <div class="variant-box">
                             <div class="stock-toggle-wrapper">
                                 <span class="toggle-label text-primary"><i class="fas fa-box-open me-2"></i> ${item.opt1}</span>
@@ -115,7 +119,7 @@ async function loadInventory() {
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="${colSize}">
                         <div class="variant-box">
                             <div class="stock-toggle-wrapper">
                                 <span class="toggle-label text-primary"><i class="fas fa-box-open me-2"></i> ${item.opt2}</span>
@@ -143,6 +147,36 @@ async function loadInventory() {
                             </div>
                         </div>
                     </div>
+
+                    ${item.optSolo ? `
+                    <div class="${colSize}">
+                        <div class="variant-box" style="border: 1px solid #ff7c0820; background: #fff8f3;">
+                            <div class="stock-toggle-wrapper">
+                                <span class="toggle-label text-danger"><i class="fas fa-star me-2"></i> ${item.optSolo}</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="stock-${safeId}-solo" ${optSoloStock ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label text-muted small mb-1 fw-bold">Selling Price</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">₹</span>
+                                        <input type="number" id="price-${safeId}-solo" value="${pSolo_price}" class="form-control" placeholder="0">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label text-muted small mb-1 fw-bold">MRP (Crossed)</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">₹</span>
+                                        <input type="number" id="mrp-${safeId}-solo" value="${pSolo_mrp}" class="form-control text-muted" placeholder="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>` : ''}
                 </div>
             `;
             listContainer.appendChild(itemDiv);
@@ -158,7 +192,7 @@ async function loadInventory() {
 }
 
 window.saveProduct = async (productName) => {
-    const safeId = productName.replace(/\s/g, '');
+    const safeId = productName.replace(/\s+/g, '');
     const btn = document.querySelector(`button[onclick="saveProduct('${productName}')"]`);
     const originalText = btn.innerHTML;
 
@@ -167,14 +201,16 @@ window.saveProduct = async (productName) => {
 
     const getVal = (id) => {
         const el = document.getElementById(id);
-        return el.value ? parseFloat(el.value) : null;
+        return el && el.value ? parseFloat(el.value) : null;
     };
 
     const stockSmall = document.getElementById(`stock-${safeId}-small`).checked;
     const stockLarge = document.getElementById(`stock-${safeId}-large`).checked;
+    const soloEl = document.getElementById(`stock-${safeId}-solo`);
+    const stockSolo = soloEl ? soloEl.checked : null;
 
     try {
-        await setDoc(doc(db, "inventory", productName), {
+        const updateData = {
             small: stockSmall,
             price_small: getVal(`price-${safeId}-small`),
             mrp_small: getVal(`mrp-${safeId}-small`),
@@ -184,7 +220,15 @@ window.saveProduct = async (productName) => {
             mrp_large: getVal(`mrp-${safeId}-large`),
 
             updatedAt: new Date()
-        }, { merge: true });
+        };
+
+        if (soloEl) {
+            updateData.solo = stockSolo;
+            updateData.price_solo = getVal(`price-${safeId}-solo`);
+            updateData.mrp_solo = getVal(`mrp-${safeId}-solo`);
+        }
+
+        await setDoc(doc(db, "inventory", productName), updateData, { merge: true });
 
         btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
         btn.classList.remove('btn-save');

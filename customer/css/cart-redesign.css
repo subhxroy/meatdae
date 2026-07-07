@@ -587,3 +587,22 @@ body {
     background: #e74c3c !important;
     color: white !important;
 }
+
+/* ── Out-of-Stock Cart Card ── */
+.stock-out-card {
+    background: #f5f5f5;
+    border: 1.5px dashed #ccc;
+}
+
+.stock-out-card .item-info h4 {
+    color: #888;
+}
+
+.stock-out-card .item-price {
+    color: #aaa;
+}
+
+.stock-out-card .qty-controls {
+    opacity: 0.45;
+    pointer-events: none;
+}

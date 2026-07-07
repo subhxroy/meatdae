@@ -263,12 +263,52 @@ exports.askGeminiBot = functions
   }
 
   try {
-    const { systemPrompt } = req.body;
+    const { userName, userEmail, cartContext, productsContext, userQuery } = req.body;
     
-    if (!systemPrompt) {
-      res.status(400).json({ error: { message: "Missing systemPrompt in request body." } });
+    if (!userQuery) {
+      res.status(400).json({ error: { message: "Missing userQuery in request body." } });
       return;
     }
+
+    const systemInstructions = `You are the official MeatDae AI Assistant. 
+    MeatDae delivers premium, fresh (never frozen) chicken, eggs, and mutton in Cachar (Silchar area).
+    
+    TONE: Super friendly, witty, and HUMOROUS. Use meat puns (e.g., "Nice to MEAT you!", "You're RARE!"). 
+    Keep it energetic and brand-aligned 🍗🥩🔥.
+    
+    CORE BUSINESS FACTS (Never hallucinate these):
+    1. FRESHNESS: Same-day cut, delivered fresh. Never frozen.
+    2. HALAL: IMPORTANT - MeatDae NOT halal. Always state this clearly if asked.
+    3. PREP TIME: Delivery can take up to 90 mins because we cut and clean ONLY after order confirmation.
+    4. PRICING: Market-linked, live in the app.
+    5. DELIVERY: Free on orders above ₹350. Standard charge ₹11-15 otherwise.
+    6. LOCATION: Based in New Market, Silchar, Cachar.
+    
+    ORDERING FLOW:
+    If a user wants to order, guide them:
+    1. Ask for the product name.
+    2. Ask for weight/size. For Fresh Chicken Curry Cut, we have:
+       - 220g: Juicy bone-in mixed pieces (no leg piece).
+       - 500g: Juicy bone-in mixed pieces (1 leg piece).
+       - 1000g (1kg): Juicy bone-in mixed pieces (2 leg pieces).
+    3. Confirm delivery details.
+    
+    If you want to trigger an action, end your message with: [ACTION: ADD_TO_CART { "id": "product-id", "size": "500g" }] 
+    or [ACTION: GO_TO_CHECKOUT].
+    
+    TASK: Answer the user's question with a dash of humor. Be helpful and personal. Only answer questions related to MeatDae's services, meats, eggs, menu, operating hours, and ordering flow. If the user asks general or unrelated questions, decline to answer politely with a meat pun.`;
+
+    const systemPrompt = `${systemInstructions}
+
+    USER INFO:
+    - Name: ${userName || "Customer"}
+    - Email: ${userEmail || "Not logged in"}
+    - Current Cart: ${cartContext || "Empty"}
+    
+    AVAILABLE PRODUCTS:
+    ${productsContext || "N/A"}
+    
+    User Question: ${userQuery}`;
 
     const MODEL_ID = "gemini-1.5-flash";
     const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${apiKey}`;
@@ -299,3 +339,279 @@ exports.askGeminiBot = functions
     res.status(500).json({ error: { message: "Internal Server Error" } });
   }
 });
+
+// ===============================================
+// Secure Order Placement & Payment Verification
+// ===============================================
+exports.placeOrderSecure = functions.https.onCall(async (data, context) => {
+  // 1. Authenticate user
+  if (!context.auth) {
+    throw new functions.https.HttpsError("unauthenticated", "User must be logged in to place an order.");
+  }
+  const uid = context.auth.uid;
+  const { deliveryDetails, items, couponCode, paymentMethod, paymentId } = data;
+
+  if (!deliveryDetails || !items || !Array.isArray(items) || items.length === 0) {
+    throw new functions.https.HttpsError("invalid-argument", "Missing required order parameters.");
+  }
+
+  // 2. Fetch inventory and validate prices/stock
+  const db = admin.firestore();
+  const inventorySnap = await db.collection("inventory").get();
+  const inventory = {};
+  inventorySnap.forEach(doc => {
+    inventory[doc.id.toLowerCase().trim()] = { id: doc.id, ...doc.data() };
+  });
+
+  let calculatedSubtotal = 0;
+  const itemsForOrder = [];
+
+  // Normalize helper
+  const normalize = (name) => name.toLowerCase().trim().replace(/-/g, ' ').replace(/\s+/g, ' ');
+
+  for (const item of items) {
+    const normName = normalize(item.name).replace(/ cuts?$/i, '');
+    let product = inventory[normName];
+    if (!product) {
+      // search fallback
+      for (const key in inventory) {
+        if (key.replace(/ cuts?$/i, '') === normName) {
+          product = inventory[key];
+          break;
+        }
+      }
+    }
+
+    if (!product) {
+      throw new functions.https.HttpsError("not-found", `Item "${item.name}" not found in inventory.`);
+    }
+
+    // Check stock
+    const cleanWeight = (item.weight || "").toLowerCase().replace(/\s+/g, '');
+    let isOut = false;
+    let price = 0;
+    let mrp = 0;
+
+    let isLarge = false;
+    let isSmall = false;
+    let isSolo = false;
+
+    if (cleanWeight.includes('500g')) isSmall = true;
+    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g')) isLarge = true;
+    if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
+
+    // Eggs - Big
+    if (cleanWeight.includes('30eggs') && item.name.toLowerCase().includes('big')) isSmall = true;
+    if (cleanWeight.includes('60eggs') && item.name.toLowerCase().includes('big')) isLarge = true;
+
+    // Eggs - Duck
+    if (cleanWeight.includes('15eggs') && item.name.toLowerCase().includes('duck')) isSmall = true;
+    if (cleanWeight.includes('30eggs') && item.name.toLowerCase().includes('duck')) isLarge = true;
+
+    if (isLarge) {
+      if (product.large === false) isOut = true;
+      price = Number(product.price_large || product.price || 0);
+      mrp = Number(product.mrp_large || product.mrp || price);
+    } else if (isSmall) {
+      if (product.small === false) isOut = true;
+      price = Number(product.price_small || product.price || 0);
+      mrp = Number(product.mrp_small || product.mrp || price);
+    } else {
+      if (product.solo === false) isOut = true;
+      price = Number(product.price_solo || product.price || 0);
+      mrp = Number(product.mrp_solo || product.mrp || price);
+    }
+
+    // Check custom addon items if present
+    if (normName.includes("pack") && (normName.includes("big eggs") || normName.includes("duck eggs"))) {
+      const addons = inventory["cart_addons"];
+      if (addons) {
+        const isBig = normName.includes("big");
+        price = isBig ? Number(addons.big_eggs_price || 0) : Number(addons.local_duck_eggs_price || 0);
+        mrp = price;
+        isOut = false;
+      }
+    }
+
+    if (isOut) {
+      throw new functions.https.HttpsError("failed-precondition", `Item "${item.name}" (${item.weight || 'Standard'}) is out of stock.`);
+    }
+
+    calculatedSubtotal += price * item.quantity;
+    itemsForOrder.push({
+      name: product.id || item.name,
+      price: price,
+      mrp: mrp,
+      quantity: item.quantity,
+      image: item.image || product.image || "",
+      weight: item.weight || ""
+    });
+  }
+
+  // 3. Validate Delivery Charge
+  let deliveryCharge = 11; // Standard
+  const pincode = deliveryDetails.pincode;
+  const pincodesWith15Charge = ["788003", "788009", "788015", "788002"];
+  if (pincodesWith15Charge.includes(pincode)) {
+    deliveryCharge = 15;
+  }
+  const deliveryPricesByAddress = [
+    { price: 15, keywords: ["meherpur", "mhrpur", "mehepur", "meherfur"] },
+    { price: 15, keywords: ["rongpur", "rongpr", "rangpur"] },
+    { price: 17, keywords: ["bagatpur", "bogotpur", "bakatpur", "bhagatpur", "bhagotpur", "bhakatpr", "bhogotpur", "bhakatpur", "bakapur"] },
+    { price: 15, keywords: ["tarapur", "trapur", "tarfur", "tarpur"] },
+    { price: 15, keywords: ["itkola", "itkhola", "etkhola", "itkala"] },
+    { price: 18, keywords: ["masimpur", "mashimpur", "masimpr", "mashimpr"] },
+    { price: 18, keywords: ["tupkhana", "tupkana", "topkhana"] },
+    { price: 20, keywords: ["silcoorie", "silcoori", "silcuri", "silcory"] },
+    { price: 20, keywords: ["ghungoor", "gungoor", "ghungur", "gungur"] },
+    { price: 25, keywords: ["udharbond", "udorbon", "udarbond", "udorband", "udarband"] },
+    { price: 25, keywords: ["srikona", "shrikona", "srikuna"] },
+    { price: 20, keywords: ["kabuganj", "kabuganj market"] }
+  ];
+  const addressText = (deliveryDetails.address || "").toLowerCase();
+  let maxPriceDetected = 0;
+  deliveryPricesByAddress.forEach(item => {
+    const isMatched = item.keywords.some(kw => addressText.includes(kw));
+    if (isMatched && item.price > maxPriceDetected) {
+      maxPriceDetected = item.price;
+    }
+  });
+  if (maxPriceDetected > 0) {
+    deliveryCharge = maxPriceDetected;
+  }
+
+  // 4. Validate Coupon Discount
+  let discountAmount = 0;
+  if (couponCode) {
+    const code = couponCode.toUpperCase().trim();
+    if (code === "MEATNEW" || code === "MEAT50") {
+      discountAmount = Math.min(50, calculatedSubtotal * 0.1);
+    } else if (code === "MEAT100") {
+      discountAmount = Math.min(100, calculatedSubtotal * 0.15);
+    }
+  }
+
+  const isOnlinePayment = paymentMethod.toLowerCase().includes('online');
+  const onlineFee = isOnlinePayment ? 5 : 0;
+  const finalTotal = calculatedSubtotal + deliveryCharge - discountAmount + onlineFee;
+
+  // 5. Verify Razorpay Payment if online
+  let paymentStatus = isOnlinePayment ? "Pending" : "Unpaid";
+  if (isOnlinePayment) {
+    if (!paymentId) {
+      throw new functions.https.HttpsError("invalid-argument", "Payment ID is required for online payments.");
+    }
+
+    const keyId = process.env.RAZORPAY_KEY_ID || "rzp_live_SBdudmt1UBFAEw";
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    
+    if (keySecret) {
+      try {
+        const authHeader = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+        const response = await fetch(`https://api.razorpay.com/v1/payments/${paymentId}`, {
+          headers: { "Authorization": `Basic ${authHeader}` }
+        });
+        const paymentData = await response.json();
+        
+        if (!response.ok || (paymentData.status !== "captured" && paymentData.status !== "authorized")) {
+          throw new functions.https.HttpsError("payment-required", "Razorpay payment verification failed.");
+        }
+
+        // Verify payment amount matches (Razorpay amount is in paise)
+        const paidAmount = Number(paymentData.amount) / 100;
+        if (Math.abs(paidAmount - finalTotal) > 5) { // allow 5 rupee threshold for rounding/fees
+          throw new functions.https.HttpsError("payment-required", `Payment amount mismatch. Paid: ₹${paidAmount}, Expected: ₹${finalTotal}`);
+        }
+        paymentStatus = "Paid";
+      } catch (err) {
+        console.error("Razorpay verification error:", err);
+        throw new functions.https.HttpsError("internal", "Error verifying payment with Razorpay.");
+      }
+    } else {
+      console.warn("RAZORPAY_KEY_SECRET is not set. Skipping signature verification.");
+      paymentStatus = "Paid";
+    }
+  }
+
+  // 6. Write Order to Firestore in a Transaction
+  let formattedOrderId;
+  await db.runTransaction(async (transaction) => {
+    const counterRef = db.collection("metadata").doc("order_counter");
+    const counterDoc = await transaction.get(counterRef);
+
+    let newCount = 1;
+    if (counterDoc.exists) {
+      newCount = counterDoc.data().count + 1;
+      transaction.update(counterRef, { count: newCount });
+    } else {
+      transaction.set(counterRef, { count: newCount });
+    }
+
+    formattedOrderId = "#" + newCount.toString().padStart(4, "0");
+
+    let deliveryLocation = null;
+    const orderData = {
+      orderId: formattedOrderId,
+      userId: uid,
+      customerName: deliveryDetails.name || '',
+      customerEmail: deliveryDetails.email || '',
+      customerPhone: deliveryDetails.phone || '',
+      deliveryInfo: deliveryDetails,
+      items: itemsForOrder,
+      totalAmount: finalTotal,
+      deliveryCharge: deliveryCharge,
+      discountAmount: discountAmount,
+      couponCode: couponCode || null,
+      onlineFee: onlineFee,
+      paymentMethod: paymentMethod,
+      paymentStatus: paymentStatus,
+      paymentId: paymentId || null,
+      status: "PENDING_APPROVAL",
+      riderId: null,
+      riderLocation: null,
+      deliveryLocation: deliveryLocation,
+      specialInstructions: deliveryDetails.orderNotes || "",
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAtLocal: new Date().toISOString()
+    };
+
+    const orderRef = db.collection("orders").doc(formattedOrderId);
+    transaction.set(orderRef, orderData);
+  });
+
+  return { success: true, orderId: formattedOrderId };
+});
+
+// ===============================================
+// Server-Side Firestore Trigger: Admin Notifications
+// ===============================================
+exports.createAdminNotification = functions.firestore
+  .document("orders/{orderId}")
+  .onCreate(async (snap, context) => {
+    const order = snap.data();
+    const orderId = context.params.orderId;
+    const db = admin.firestore();
+
+    const itemsSummary = (order.items || []).map(item => `${item.name} (${item.weight || 'Std'}) x${item.quantity}`).join(', ');
+
+    try {
+      await db.collection("admin_notifications").add({
+        title: `New Order ${order.orderId || orderId}`,
+        body: `Customer: ${order.customerName || 'N/A'} (${order.customerPhone || 'N/A'})\nAddress: ${order.deliveryInfo?.address || 'N/A'}, Pincode: ${order.deliveryInfo?.pincode || 'N/A'}\nItems: ${itemsSummary}\nTotal: ₹${order.totalAmount || '0'} (${order.paymentMethod || 'COD'})`,
+        orderId: order.orderId || orderId,
+        customerName: order.customerName || '',
+        customerPhone: order.customerPhone || '',
+        customerAddress: order.deliveryInfo?.address || '',
+        itemsSummary: itemsSummary,
+        totalAmount: order.totalAmount || 0,
+        paymentMethod: order.paymentMethod || '',
+        type: "NEW_ORDER",
+        read: false,
+        timestamp: admin.firestore.FieldValue.serverTimestamp()
+      });
+      console.log("Admin notification created securely on server for order:", orderId);
+    } catch (err) {
+      console.error("Error creating admin notification trigger:", err);
+    }
+  });

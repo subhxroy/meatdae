@@ -474,12 +474,13 @@ $(document).ready(function () {
 
     // Define keywords and their matching items
     const keywords = {
-      'chicken': ['chicken curry cuts', 'chicken boneless cuts', 'chicken legs cuts', 'chicken breast cuts'],
-      'curry': ['chicken curry cuts', 'mutton curry cuts'],
-      'boneless': ['chicken boneless cuts'],
-      'legs': ['chicken legs cuts'],
-      'breast': ['chicken breast cuts'],
-      'mutton': ['mutton curry cuts'],
+      'chicken': ['chicken curry cut', 'chicken boneless', 'chicken drumstick', 'chicken breast', 'chicken mince'],
+      'curry': ['chicken curry cut', 'mutton curry cut'],
+      'boneless': ['chicken boneless'],
+      'legs': ['chicken drumstick'],
+      'drumstick': ['chicken drumstick'],
+      'breast': ['chicken breast'],
+      'mutton': ['mutton curry cut'],
       'egg': ['fresh big eggs', 'local duck eggs'],
       'eggs': ['fresh big eggs', 'local duck eggs']
     };
@@ -881,10 +882,14 @@ $(document).ready(function () {
     // Update price display (unit price * quantity)
     const $priceEl = $card.find('.product-price');
 
-    if (mrpPrice > unitPrice) {
-      $priceEl.html(`₹${(unitPrice * qty).toFixed(0)} <del style="font-size:14px;color:#999;">₹${(mrpPrice * qty).toFixed(0)}</del>`);
+    if (unitPrice === 0) {
+      $priceEl.html(`<span style="font-size:14px;color:var(--primary);font-weight:bold;">Coming Soon</span>`);
     } else {
-      $priceEl.text('₹' + (unitPrice * qty).toFixed(0));
+      if (mrpPrice > unitPrice) {
+        $priceEl.html(`₹${(unitPrice * qty).toFixed(0)} <del style="font-size:14px;color:#999;">₹${(mrpPrice * qty).toFixed(0)}</del>`);
+      } else {
+        $priceEl.text('₹' + (unitPrice * qty).toFixed(0));
+      }
     }
   });
 
@@ -909,14 +914,21 @@ $(document).ready(function () {
     // Update price display based on active size pill
     const $activeSizePill = $card.find('.size-pill.active');
     if ($activeSizePill.length > 0) {
+      const activeSize = $activeSizePill.data('size') || '';
       const unitPrice = parseFloat($activeSizePill.data('price'));
       const mrpPrice = parseFloat($activeSizePill.data('mrp')) || unitPrice;
       const $priceEl = $card.find('.product-price');
 
-      if (mrpPrice > unitPrice) {
-        $priceEl.html(`₹${(unitPrice * currentQty).toFixed(0)} <del style="font-size:14px;color:#999;">₹${(mrpPrice * currentQty).toFixed(0)}</del>`);
+      const isSoloSelected = activeSize.includes('220g') || activeSize.includes('200g') || activeSize.includes('2 leg pieces') || activeSize.includes('2');
+
+      if (isSoloSelected && unitPrice === 0) {
+        $priceEl.html(`<span style="font-size:14px;color:var(--primary);font-weight:bold;">Coming Soon</span>`);
       } else {
-        $priceEl.text('₹' + (unitPrice * currentQty).toFixed(0));
+        if (mrpPrice > unitPrice) {
+          $priceEl.html(`₹${(unitPrice * currentQty).toFixed(0)} <del style="font-size:14px;color:#999;">₹${(mrpPrice * currentQty).toFixed(0)}</del>`);
+        } else {
+          $priceEl.text('₹' + (unitPrice * currentQty).toFixed(0));
+        }
       }
     }
   });
