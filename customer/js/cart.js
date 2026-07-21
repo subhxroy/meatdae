@@ -54,12 +54,11 @@ async function forceClearCart(user) {
     else updateCartCounter(null);
 }
 
-export async function updateCartCounter(user) {
+export async function updateCartCounter(user, preFetchedSnapshot = null) {
     let cartCount = 0;
     if (user) {
         try {
-            const cartRef = collection(db, "carts", user.uid, "items");
-            const querySnapshot = await getDocs(cartRef);
+            const querySnapshot = preFetchedSnapshot || await getDocs(collection(db, "carts", user.uid, "items"));
             querySnapshot.forEach(docSnap => {
                 cartCount += (docSnap.data().quantity || 1);
             });
@@ -316,12 +315,10 @@ function attachCardQuantityControls() {
         const price = parseFloat(card.dataset.cartPrice || 0) || 0;
         const delta = btn.classList.contains('card-qty-increase') ? 1 : -1;
 
-        const newQty = await updateCartItemQuantity(user.uid, itemName, delta, {
-            price,
-            mrp: price,
-            image: card.dataset.img || '',
-            size
-        });
+        // Optimistic UI updates
+        const qtyValEl = card.querySelector('.card-qty-value');
+        const currentQty = qtyValEl ? parseInt(qtyValEl.textContent) : 0;
+        const newQty = Math.max(0, currentQty + delta);
 
         setHomepageCardQuantity({
             id: card.dataset.id,
@@ -332,7 +329,35 @@ function attachCardQuantityControls() {
             img: card.dataset.img || ''
         });
 
-        updateCartCounter(user);
+        // Update badge count optimistically
+        document.querySelectorAll('.cart-count').forEach(counter => {
+            let badgeVal = parseInt(counter.textContent) || 0;
+            badgeVal = Math.max(0, badgeVal + delta);
+            counter.textContent = badgeVal;
+            counter.style.display = badgeVal > 0 ? 'block' : 'none';
+        });
+
+        // Firestore update in background
+        updateCartItemQuantity(user.uid, itemName, delta, {
+            price,
+            mrp: price,
+            image: card.dataset.img || '',
+            size
+        }).then(finalQty => {
+            // Background update done, if we need to sync we can, but onSnapshot listener takes care of it
+        }).catch(err => {
+            console.error("Firestore quantity update failed:", err);
+            // Revert state if needed
+            setHomepageCardQuantity({
+                id: card.dataset.id,
+                qty: currentQty,
+                size,
+                price,
+                name: itemName,
+                img: card.dataset.img || ''
+            });
+            updateCartCounter(user);
+        });
     });
 }
 
@@ -428,11 +453,11 @@ window.repeatLastOrder = async function () {
                 const cleanWeight = weight.replace(/\s+/g, '');
 
                 let isOut = false;
-                if (cleanWeight.includes('500g')) {
+                if (cleanWeight.includes('500g') || cleanWeight.includes('500gram')) {
                     if (currentItem.small === false) isOut = true;
-                } else if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g')) {
+                } else if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('kilogram') || cleanWeight.includes('1000gram')) {
                     if (currentItem.large === false) isOut = true;
-                } else if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces')) {
+                } else if (cleanWeight.includes('220g') || cleanWeight.includes('220gram') || cleanWeight.includes('200g') || cleanWeight.includes('200gram') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces')) {
                     if (currentItem.solo === false) isOut = true;
                 } else if (cleanWeight.includes('30') && currentItem.name.toLowerCase().includes('big')) {
                     if (currentItem.small === false) isOut = true;
@@ -488,7 +513,7 @@ window.repeatLastOrder = async function () {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    onAuthStateChanged(auth, async user => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async user => {
         const path = window.location.pathname || '';
         const normalizedPath = path.toLowerCase();
         const isHomePage = normalizedPath === '' || normalizedPath.endsWith('index.html') || normalizedPath.endsWith('/') || normalizedPath.includes('/index');
@@ -507,15 +532,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (user) {
             updateCartCounter(user);
-            monitorActiveOrders(user);
+            // NOTE: order blinking is handled solely by order-notifier.js
+            // Removed duplicate monitorActiveOrders() call to avoid double Firestore reads
         } else {
             updateCartCounter(null);
-            document.querySelectorAll('.bottom-nav-item').forEach(btn => {
-                const href = btn.getAttribute('href') || '';
-                if (href.includes('my_orders.html')) {
-                    btn.classList.remove('blink-orders');
-                }
-            });
         }
     });
 
@@ -524,39 +544,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = auth.currentUser;
         updateCartCounter(user);
     });
+
+    // Clean up auth listener when user navigates away to prevent listener accumulation
+    window.addEventListener('pagehide', () => {
+        if (typeof unsubscribeAuth === 'function') unsubscribeAuth();
+    });
 });
 
-async function monitorActiveOrders(user) {
-    if (!user) return;
-    const ordersRef = collection(db, "orders");
-    const q = query(ordersRef, where("userId", "==", user.uid));
-
-    // Use onSnapshot for real-time blinking update
-    onSnapshot(q, (snapshot) => {
-        let hasActiveOrders = false;
-        snapshot.forEach(docSnap => {
-            const data = docSnap.data();
-            const status = (data.status || "").toUpperCase();
-            // Broaden statuses to catch any active state including prepared ones
-            if (["PENDING_APPROVAL", "PREPARING", "READY_FOR_PICKUP", "OUT_FOR_DELIVERY", "READY", "PENDING"].includes(status)) {
-                hasActiveOrders = true;
-            }
-        });
-
-        document.querySelectorAll('.bottom-nav-item').forEach(btn => {
-            const href = btn.getAttribute('href') || '';
-            if (href.includes('my_orders.html')) {
-                if (hasActiveOrders) {
-                    btn.classList.add('blink-orders');
-                } else {
-                    btn.classList.remove('blink-orders');
-                }
-            }
-        });
-    }, (error) => {
-        console.error("Order monitor failed:", error);
-    });
-}
+// monitorActiveOrders() removed — order-notifier.js is the single source of truth
+// for order status blinking. Having both open identical Firestore snapshots doubled reads.
 
 async function addToFirestoreCart(uid, product) {
     try {

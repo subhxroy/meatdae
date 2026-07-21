@@ -794,7 +794,7 @@ async function initAuth() {
     showAlertText("Google Sign-In returned an error. Open browser console for details.", 'error');
   }
 
-  let isInitializing = true;
+  let signOutRedirectTimer = null;
 
   onAuthStateChanged(auth, async (user) => {
     debugLog("onAuthStateChanged ->", user ? user.uid : "No user", "Pathname:", window.location.pathname);
@@ -809,6 +809,9 @@ async function initAuth() {
     const requiresAuth = isDashboard || isCheckout || isMyOrders || document.body.hasAttribute("data-requires-auth");
 
     if (user) {
+      // Cancel any pending false-logout redirect (e.g. from token refresh)
+      clearTimeout(signOutRedirectTimer);
+      signOutRedirectTimer = null;
       // Set initial user role (async fetch)
       getDoc(doc(db, "users", user.uid)).then(snap => {
         if (snap.exists()) {
@@ -856,18 +859,19 @@ async function initAuth() {
           }
         };
 
-        if (isInitializing) {
-          setTimeout(() => {
+        // Use a cancellable timer so transient nulls (token refresh, network blip,
+        // tab restore) don't trigger a logout. The timer is cleared above if the
+        // session recovers before it fires. Applies to EVERY null emission.
+        if (!signOutRedirectTimer) {
+          signOutRedirectTimer = setTimeout(() => {
+            signOutRedirectTimer = null;
             if (!auth.currentUser) {
               handleUnauthorized();
             }
-          }, 1500);
-        } else {
-          handleUnauthorized();
+          }, 5000); // 5 s covers Firebase token refresh on slow connections
         }
       }
     }
-    isInitializing = false;
   });
 
   // Immediate check for existing user (for page refreshes)

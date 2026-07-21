@@ -436,24 +436,44 @@
   <section class="premium-product-list" id="main-product-list">
     <!-- Skeleton Loading -->
     <div id="product-skeletons" style="display: contents;">
-      <div class="skeleton-card"
-        style="padding: 15px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #f0f0f0;">
-        <div class="skeleton sk-img" style="height: 180px; margin-bottom: 15px;"></div>
-        <div class="skeleton sk-title" style="width: 80%; margin-bottom: 10px;"></div>
-        <div class="skeleton sk-text" style="width: 50%; margin-bottom: 15px;"></div>
-        <div class="skeleton sk-text" style="height: 40px; border-radius: 8px;"></div>
+      <div class="skeleton-card" style="padding: 15px; border-radius: 20px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; border: none;">
+        <div class="skeleton" style="width: 100%; aspect-ratio: 16/10; border-radius: 16px; height: 180px;"></div>
+        <div class="skeleton" style="width: 70%; height: 22px; border-radius: 4px; margin-top: 4px;"></div>
+        <div class="skeleton" style="width: 90%; height: 14px; border-radius: 4px;"></div>
+        <div style="display: flex; gap: 8px; margin: 4px 0;">
+          <div class="skeleton" style="width: 60px; height: 28px; border-radius: 15px;"></div>
+          <div class="skeleton" style="width: 60px; height: 28px; border-radius: 15px;"></div>
+          <div class="skeleton" style="width: 60px; height: 28px; border-radius: 15px;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+          <div class="skeleton" style="width: 80px; height: 24px; border-radius: 4px;"></div>
+          <div style="display: flex; gap: 8px;">
+            <div class="skeleton" style="width: 64px; height: 36px; border-radius: 8px;"></div>
+            <div class="skeleton" style="width: 84px; height: 36px; border-radius: 8px;"></div>
+          </div>
+        </div>
       </div>
-      <div class="skeleton-card"
-        style="padding: 15px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #f0f0f0;">
-        <div class="skeleton sk-img" style="height: 180px; margin-bottom: 15px;"></div>
-        <div class="skeleton sk-title" style="width: 80%; margin-bottom: 10px;"></div>
-        <div class="skeleton sk-text" style="width: 50%; margin-bottom: 15px;"></div>
-        <div class="skeleton sk-text" style="height: 40px; border-radius: 8px;"></div>
+      <div class="skeleton-card" style="padding: 15px; border-radius: 20px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; border: none;">
+        <div class="skeleton" style="width: 100%; aspect-ratio: 16/10; border-radius: 16px; height: 180px;"></div>
+        <div class="skeleton" style="width: 70%; height: 22px; border-radius: 4px; margin-top: 4px;"></div>
+        <div class="skeleton" style="width: 90%; height: 14px; border-radius: 4px;"></div>
+        <div style="display: flex; gap: 8px; margin: 4px 0;">
+          <div class="skeleton" style="width: 60px; height: 28px; border-radius: 15px;"></div>
+          <div class="skeleton" style="width: 60px; height: 28px; border-radius: 15px;"></div>
+          <div class="skeleton" style="width: 60px; height: 28px; border-radius: 15px;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+          <div class="skeleton" style="width: 80px; height: 24px; border-radius: 4px;"></div>
+          <div style="display: flex; gap: 8px;">
+            <div class="skeleton" style="width: 64px; height: 36px; border-radius: 8px;"></div>
+            <div class="skeleton" style="width: 84px; height: 36px; border-radius: 8px;"></div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Actual Products (initially hidden) -->
-    <div id="actual-products" style="display: contents; opacity: 0; transition: opacity 0.5s ease;">
+    <div id="actual-products" style="display: none; opacity: 0; transition: opacity 0.5s ease;">
       <!-- 1. Chicken Curry Cuts -->
       <div class="product-card modern-product-card" data-id="fresh-chicken-curry-cut"
         data-name="Fresh Chicken Curry Cut" data-category="chicken"

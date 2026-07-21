@@ -1,4 +1,4 @@
-import { app, auth, db } from './firebase-config.js';
+import { app, auth, db, functions, httpsCallable } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import {
     doc, getDoc, collection, getDocs,
@@ -20,6 +20,7 @@ function showAlert(message, title = 'Notice', type = 'info') {
 // Global state for real-time price validation
 let inventoryCache = [];
 let inventoryUnsubscribe = null;
+let orderSummarySetupDone = false; // Guard: prevent re-registering button listener on inventory refresh
 
 function listenToInventory() {
     if (inventoryUnsubscribe) inventoryUnsubscribe();
@@ -85,9 +86,9 @@ function getRealtimeItemData(productName, weight, originalItem) {
     let isSolo = false;
 
     // Standard items
-    if (cleanWeight.includes('500g')) isSmall = true;
-    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g')) isLarge = true;
-    if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
+    if (cleanWeight.includes('500g') || cleanWeight.includes('500gram')) isSmall = true;
+    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('kilogram') || cleanWeight.includes('1000gram')) isLarge = true;
+    if (cleanWeight.includes('220g') || cleanWeight.includes('220gram') || cleanWeight.includes('200g') || cleanWeight.includes('200gram') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
     
     // Eggs - Big
     if (cleanWeight.includes('30eggs') && productName.toLowerCase().includes('big')) isSmall = true;
@@ -119,7 +120,7 @@ function getRealtimeItemData(productName, weight, originalItem) {
 }
 const validPincodes = ["788001", "788004", "788005", "788015", "788003", "788009", "788007", "788006", "788002"];
 
-const RAZORPAY_KEY = "rzp_live_SBdudmt1UBFAEw";
+const RAZORPAY_KEY = "rzp_live_TG5jXz4jsRuo3B";
 const ONLINE_PAYMENT_FEE = 11;
 let baseTotalGlobal = 0; // Total before online fee
 
@@ -559,18 +560,27 @@ async function displayOrderSummary(user) {
     const finalTotal = updatePaymentUI(total);
     setupPaymentMethodListeners(total);
 
-    const oldBtn = document.getElementById('place-order-btn');
-    if (oldBtn) {
-        const newBtn = oldBtn.cloneNode(true);
-        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+    // Only register the button click listener ONCE.
+    // If the real-time inventory listener re-triggers displayOrderSummary while
+    // the Razorpay modal is open, we must NOT clone the button or register a new
+    // listener — doing so would either leave the Razorpay handler calling placeOrder
+    // with stale closure variables, or produce duplicate order submissions.
+    if (!orderSummarySetupDone) {
+        orderSummarySetupDone = true;
+        const oldBtn = document.getElementById('place-order-btn');
+        if (oldBtn) {
+            const newBtn = oldBtn.cloneNode(true);
+            oldBtn.parentNode.replaceChild(newBtn, oldBtn);
 
-        newBtn.addEventListener('click', () => {
-            // Recalculate total with fee if online
-            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'COD';
-            const currentTotal = selectedMethod === 'Online' ? (total + ONLINE_PAYMENT_FEE) : total;
-            
-            handlePaymentProcess(user, deliveryDetails, itemsForOrder, cartSnapshot, currentTotal, orderItemsDetails, delivery, totalDiscountDisplay, couponCode);
-        });
+            newBtn.addEventListener('click', () => {
+                // Read live copies of itemsForOrder and deliveryDetails from the
+                // module-level variables so we always use the most up-to-date data.
+                const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'COD';
+                const currentTotal = selectedMethod === 'Online' ? (total + ONLINE_PAYMENT_FEE) : total;
+
+                handlePaymentProcess(user, deliveryDetails, itemsForOrder, cartSnapshot, currentTotal, orderItemsDetails, delivery, totalDiscountDisplay, couponCode);
+            });
+        }
     }
 
     // Always check operating hours after UI is updated to ensure button state is correct
@@ -632,108 +642,45 @@ function initiateRazorpayPayment(user, deliveryDetails, itemsForOrder, cartSnaps
 
 // ** GLOBAL SEQUENTIAL ID LOGIC **
 async function placeOrder(user, deliveryDetails, itemsForOrder, cartSnapshot, total, orderItemsDetails, deliveryCharge, discountAmount, couponCode, paymentMethod, paymentStatus, paymentId) {
+    // Always re-query the button by ID to handle the case where the DOM button
+    // was replaced by a cloneNode() call after this closure was captured.
     const placeOrderBtn = document.getElementById('place-order-btn');
+    if (!placeOrderBtn) {
+        console.error('[PAYMENT] place-order-btn not found in DOM. Order aborted.');
+        showAlert('A page error occurred. Please refresh and try again.', 'Error', 'error');
+        return;
+    }
     placeOrderBtn.disabled = true;
     placeOrderBtn.innerHTML = paymentMethod.includes('Online') ? 'Verifying... <i class="fas fa-spinner fa-spin ms-2"></i>' : 'Placing... <i class="fas fa-spinner fa-spin ms-2"></i>';
 
     let formattedOrderId;
 
     try {
-        await runTransaction(db, async (transaction) => {
-            // Check stock status for each item in the order
-            for (const item of itemsForOrder) {
-                // If it's admin, bypass stock checks
-                if (window.userRole === 'admin') continue;
+        const placeOrderSecure = httpsCallable(functions, 'placeOrderSecure');
 
-                const invDocRef = doc(db, "inventory", item.name);
-                const invDoc = await transaction.get(invDocRef);
-                if (invDoc.exists()) {
-                    const invData = invDoc.data();
-                    const cleanWeight = (item.weight || "").toLowerCase().replace(/\s+/g, '');
-                    
-                    let isOut = false;
-                    if (cleanWeight.includes('500g')) {
-                        if (invData.small === false) isOut = true;
-                    } else if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g')) {
-                        if (invData.large === false) isOut = true;
-                    } else if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces')) {
-                        if (invData.solo === false) isOut = true;
-                    } else if (cleanWeight.includes('30') && item.name.toLowerCase().includes('big')) {
-                        if (invData.small === false) isOut = true;
-                    } else if (cleanWeight.includes('60') && item.name.toLowerCase().includes('big')) {
-                        if (invData.large === false) isOut = true;
-                    } else if (cleanWeight.includes('15') && item.name.toLowerCase().includes('duck')) {
-                        if (invData.small === false) isOut = true;
-                    } else if (cleanWeight.includes('30') && item.name.toLowerCase().includes('duck')) {
-                        if (invData.large === false) isOut = true;
-                    }
-
-                    if (isOut) {
-                        throw new Error(`Item "${item.name}" (${item.weight}) is out of stock.`);
-                    }
-                }
+        let deliveryLocation = null;
+        try {
+            const userPinned = localStorage.getItem('userPinnedLocation');
+            const savedLoc = localStorage.getItem('deliveryLocation');
+            if (userPinned === 'true' && savedLoc) {
+                deliveryLocation = JSON.parse(savedLoc);
             }
+        } catch (e) { /* ignore */ }
 
-            // 1. Reference the Global Counter
-            const counterRef = doc(db, "metadata", "order_counter");
-            const counterDoc = await transaction.get(counterRef);
-
-            let newCount;
-
-            if (!counterDoc.exists()) {
-                // If this is the FIRST order ever, start at 1
-                newCount = 1;
-                transaction.set(counterRef, { count: newCount });
-            } else {
-                // Otherwise, increment the global count
-                newCount = counterDoc.data().count + 1;
-                transaction.update(counterRef, { count: newCount });
-            }
-
-            // 2. Format ID (e.g. 1 -> "#0001")
-            formattedOrderId = "#" + newCount.toString().padStart(4, "0");
-
-            // 3. Prepare Order Data
-            // Read delivery GPS coordinates ONLY if customer explicitly pinned their location
-            let deliveryLocation = null;
-            try {
-                const userPinned = localStorage.getItem('userPinnedLocation');
-                const savedLoc = localStorage.getItem('deliveryLocation');
-                if (userPinned === 'true' && savedLoc) {
-                    deliveryLocation = JSON.parse(savedLoc);
-                }
-            } catch (e) { /* ignore */ }
-
-            const isOnlinePayment = paymentMethod.toLowerCase().includes('online');
-            const orderData = {
-                orderId: formattedOrderId,
-                userId: user.uid,
-                customerName: deliveryDetails.name || '',
-                customerEmail: deliveryDetails.email || '',
-                customerPhone: deliveryDetails.phone || '',
-                deliveryInfo: deliveryDetails,
-                items: itemsForOrder,
-                totalAmount: total,
-                deliveryCharge: deliveryCharge,
-                discountAmount: discountAmount,
-                couponCode: couponCode,
-                onlineFee: isOnlinePayment ? ONLINE_PAYMENT_FEE : 0,
-                paymentMethod: paymentMethod,
-                paymentStatus: paymentStatus,
-                paymentId: paymentId || null,
-                status: "PENDING_APPROVAL",
-                riderId: null,
-                riderLocation: null,
-                deliveryLocation: deliveryLocation, // Customer's pinned GPS coordinates
-                specialInstructions: deliveryDetails.orderNotes || "",
-                createdAt: serverTimestamp(),
-                createdAtLocal: new Date().toISOString()
-            };
-
-            // 4. Save Order
-            const newOrderRef = doc(db, "orders", formattedOrderId);
-            transaction.set(newOrderRef, orderData);
+        const result = await placeOrderSecure({
+            deliveryDetails,
+            items: itemsForOrder,
+            couponCode,
+            paymentMethod,
+            paymentId,
+            deliveryLocation
         });
+
+        if (!result.data || !result.data.success) {
+            throw new Error(result.data?.message || "Failed to place order.");
+        }
+
+        formattedOrderId = result.data.orderId;
 
         // --- Success ---
         // Only delete cart items if this was NOT a Buy Now or Reorder flow

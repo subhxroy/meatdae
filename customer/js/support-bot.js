@@ -377,7 +377,7 @@ async function handleBotAction(type, dataRaw) {
 
             if (productMeta && invData) {
                 const size = data.size || "500g";
-                const isLarge = size.includes('1kg') || size.includes('1000g') || size.includes('60');
+                const isLarge = size.includes('1kg') || size.includes('1000g') || size.includes('kilogram') || size.includes('1000gram') || size.includes('60');
                 const price = isLarge ? (invData.price_large || invData.price_small) : invData.price_small;
                 const mrp = isLarge ? (invData.mrp_large || invData.mrp_small || price) : (invData.mrp_small || price);
 

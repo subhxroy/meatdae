@@ -23,8 +23,17 @@ function updateOrderNotification(hasActiveOrders) {
     }
 }
 
+let _ordersUnsubscribe = null;
+let _authUnsubscribe  = null;
+
 document.addEventListener('DOMContentLoaded', () => {
-    onAuthStateChanged(auth, (user) => {
+    _authUnsubscribe = onAuthStateChanged(auth, (user) => {
+        // Clean up any previous orders listener when user changes
+        if (_ordersUnsubscribe) {
+            _ordersUnsubscribe();
+            _ordersUnsubscribe = null;
+        }
+
         if (!user) {
             updateOrderNotification(false);
             return;
@@ -32,10 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Listen for active orders
         const ordersRef = collection(db, "orders");
-        // We query all orders for the user and filter locally to avoid complex indexes for this simple feature
         const q = query(ordersRef, where("userId", "==", user.uid));
 
-        onSnapshot(q, (snapshot) => {
+        _ordersUnsubscribe = onSnapshot(q, (snapshot) => {
             let hasActive = false;
             snapshot.forEach(docSnap => {
                 const data = docSnap.data();
@@ -48,5 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, (error) => {
             console.error("Order notifier failed:", error);
         });
+    });
+
+    // Clean up all listeners when user navigates away
+    window.addEventListener('pagehide', () => {
+        if (typeof _ordersUnsubscribe === 'function') _ordersUnsubscribe();
+        if (typeof _authUnsubscribe  === 'function') _authUnsubscribe();
     });
 });

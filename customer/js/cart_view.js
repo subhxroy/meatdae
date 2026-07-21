@@ -5,6 +5,7 @@ import { updateCartCounter } from './cart.js';
 
 let cartItemsCache = [];
 let inventoryCache = [];
+let latestCartSnapshot = null;
 
 // Real-time Inventory & Stock Listener
 function listenToInventory() {
@@ -33,7 +34,9 @@ function listenToInventory() {
         // Re-render cart to reflect stock/price changes instantly
         const user = auth.currentUser;
         if (user) {
-            displayCartItems(user);
+            if (latestCartSnapshot) {
+                displayCartItemsFromSnapshot(user, latestCartSnapshot);
+            }
         } else {
             displayGuestCart();
         }
@@ -95,9 +98,9 @@ function getRealtimeItemData(productName, weight, originalItem) {
     let isSolo = false;
 
     // Standard items
-    if (cleanWeight.includes('500g')) isSmall = true;
-    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('1kilogram')) isLarge = true;
-    if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
+    if (cleanWeight.includes('500g') || cleanWeight.includes('500gram')) isSmall = true;
+    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('kilogram') || cleanWeight.includes('1000gram')) isLarge = true;
+    if (cleanWeight.includes('220g') || cleanWeight.includes('220gram') || cleanWeight.includes('200g') || cleanWeight.includes('200gram') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
     
     // Eggs - Big
     if (cleanWeight.includes('30eggs') && productName.toLowerCase().includes('big')) isSmall = true;
@@ -207,8 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const cartRef = collection(db, "carts", user.uid, "items");
             cartUnsubscribe = onSnapshot(cartRef, (querySnapshot) => {
+                latestCartSnapshot = querySnapshot;
                 displayCartItemsFromSnapshot(user, querySnapshot);
-                updateCartCounter(user);
+                updateCartCounter(user, querySnapshot);
             });
 
             attachActionListeners(user);
@@ -588,34 +592,25 @@ function updateFreeDeliveryBanner(currentTotal) {
     }
 }
 
-async function handleItemRemoval(user, docId) {
-    await deleteDoc(doc(db, "carts", user.uid, "items", docId));
+function handleItemRemoval(user, docId) {
+    if (!user) return;
 
-    const remainingCartRef = collection(db, "carts", user.uid, "items");
-    const remainingSnapshot = await getDocs(remainingCartRef);
+    // Delete the main item in background
+    deleteDoc(doc(db, "carts", user.uid, "items", docId)).catch(err => console.error("Error deleting item:", err));
 
-    if (remainingSnapshot.empty) {
-        await displayCartItems(user);
-        return;
-    }
+    // Check using local cache instead of fetching from network
+    const remaining = cartItemsCache.filter(item => item.id !== docId);
+    const hasRegular = remaining.some(item => 
+        item.name !== "Pack of 8 fresh big eggs" && 
+        item.name !== "Pack of 10 fresh big eggs" && 
+        item.name !== "Pack of 10 Local Duck Eggs"
+    );
 
-    let hasRegularItems = false;
-    remainingSnapshot.forEach(doc => {
-        const item = doc.data();
-        if (item.name !== "Pack of 8 fresh big eggs" && item.name !== "Pack of 10 fresh big eggs" && item.name !== "Pack of 10 Local Duck Eggs") {
-            hasRegularItems = true;
-        }
-    });
-
-    if (!hasRegularItems) {
-        const deletePromises = [];
-        remainingSnapshot.forEach(doc => {
-            deletePromises.push(deleteDoc(doc.ref));
+    if (!hasRegular && remaining.length > 0) {
+        remaining.forEach(item => {
+            deleteDoc(doc(db, "carts", user.uid, "items", item.id)).catch(err => console.error("Error deleting addon:", err));
         });
-        await Promise.all(deletePromises);
     }
-
-    await displayCartItems(user);
 }
 
 function attachActionListeners(user) {
@@ -636,7 +631,7 @@ function attachActionListeners(user) {
                     if (user) {
                         if (confirm(`Remove this item ("${itemName}") from your cart?`)) {
                             try {
-                                await handleItemRemoval(user, docId);
+                                handleItemRemoval(user, docId);
                                 showToast("Item removed", 'success');
                             } catch (err) {
                                 console.error("Remove Error:", err);
@@ -662,9 +657,8 @@ function attachActionListeners(user) {
                             }
                             
                             localStorage.setItem('guestCart', JSON.stringify(localCart));
-                            window.dispatchEvent(new Event('storage'));
                             showToast("Item removed", 'success');
-                            displayCartItems(user);
+                            displayGuestCart();
                         }
                     }
                 }
@@ -686,8 +680,10 @@ function attachActionListeners(user) {
 
                 if (qtyBtn.classList.contains('plus-btn')) {
                     quantity++;
+                    if (qtyValEl) qtyValEl.textContent = quantity;
+                    
                     if (user) {
-                        await updateDoc(doc(db, "carts", user.uid, "items", docId), { quantity });
+                        updateDoc(doc(db, "carts", user.uid, "items", docId), { quantity }).catch(err => console.error(err));
                     } else {
                         // Guest quantity update
                         let localCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
@@ -695,15 +691,16 @@ function attachActionListeners(user) {
                         if (localCart[idx]) {
                             localCart[idx].quantity = quantity;
                             localStorage.setItem('guestCart', JSON.stringify(localCart));
-                            window.dispatchEvent(new Event('storage')); // Trigger re-render
+                            displayGuestCart();
                         }
                     }
-                    await displayCartItems(user);
                 } else if (qtyBtn.classList.contains('minus-btn')) {
                     if (quantity > 1) {
                         quantity--;
+                        if (qtyValEl) qtyValEl.textContent = quantity;
+                        
                         if (user) {
-                            await updateDoc(doc(db, "carts", user.uid, "items", docId), { quantity });
+                            updateDoc(doc(db, "carts", user.uid, "items", docId), { quantity }).catch(err => console.error(err));
                         } else {
                             // Guest quantity update
                             let localCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
@@ -711,13 +708,12 @@ function attachActionListeners(user) {
                             if (localCart[idx]) {
                                 localCart[idx].quantity = quantity;
                                 localStorage.setItem('guestCart', JSON.stringify(localCart));
-                                window.dispatchEvent(new Event('storage')); // Trigger re-render
+                                displayGuestCart();
                             }
                         }
-                        await displayCartItems(user);
                     } else {
                         if (user) {
-                            await handleItemRemoval(user, docId);
+                            handleItemRemoval(user, docId);
                         } else {
                             // Guest item removal
                             let localCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
@@ -737,7 +733,7 @@ function attachActionListeners(user) {
                                 }
                                 
                                 localStorage.setItem('guestCart', JSON.stringify(localCart));
-                                window.dispatchEvent(new Event('storage')); // Trigger re-render
+                                displayGuestCart();
                             }
                         }
                         showToast("Item removed from cart", 'success');
@@ -762,7 +758,6 @@ function attachActionListeners(user) {
                     deletePromises.push(deleteDoc(docSnap.ref));
                 });
                 await Promise.all(deletePromises);
-                displayCartItems(user);
             }
         });
     }
@@ -796,17 +791,16 @@ function attachActionListeners(user) {
                         const user = auth.currentUser;
                         if (user) {
                             const cartRef = collection(db, "carts", user.uid, "items");
-                            const q = query(cartRef, where("name", "==", product.name), where("weight", "==", product.weight));
-                            const querySnapshot = await getDocs(q);
+                            const existingInCache = cartItemsCache.find(i => i.name === product.name && i.weight === product.weight);
 
-                            if (!querySnapshot.empty) {
-                                const existingDoc = querySnapshot.docs[0];
-                                await updateDoc(existingDoc.ref, { quantity: existingDoc.data().quantity + 1 });
+                            if (existingInCache) {
+                                updateDoc(doc(db, "carts", user.uid, "items", existingInCache.id), { 
+                                    quantity: existingInCache.quantity + 1 
+                                }).catch(err => console.error(err));
                             } else {
-                                await addDoc(cartRef, product);
+                                addDoc(cartRef, product).catch(err => console.error(err));
                             }
                             showToast(`${product.name} added to cart!`, 'success');
-                            displayCartItemsFromSnapshot(user, await getDocs(collection(db, "carts", user.uid, "items")));
                         } else {
                             // GUEST LOGIC
                             let localCart = JSON.parse(localStorage.getItem('guestCart') || '[]');

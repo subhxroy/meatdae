@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/swiggy-theme.css?v=4" />
   <link rel="stylesheet" href="css/premium-theme.css?v=105" />
+  <link rel="stylesheet" href="css/skeleton.css" />
   <link rel="stylesheet" href="css/cart-redesign.css" />
   <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="css/custom-popup.css" />
@@ -53,7 +54,42 @@
   <section class="menu_page mb_100 xs_mb_70" style="background:#fff;">
     <div class="container">
       <div class="row" id="main-product-list">
-        <div id="actual-products" style="display: contents;">
+        <!-- Skeleton Loading -->
+        <div id="product-skeletons" style="display: contents;">
+          <div class="col-12 col-lg-6">
+            <div class="skeleton-card" style="display: flex; justify-content: space-between; padding: 20px; background: #fff; border-radius: 16px; margin-bottom: 20px; border: 1px solid #f0f0f0;">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 15px;">
+                <div class="skeleton" style="width: 80px; height: 16px; border-radius: 4px;"></div>
+                <div class="skeleton" style="width: 60%; height: 22px; border-radius: 4px;"></div>
+                <div class="skeleton" style="width: 40%; height: 16px; border-radius: 4px;"></div>
+                <div class="skeleton" style="width: 90%; height: 14px; border-radius: 4px;"></div>
+                <div class="skeleton" style="width: 70%; height: 14px; border-radius: 4px;"></div>
+              </div>
+              <div style="width: 120px; display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0;">
+                <div class="skeleton" style="width: 120px; height: 120px; border-radius: 12px;"></div>
+                <div class="skeleton" style="width: 80px; height: 32px; border-radius: 8px;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-6">
+            <div class="skeleton-card" style="display: flex; justify-content: space-between; padding: 20px; background: #fff; border-radius: 16px; margin-bottom: 20px; border: 1px solid #f0f0f0;">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 15px;">
+                <div class="skeleton" style="width: 80px; height: 16px; border-radius: 4px;"></div>
+                <div class="skeleton" style="width: 60%; height: 22px; border-radius: 4px;"></div>
+                <div class="skeleton" style="width: 40%; height: 16px; border-radius: 4px;"></div>
+                <div class="skeleton" style="width: 90%; height: 14px; border-radius: 4px;"></div>
+                <div class="skeleton" style="width: 70%; height: 14px; border-radius: 4px;"></div>
+              </div>
+              <div style="width: 120px; display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0;">
+                <div class="skeleton" style="width: 120px; height: 120px; border-radius: 12px;"></div>
+                <div class="skeleton" style="width: 80px; height: 32px; border-radius: 8px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actual Products (initially hidden) -->
+        <div id="actual-products" style="display: none; opacity: 0; transition: opacity 0.5s ease;">
           <!-- 1. Fresh Big Eggs -->
           <div class="col-12 col-lg-6">
             <div class="menu_swiggy_card">

@@ -23,7 +23,7 @@ const deliveryPricesByAddress = [
   { price: 15, keywords: ["malugram", "malgram", "mallugram"] },
   { price: 20, keywords: ["suncity", "sunsity"] },
   { price: 17, keywords: ["ghaniwala", "ganiwala", "ghoniala", "ghoniwala"] },
-  { price: 15, keywords: ["national highway", "national hw", "national"] },
+  { price: 15, keywords: ["national highway", "national hw", "nh road", "nh bypass"] },
   { price: 15, keywords: ["2nd link road", "second link road", "2 link road", "2nd link rd", "2 link rd"] },
   { price: 20, keywords: ["green heals", "green hill", "green hills"] },
   { price: 20, keywords: ["valley hospital", "vally hospital"] },
@@ -31,7 +31,14 @@ const deliveryPricesByAddress = [
   { price: 20, keywords: ["grace well"] },
   { price: 17, keywords: ["peshkar road", "peshkar lane", "peskar lane", "peshkar 17"] },
   { price: 17, keywords: ["maruti suzuki", "maruti suzuki 17"] },
-  { price: 20, keywords: ["shibalik", "shibalik park", "shivalik", "shivalik park", "sivalik", "sivalik park"] }
+  { price: 20, keywords: ["shibalik", "shibalik park", "shivalik", "shivalik park", "sivalik", "sivalik park"] },
+  { price: 18, keywords: ["masimpur", "mashimpur", "masimpr", "mashimpr"] },
+  { price: 18, keywords: ["tupkhana", "tupkana", "topkhana"] },
+  { price: 20, keywords: ["silcoorie", "silcoori", "silcuri", "silcory"] },
+  { price: 20, keywords: ["ghungoor", "gungoor", "ghungur", "gungur"] },
+  { price: 25, keywords: ["udharbond", "udorbon", "udarbond", "udorband", "udarband"] },
+  { price: 25, keywords: ["srikona", "shrikona", "srikuna"] },
+  { price: 20, keywords: ["kabuganj", "kabuganj market"] }
 ];
 
 function detectPriceFromAddress(addressText) {
@@ -129,9 +136,9 @@ function getRealtimeItemData(productName, weight, originalItem) {
     let isSolo = false;
 
     // Standard items
-    if (cleanWeight.includes('500g')) isSmall = true;
-    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('1kilogram')) isLarge = true;
-    if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
+    if (cleanWeight.includes('500g') || cleanWeight.includes('500gram')) isSmall = true;
+    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('kilogram') || cleanWeight.includes('1000gram')) isLarge = true;
+    if (cleanWeight.includes('220g') || cleanWeight.includes('220gram') || cleanWeight.includes('200g') || cleanWeight.includes('200gram') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
 
     // Eggs - Big
     if (cleanWeight.includes('30eggs') && productName.toLowerCase().includes('big')) isSmall = true;
@@ -178,6 +185,13 @@ function showValidationToast(message) {
 
 function showInlineError(message) {
     showValidationToast(message);
+}
+
+function closeErrorBanner() {
+    const toast = document.getElementById('validation-toast');
+    if (toast) {
+        toast.classList.remove('show');
+    }
 }
 
 function updateSavedView(userData) {
@@ -1021,10 +1035,10 @@ function renderCheckoutItems(items) {
             } else {
                 let weightVal = 0;
                 const cleanW = item.weight.toLowerCase().replace(/\s+/g, '');
-                if (cleanW.includes('500g')) weightVal = 0.5;
-                else if (cleanW.includes('1kg') || cleanW.includes('1000g')) weightVal = 1.0;
-                else if (cleanW.includes('220g')) weightVal = 0.22;
-                else if (cleanW.includes('200g')) weightVal = 0.20;
+                if (cleanW.includes('500g') || cleanW.includes('500gram')) weightVal = 0.5;
+                else if (cleanW.includes('1kg') || cleanW.includes('1000g') || cleanW.includes('kilogram') || cleanW.includes('1000gram')) weightVal = 1.0;
+                else if (cleanW.includes('220g') || cleanW.includes('220gram')) weightVal = 0.22;
+                else if (cleanW.includes('200g') || cleanW.includes('200gram')) weightVal = 0.20;
                 else if (cleanW.includes('2legpiece')) weightVal = 0.25; // 2 leg pieces ~ 250g
                 else {
                     weightVal = parseFloat(item.weight) || 0;

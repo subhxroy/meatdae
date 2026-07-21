@@ -1,10 +1,29 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
+const fs = require("fs");
+const path = require("path");
+
+// Load local .env file manually to override stale GCP environment variables
+const envPath = path.join(__dirname, ".env");
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, "utf8");
+  envContent.split(/\r?\n/).forEach(line => {
+    const parts = line.split("=");
+    if (parts.length >= 2) {
+      const key = parts[0].trim();
+      const val = parts.slice(1).join("=").trim().replace(/^["']|["']$/g, "");
+      if (key) {
+        process.env[key] = val;
+      }
+    }
+  });
+}
 
 admin.initializeApp();
 
 function getTransporter() {
+  console.log("SMTP Config: User =", process.env.GMAIL_USER, "| Pass Length =", process.env.GMAIL_APP_PASSWORD ? process.env.GMAIL_APP_PASSWORD.length : 0);
   return nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -17,6 +36,7 @@ function getTransporter() {
 exports.sendNewOrderEmail = functions.firestore
   .document("orders/{orderId}")
   .onCreate(async (snap, context) => {
+    // Force redeploy to update environment variables - 2026-07-18
     const order = snap.data();
     const orderId = context.params.orderId;
 
@@ -82,6 +102,7 @@ exports.sendNewOrderEmail = functions.firestore
 exports.sendStatusUpdateEmail = functions.firestore
   .document("orders/{orderId}")
   .onUpdate(async (change, context) => {
+    // Force redeploy to update environment variables - 2026-07-18
     const before = change.before.data();
     const after = change.after.data();
     const orderId = context.params.orderId;
@@ -159,6 +180,7 @@ exports.sendStatusUpdateEmail = functions.firestore
 exports.sendReviewEmail = functions.firestore
   .document("reviewEmails/{docId}")
   .onCreate(async (snap, context) => {
+    // Force redeploy to update environment variables - 2026-07-18
     const review = snap.data();
     const rating = review.rating || 0;
     const stars = "★".repeat(rating) + "☆".repeat(Math.max(0, 5 - rating));
@@ -344,6 +366,7 @@ exports.askGeminiBot = functions
 // Secure Order Placement & Payment Verification
 // ===============================================
 exports.placeOrderSecure = functions.https.onCall(async (data, context) => {
+  // Force redeploy - 2026-07-15 11:42 PM
   // 1. Authenticate user
   if (!context.auth) {
     throw new functions.https.HttpsError("unauthenticated", "User must be logged in to place an order.");
@@ -373,6 +396,14 @@ exports.placeOrderSecure = functions.https.onCall(async (data, context) => {
     const normName = normalize(item.name).replace(/ cuts?$/i, '');
     let product = inventory[normName];
     if (!product) {
+      // Check if it's a custom addon item and map to base product to avoid "not found in inventory" error
+      if (normName.includes("pack") && (normName.includes("big eggs") || normName.includes("duck eggs"))) {
+        const targetKey = normName.includes("big") ? "fresh big eggs" : "fresh local duck eggs";
+        product = inventory[targetKey];
+      }
+    }
+
+    if (!product) {
       // search fallback
       for (const key in inventory) {
         if (key.replace(/ cuts?$/i, '') === normName) {
@@ -396,9 +427,9 @@ exports.placeOrderSecure = functions.https.onCall(async (data, context) => {
     let isSmall = false;
     let isSolo = false;
 
-    if (cleanWeight.includes('500g')) isSmall = true;
-    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g')) isLarge = true;
-    if (cleanWeight.includes('220g') || cleanWeight.includes('200g') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
+    if (cleanWeight.includes('500g') || cleanWeight.includes('500gram')) isSmall = true;
+    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('kilogram') || cleanWeight.includes('1000gram')) isLarge = true;
+    if (cleanWeight.includes('220g') || cleanWeight.includes('220gram') || cleanWeight.includes('200g') || cleanWeight.includes('200gram') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
 
     // Eggs - Big
     if (cleanWeight.includes('30eggs') && item.name.toLowerCase().includes('big')) isSmall = true;
@@ -461,6 +492,19 @@ exports.placeOrderSecure = functions.https.onCall(async (data, context) => {
     { price: 17, keywords: ["bagatpur", "bogotpur", "bakatpur", "bhagatpur", "bhagotpur", "bhakatpr", "bhogotpur", "bhakatpur", "bakapur"] },
     { price: 15, keywords: ["tarapur", "trapur", "tarfur", "tarpur"] },
     { price: 15, keywords: ["itkola", "itkhola", "etkhola", "itkala"] },
+    { price: 17, keywords: ["kathal road", "kathol rd", "katal road", "kathal rd", "kathal rd ta"] },
+    { price: 15, keywords: ["malugram", "malgram", "mallugram"] },
+    { price: 20, keywords: ["suncity", "sunsity"] },
+    { price: 17, keywords: ["ghaniwala", "ganiwala", "ghoniala", "ghoniwala"] },
+    { price: 15, keywords: ["national highway", "national hw", "nh road", "nh bypass"] },
+    { price: 15, keywords: ["2nd link road", "second link road", "2 link road", "2nd link rd", "2 link rd"] },
+    { price: 20, keywords: ["green heals", "green hill", "green hills"] },
+    { price: 20, keywords: ["valley hospital", "vally hospital"] },
+    { price: 20, keywords: ["beltola"] },
+    { price: 20, keywords: ["grace well"] },
+    { price: 17, keywords: ["peshkar road", "peshkar lane", "peskar lane", "peshkar 17"] },
+    { price: 17, keywords: ["maruti suzuki", "maruti suzuki 17"] },
+    { price: 20, keywords: ["shibalik", "shibalik park", "shivalik", "shivalik park", "sivalik", "sivalik park"] },
     { price: 18, keywords: ["masimpur", "mashimpur", "masimpr", "mashimpr"] },
     { price: 18, keywords: ["tupkhana", "tupkana", "topkhana"] },
     { price: 20, keywords: ["silcoorie", "silcoori", "silcuri", "silcory"] },
@@ -481,19 +525,35 @@ exports.placeOrderSecure = functions.https.onCall(async (data, context) => {
     deliveryCharge = maxPriceDetected;
   }
 
+  // 3b. Extra delivery charge for 200g items and 2 leg piece solo packs (+₹7)
+  let hasExtraChargeItem = items.some(item => {
+    const weight = item.weight || "";
+    const cleanWeight = weight.toLowerCase().replace(/\s+/g, '');
+    return cleanWeight.includes('200g') || cleanWeight.includes('legpiece');
+  });
+  if (hasExtraChargeItem && deliveryCharge > 0) {
+    deliveryCharge += 7;
+  }
+
+  // 3c. Final free delivery check (Orders >= ₹350)
+  if (calculatedSubtotal >= 350) {
+    deliveryCharge = 0;
+  }
+
+
   // 4. Validate Coupon Discount
   let discountAmount = 0;
-  if (couponCode) {
+  if (couponCode && couponCode !== "None") {
     const code = couponCode.toUpperCase().trim();
-    if (code === "MEATNEW" || code === "MEAT50") {
-      discountAmount = Math.min(50, calculatedSubtotal * 0.1);
-    } else if (code === "MEAT100") {
-      discountAmount = Math.min(100, calculatedSubtotal * 0.15);
+    const coupons = { 'AQUALITY': 0.02, 'PLUSQUALITY': 0.02, 'APLUS': 0.02, 'HAPPY': 0.02, 'THANKS': 0.02, 'SAHIL': 0.02, 'MEAT10': 0.10 };
+    if (coupons[code]) {
+      discountAmount = calculatedSubtotal * coupons[code];
+      if (discountAmount < 4) discountAmount = 4;
     }
   }
 
   const isOnlinePayment = paymentMethod.toLowerCase().includes('online');
-  const onlineFee = isOnlinePayment ? 5 : 0;
+  const onlineFee = isOnlinePayment ? 11 : 0;
   const finalTotal = calculatedSubtotal + deliveryCharge - discountAmount + onlineFee;
 
   // 5. Verify Razorpay Payment if online
@@ -503,7 +563,7 @@ exports.placeOrderSecure = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError("invalid-argument", "Payment ID is required for online payments.");
     }
 
-    const keyId = process.env.RAZORPAY_KEY_ID || "rzp_live_SBdudmt1UBFAEw";
+    const keyId = process.env.RAZORPAY_KEY_ID || "rzp_live_TG5jXz4jsRuo3B";
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     
     if (keySecret) {
@@ -525,8 +585,14 @@ exports.placeOrderSecure = functions.https.onCall(async (data, context) => {
         }
         paymentStatus = "Paid";
       } catch (err) {
-        console.error("Razorpay verification error:", err);
-        throw new functions.https.HttpsError("internal", "Error verifying payment with Razorpay.");
+        // Re-throw intentional HttpsErrors (e.g. payment status failed, amount mismatch)
+        // so the correct error message reaches the client.
+        if (err instanceof functions.https.HttpsError) {
+          throw err;
+        }
+        // Only wrap unexpected runtime errors (network failure, JSON parse, etc.)
+        console.error("Razorpay verification unexpected error:", err);
+        throw new functions.https.HttpsError("internal", "Error verifying payment with Razorpay: " + (err.message || "Unknown"));
       }
     } else {
       console.warn("RAZORPAY_KEY_SECRET is not set. Skipping signature verification.");
@@ -550,7 +616,7 @@ exports.placeOrderSecure = functions.https.onCall(async (data, context) => {
 
     formattedOrderId = "#" + newCount.toString().padStart(4, "0");
 
-    let deliveryLocation = null;
+    let deliveryLocation = data.deliveryLocation || null;
     const orderData = {
       orderId: formattedOrderId,
       userId: uid,

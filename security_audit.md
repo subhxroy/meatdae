@@ -265,7 +265,7 @@ const RAZORPAY_KEY = "rzp_live_SBdudmt1UBFAEw";
 
 ```env
 GMAIL_USER=support.meatdae@gmail.com
-GMAIL_APP_PASSWORD=uthr udod vwmg efii    ← LIVE GMAIL APP PASSWORD
+GMAIL_APP_PASSWORD=[REDACTED]
 ADMIN_EMAIL=contact.meatdae@gmail.com
 GEMINI_API_KEY=AIzaSyAUo4ITWfMvuwkjmzvTOkq8EBDcVhVV4wM   ← LIVE API KEY
 ```

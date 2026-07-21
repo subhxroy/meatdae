@@ -6,6 +6,7 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-functions.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB3lDeUASVt_lcPuBCP7IqUKr7HQ8mZ9O8",
@@ -27,5 +28,6 @@ try {
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const functions = getFunctions(app);
 
-export { app, auth, db, storage, firebaseConfig, analytics };
+export { app, auth, db, storage, functions, httpsCallable, firebaseConfig, analytics };

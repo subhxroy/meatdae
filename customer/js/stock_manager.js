@@ -14,11 +14,14 @@ function normalizeName(name) {
                .replace(/\s+/g, ' '); // Standardize spaces
 }
 
+// Store the inventory listener unsubscribe so we can clean it up on pagehide
+let _inventoryUnsubscribe = null;
+
 // 1. Initial Load & Real-time Sync
 function initInventorySync() {
     console.log("[StockManager] Starting real-time sync with database...");
     
-    onSnapshot(collection(db, "inventory"), (querySnapshot) => {
+    _inventoryUnsubscribe = onSnapshot(collection(db, "inventory"), (querySnapshot) => {
         inventoryCache = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
@@ -33,22 +36,25 @@ function initInventorySync() {
         setupProductDetailPage();
         updateMenuStockStatus();
 
-        // Show actual products and hide skeletons
+        // Show actual products and hide skeletons (homepage + menu page)
         const skeletons = document.getElementById('product-skeletons');
         const actualProducts = document.getElementById('actual-products');
         const heroSkeleton = document.getElementById('hero-skeleton');
         const actualHero = document.getElementById('actual-hero');
         const categoriesSkeleton = document.getElementById('categories-skeleton');
         const actualCategories = document.getElementById('actual-categories');
+        const menuSkeleton = document.getElementById('menu-product-skeletons');
 
         if (skeletons) {
-            skeletons.style.opacity = '0';
-            setTimeout(() => skeletons.style.display = 'none', 300);
+            skeletons.remove();
+        }
+        if (menuSkeleton) {
+            menuSkeleton.remove();
         }
         
         if (actualProducts) {
             actualProducts.style.display = 'contents';
-            setTimeout(() => actualProducts.style.opacity = '1', 50);
+            actualProducts.style.opacity = '1';
         }
         
         if (heroSkeleton) {
@@ -472,9 +478,9 @@ function updateMenuStockStatus(allowOutSelection = false) {
             
             const currentWeight = weightEl ? weightEl.textContent.trim().toLowerCase() : '500g';
             const isDuck = productName.toLowerCase().includes('duck');
-            const isLarge = currentWeight.includes('1kg') || currentWeight.includes('1000g') || 
+            const isLarge = currentWeight.includes('1kg') || currentWeight.includes('1000g') || currentWeight.includes('kilogram') || currentWeight.includes('1000gram') ||
                             currentWeight.includes('60') || (currentWeight.includes('30') && isDuck);
-            const isSolo = currentWeight.includes('220g') || currentWeight.includes('200g') || currentWeight.includes('2 leg pieces') || currentWeight.includes('2');
+            const isSolo = currentWeight.includes('220g') || currentWeight.includes('220gram') || currentWeight.includes('200g') || currentWeight.includes('200gram') || currentWeight.includes('2 leg pieces') || currentWeight.includes('2');
             
             let currentPrice = product.price_small || 0;
             let currentMrp = product.mrp_small || 0;
@@ -529,7 +535,7 @@ function updateMenuStockStatus(allowOutSelection = false) {
                     const isDuck = product.name.toLowerCase().includes('duck');
                     
                     const isSmallWeight = normSz.includes('500g') || normSz.includes('15') || (normSz.includes('30') && !isDuck);
-                    const isLargeWeight = normSz.includes('1kg') || normSz.includes('1000g') || normSz.includes('60') || (normSz.includes('30') && isDuck);
+                    const isLargeWeight = normSz.includes('1kg') || normSz.includes('1000g') || normSz.includes('kilogram') || normSz.includes('1000gram') || normSz.includes('60') || (normSz.includes('30') && isDuck);
 
                     if (isSmallWeight && product.price_small > 0) {
                         el.setAttribute('data-price', product.price_small);
@@ -539,7 +545,7 @@ function updateMenuStockStatus(allowOutSelection = false) {
                         el.setAttribute('data-price', product.price_large);
                         el.setAttribute('data-mrp', product.mrp_large || product.price_large);
                         if (window.jQuery) window.jQuery(el).data('price', product.price_large).data('mrp', product.mrp_large);
-                    } else if ((normSz.includes('220g') || normSz.includes('200g') || normSz.includes('2 leg pieces')) && product.price_solo >= 0) {
+                    } else if ((normSz.includes('220g') || normSz.includes('220gram') || normSz.includes('200g') || normSz.includes('200gram') || normSz.includes('2 leg pieces')) && product.price_solo >= 0) {
                         el.setAttribute('data-price', product.price_solo || 0);
                         el.setAttribute('data-mrp', product.mrp_solo || 0);
                         if (window.jQuery) window.jQuery(el).data('price', product.price_solo || 0).data('mrp', product.mrp_solo || 0);
@@ -642,3 +648,8 @@ if (document.readyState === 'loading') {
     initInventorySync();
     setupListingPageObservers();
 }
+
+// Clean up inventory listener when user navigates away
+window.addEventListener('pagehide', () => {
+    if (typeof _inventoryUnsubscribe === 'function') _inventoryUnsubscribe();
+});

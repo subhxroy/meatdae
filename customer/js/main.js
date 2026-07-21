@@ -151,9 +151,9 @@ $(document).ready(function () {
     setTimeout(() => {
       // Handle Products
       if (productSkeletons && actualProducts) {
-        productSkeletons.style.display = 'none';
-        actualProducts.style.opacity = '1';
+        productSkeletons.remove();
         actualProducts.style.display = 'contents';
+        actualProducts.style.opacity = '1';
       }
 
       // Handle Hero
@@ -779,17 +779,19 @@ $(document).ready(function () {
   }
 
   //======ISOTOPE JS======
-  var $grid = $(".grid").isotope({});
+  if ($(".grid").length > 0 && typeof $.fn.isotope === "function") {
+    var $grid = $(".grid").isotope({});
 
-  $(".menu_filter button").on("click", function () {
-    $(".menu_filter button").removeClass("active");
-    $(this).addClass("active");
+    $(".menu_filter button").on("click", function () {
+      $(".menu_filter button").removeClass("active");
+      $(this).addClass("active");
 
-    var filterValue = $(this).attr("data-filter");
-    $grid.isotope({
-      filter: filterValue,
+      var filterValue = $(this).attr("data-filter");
+      $grid.isotope({
+        filter: filterValue,
+      });
     });
-  });
+  }
 
   //======STICKY SIDEBAR JS======
   if ($("#sticky_sidebar").length > 0) {
@@ -864,11 +866,12 @@ $(document).ready(function () {
     const productName = $card.find('.product-title').text().trim().toLowerCase();
     
     if (productName.includes('curry cut') && !productName.includes('mutton')) {
-      if (size === '220g') {
+      const normSize = size ? size.toLowerCase() : '';
+      if (normSize === '220g' || normSize.includes('220gram') || normSize.includes('220 g')) {
         $descEl.text("Juicy bone-in mixed pieces for curry (no leg piece)");
-      } else if (size === '500g') {
+      } else if (normSize === '500g' || normSize.includes('500gram') || normSize.includes('500 g')) {
         $descEl.text("Juicy bone-in mixed pieces for curry (1 leg piece)");
-      } else if (size === '1000g' || size === '1kg') {
+      } else if (normSize === '1000g' || normSize === '1kg' || normSize.includes('kilogram') || normSize.includes('1000g') || normSize.includes('1000 g')) {
         $descEl.text("Juicy bone-in mixed pieces for curry (2 leg pieces)");
       } else {
         const originalDesc = $descEl.data('original-desc') || "Juicy bone-in mixed pieces for curry.";

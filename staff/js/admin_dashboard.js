@@ -181,6 +181,7 @@ function startOrderListener() {
         updateStats();
         renderOrders();
         updateProductDropdown();
+        updateSizeDropdown();
 
         // Refresh specific panes ONLY if they are currently visible to save performance
         const ridersPane = document.getElementById('riders-pane');
@@ -1100,25 +1101,35 @@ function normalizeProductName(name, weight) {
 
 /**
  * Normalizes weight strings to ensure consistency (e.g., "500 Gram" -> "500g").
+ * Differentiates duck eggs vs normal eggs to prevent confusion.
  */
-function normalizeWeight(weight) {
+function normalizeWeight(weight, productName) {
     if (!weight) return "Std";
-    let w = weight.toLowerCase().trim();
+    // Remove all spaces and convert to lowercase immediately to prevent partial match failures
+    let w = weight.toLowerCase().trim().replace(/\s+/g, "");
     
-    // 1. Handle Kilograms first to avoid partial matches with "gram"
-    w = w.replace(/\b(\d+)\s*kilogram(s)?\b/g, "$1kg");
-    w = w.replace(/\b(\d+)\s*kg\b/g, "$1kg");
+    // 1. Handle Kilogram variations
+    w = w.replace(/kilograms?/g, "kg");
+    w = w.replace(/k\.g\./g, "kg");
     
-    // 2. Handle Grams
-    w = w.replace(/\b(\d+)\s*gram(s)?\b/g, "$1g");
-    w = w.replace(/\b(\d+)\s*gm(s)?\b/g, "$1g");
+    // 2. Handle Gram variations
+    w = w.replace(/grams?/g, "g");
+    w = w.replace(/gms?/g, "g");
     
-    // 3. Handle messy variations
-    w = w.replace(/\s*k\.g\./g, "kg");
+    // 3. Normalize 1000g -> 1kg
     w = w.replace("1000g", "1kg");
     
-    // 4. Final Cleanup
-    w = w.replace(/\s+/g, "");
+    // 4. Egg differentiation if productName is provided
+    if (productName) {
+        const prodLower = productName.toLowerCase();
+        if (prodLower.includes("egg")) {
+            if (prodLower.includes("duck")) {
+                w = w + " (Duck Eggs)";
+            } else {
+                w = w + " (Normal Eggs)";
+            }
+        }
+    }
     
     return w;
 }
@@ -1158,13 +1169,62 @@ function updateProductDropdown() {
 }
 
 /**
- * Filter orders based on the selected year, month, and product.
+ * Update the size dropdown with unique sizes found in all orders.
+ */
+function updateSizeDropdown() {
+    const sizeSelect = document.getElementById('ledger-size');
+    if (!sizeSelect) return;
+
+    // Save current selection
+    const currentVal = sizeSelect.value;
+
+    const sizes = new Set();
+    allOrders.forEach(order => {
+        if (order.items) {
+            order.items.forEach(item => {
+                if (item.weight) {
+                    sizes.add(normalizeWeight(item.weight, item.name));
+                }
+            });
+        }
+    });
+
+    // Custom sorting: weights ascending first (200g, 220g, 500g, 1kg), then other units (pcs, eggs, etc.)
+    const sortedSizes = Array.from(sizes).sort((a, b) => {
+        const parseSize = (s) => {
+            const numMatch = s.match(/(\d+(\.\d+)?)/);
+            const num = numMatch ? parseFloat(numMatch[1]) : 0;
+            const isKg = s.toLowerCase().includes('kg');
+            const isG = s.toLowerCase().includes('g') && !isKg;
+            
+            if (isKg) return num * 1000;
+            if (isG) return num;
+            return num + 1000000;
+        };
+        return parseSize(a) - parseSize(b);
+    });
+
+    let html = '<option value="ALL">All Sizes</option>';
+    sortedSizes.forEach(s => {
+        html += `<option value="${s}">${s}</option>`;
+    });
+    sizeSelect.innerHTML = html;
+
+    // Restore selection if it still exists
+    if (Array.from(sizeSelect.options).some(opt => opt.value === currentVal)) {
+        sizeSelect.value = currentVal;
+    }
+}
+
+/**
+ * Filter orders based on the selected year, month, product, and size.
  */
 window.applyLedgerFilters = () => {
     const yearValue = document.getElementById('ledger-year').value;
     const month = document.getElementById('ledger-month').value;
     const dayValue = document.getElementById('ledger-day').value; // YYYY-MM-DD
     const product = document.getElementById('ledger-product').value;
+    const sizeValue = document.getElementById('ledger-size') ? document.getElementById('ledger-size').value : 'ALL';
 
     let filtered = allOrders.filter(order => {
         const orderDate = order.createdAt?.toDate ? order.createdAt.toDate() : new Date(order.createdAt);
@@ -1191,10 +1251,16 @@ window.applyLedgerFilters = () => {
             if (!hasProduct) return false;
         }
 
+        // Size/Weight filter (Always check if selected)
+        if (sizeValue !== "ALL") {
+            const hasSize = order.items?.some(item => normalizeWeight(item.weight, item.name) === sizeValue);
+            if (!hasSize) return false;
+        }
+
         return true;
     });
 
-    renderLedger(filtered, product);
+    renderLedger(filtered, product, sizeValue);
 };
 
 /**
@@ -1228,7 +1294,7 @@ window.toggleLedgerSort = (field) => {
  * Render the filtered orders into the ledger table and update summaries.
  * Enhanced to group by Name + Weight and provide sorting.
  */
-function renderLedger(orders, selectedProduct) {
+function renderLedger(orders, selectedProduct, selectedSize) {
     const tbody = document.getElementById('ledger-table-body');
     const totalOrdersEl = document.getElementById('ledger-total-orders');
     const totalRevenueEl = document.getElementById('ledger-total-revenue');
@@ -1271,7 +1337,21 @@ function renderLedger(orders, selectedProduct) {
             if (order.items) {
                 order.items.forEach(item => {
                     const normalizedName = normalizeProductName(item.name, item.weight);
-                    const weight = normalizeWeight(item.weight || 'Std');
+                    const weight = normalizeWeight(item.weight || 'Std', item.name);
+                    
+                    // Sum up all items for correct fee calculations later
+                    const q = Number(item.quantity || 0);
+                    const itemRevenue = Number(item.price || 0) * q;
+                    orderItemsTotal += itemRevenue;
+
+                    // Filter based on dropdown selections
+                    if (selectedProduct && selectedProduct !== "ALL" && normalizedName !== selectedProduct) {
+                        return;
+                    }
+                    if (selectedSize && selectedSize !== "ALL" && weight !== selectedSize) {
+                        return;
+                    }
+
                     const key = normalizedName; // Group by normalized name
                     
                     if (!productStats[key]) {
@@ -1287,11 +1367,8 @@ function renderLedger(orders, selectedProduct) {
                         productStats[key].sizes.add(weight);
                     }
 
-                    const q = Number(item.quantity || 0);
-                    const itemRevenue = Number(item.price || 0) * q;
                     productStats[key].qty += q;
                     productStats[key].revenue += itemRevenue;
-                    orderItemsTotal += itemRevenue;
 
                     // Calculate Volume (KG or Qty)
                     const wLower = weight.toLowerCase().replace(/\s+/g, '');
@@ -1319,21 +1396,24 @@ function renderLedger(orders, selectedProduct) {
             }
 
             // Track any extra charges (Delivery, Online Fees, etc.)
-            const fees = amount - orderItemsTotal;
-            if (Math.abs(fees) > 0.01) {
-                const feeKey = "Delivery & Service Charges";
-                if (!productStats[feeKey]) {
-                    productStats[feeKey] = {
-                        name: feeKey,
-                        sizes: new Set(["-"]),
-                        qty: 0,
-                        revenue: 0,
-                        totalVolume: 0,
-                        volumeType: 'none'
-                    };
+            // Only show fees if no product or size filter is active to keep analysis clean
+            if (selectedProduct === "ALL" && selectedSize === "ALL") {
+                const fees = amount - orderItemsTotal;
+                if (Math.abs(fees) > 0.01) {
+                    const feeKey = "Delivery & Service Charges";
+                    if (!productStats[feeKey]) {
+                        productStats[feeKey] = {
+                            name: feeKey,
+                            sizes: new Set(["-"]),
+                            qty: 0,
+                            revenue: 0,
+                            totalVolume: 0,
+                            volumeType: 'none'
+                        };
+                    }
+                    productStats[feeKey].revenue += fees;
+                    productStats[feeKey].qty += 1; // Count orders that contributed to fees
                 }
-                productStats[feeKey].revenue += fees;
-                productStats[feeKey].qty += 1; // Count orders that contributed to fees
             }
         } else if (order.status === 'CANCELLED') {
             totalCancelled += amount;

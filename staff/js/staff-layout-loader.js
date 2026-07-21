@@ -190,7 +190,7 @@ async function initLayout() {
                     console.warn("[LayoutLoader] Phase-B: still no user → sign_in.html");
                     window.location.href = 'sign_in.html';
                 }
-            }, 2000); // Reduced to 2s for better responsiveness
+            }, 5000); // 5 s grace period — survives Firebase token refresh on slow connections
         }
     });
 }
