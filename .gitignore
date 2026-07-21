@@ -15,3 +15,7 @@ functions/.env
 *.json
 key.json
 *.json.key
+
+# Ignore local working documentation
+working.md
+
