@@ -15,21 +15,21 @@ const STANDARD_DELIVERY_CHARGE = 11; // For Town areas (previously free)
 // --- DELIVERY PRICE DETECTION (Word based) ---
 const deliveryPricesByAddress = [
   { price: 15, keywords: ["meherpur", "mhrpur", "mehepur", "meherfur"] },
-  { price: 15, keywords: ["rongpur", "rongpr", "rangpur"] },
-  { price: 17, keywords: ["bagatpur", "bogotpur", "bakatpur", "bhagatpur", "bhagotpur", "bhakatpr", "bhogotpur", "bhakatpur", "bakapur"] },
+  { price: 20, keywords: ["rongpur", "rongpr", "rangpur"] },
+  { price: 20, keywords: ["bagatpur", "bogotpur", "bakatpur", "bhagatpur", "bhagotpur", "bhakatpr", "bhogotpur", "bhakatpur", "bakapur"] },
   { price: 15, keywords: ["tarapur", "trapur", "tarfur", "tarpur"] },
-  { price: 15, keywords: ["itkola", "itkhola", "etkhola", "itkala"] },
+  { price: 20, keywords: ["itkola", "itkhola", "ithkola", "etkhola", "itkala"] },
   { price: 17, keywords: ["kathal road", "kathol rd", "katal road", "kathal rd", "kathal rd ta"] },
-  { price: 15, keywords: ["malugram", "malgram", "mallugram"] },
+  { price: 20, keywords: ["malugram", "malgram", "mallugram"] },
   { price: 20, keywords: ["suncity", "sunsity"] },
-  { price: 17, keywords: ["ghaniwala", "ganiwala", "ghoniala", "ghoniwala"] },
+  { price: 20, keywords: ["ghaniwala", "ganiwala", "ghoniala", "ghoniwala"] },
   { price: 15, keywords: ["national highway", "national hw", "nh road", "nh bypass"] },
-  { price: 15, keywords: ["2nd link road", "second link road", "2 link road", "2nd link rd", "2 link rd"] },
+  { price: 15, keywords: ["2nd link road", "second link road", "2 link road", "2nd link rd", "2 link rd", "2nd link", "second link", "2 link", "link road 2nd", "link road second", "link road 2"] },
   { price: 20, keywords: ["green heals", "green hill", "green hills"] },
-  { price: 20, keywords: ["valley hospital", "vally hospital"] },
-  { price: 20, keywords: ["beltola"] },
+  { price: 20, keywords: ["valley", "vally", "valley hospital", "vally hospital"] },
+  { price: 20, keywords: ["beltala", "beltola", "bheltola", "bheltala"] },
   { price: 20, keywords: ["grace well"] },
-  { price: 17, keywords: ["peshkar road", "peshkar lane", "peskar lane", "peshkar 17"] },
+  { price: 20, keywords: ["peshkar road", "peshkar lane", "peskar lane", "peshkar jungle road", "peshkar", "peskar", "feshkar", "peshkar 17", "peshkar 18", "peshkar 20"] },
   { price: 17, keywords: ["maruti suzuki", "maruti suzuki 17"] },
   { price: 20, keywords: ["shibalik", "shibalik park", "shivalik", "shivalik park", "sivalik", "sivalik park"] },
   { price: 18, keywords: ["masimpur", "mashimpur", "masimpr", "mashimpr"] },
@@ -38,16 +38,22 @@ const deliveryPricesByAddress = [
   { price: 20, keywords: ["ghungoor", "gungoor", "ghungur", "gungur"] },
   { price: 25, keywords: ["udharbond", "udorbon", "udarbond", "udorband", "udarband"] },
   { price: 25, keywords: ["srikona", "shrikona", "srikuna"] },
-  { price: 20, keywords: ["kabuganj", "kabuganj market"] }
+  { price: 20, keywords: ["kabuganj", "kabuganj market"] },
+  { price: 20, keywords: ["nagatilla", "nagatila", "nagtila", "nagtilla"] },
+  { price: 20, keywords: ["shibbari", "shivbari", "sibhbari", "shibhbari", "shib bari", "shiv bari", "sibh bari", "shibh bari"] },
+  { price: 20, keywords: ["mela road", "mela rd"] }
 ];
 
 function detectPriceFromAddress(addressText) {
     if (!addressText) return 0;
-    const lowerText = addressText.toLowerCase();
+    const lowerText = addressText.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ');
     let maxPriceDetected = 0;
 
     deliveryPricesByAddress.forEach(item => {
-        const isMatched = item.keywords.some(kw => lowerText.includes(kw));
+        const isMatched = item.keywords.some(kw => {
+            const cleanKw = kw.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ');
+            return lowerText.includes(cleanKw);
+        });
         if (isMatched && item.price > maxPriceDetected) {
             maxPriceDetected = item.price;
         }
@@ -88,14 +94,61 @@ function listenToInventory() {
     });
 }
 
+// Alias dictionary mapping customer-facing product names to Firestore inventory document names
+const INVENTORY_ALIASES = {
+    'local catla bengali cut no head': 'catla clean bengali cut no head',
+    'catla bengali cut no head': 'catla clean bengali cut no head',
+    'local catla': 'catla clean bengali cut no head',
+    'local rohu bengali cut no head': 'rohu clean bengali cut no head',
+    'rohu bengali cut no head': 'rohu clean bengali cut no head',
+    'local rohu': 'rohu clean bengali cut no head',
+    'pabda butterfish': 'pabda butterfish cleaned',
+    'pabda': 'pabda butterfish cleaned',
+    'freshwater prawn golda chingri': 'freshwater prawn chingri whole',
+    'freshwater prawn golda chingri whole': 'freshwater prawn chingri whole',
+    'golda chingri': 'freshwater prawn chingri whole',
+    'golda': 'freshwater prawn chingri whole',
+    'hilsa fish': 'hilsa fish ilish',
+    'hilsa': 'hilsa fish ilish',
+    'ilish': 'hilsa fish ilish',
+    'ilish fish': 'hilsa fish ilish',
+    'chitol fish belly': 'chitol fish belly cut',
+    'chitol belly cut': 'chitol fish belly cut',
+    'chitol peti': 'chitol fish belly cut',
+    'chitol fish': 'chitol fish belly cut',
+    'chitol': 'chitol fish belly cut',
+    'boneless mutton mince': 'boneless mutton mince keema',
+    'mutton mince': 'boneless mutton mince keema',
+    'mutton keema': 'boneless mutton mince keema',
+    'boneless mutton keema': 'boneless mutton mince keema',
+    'hilsa fish (ilish)': 'hilsa fish ilish',
+    'hilsa fish': 'hilsa fish ilish',
+    'hilsa': 'hilsa fish ilish',
+    'ilish': 'hilsa fish ilish',
+    'ilish fish': 'hilsa fish ilish',
+    'hilsa fish ilish medium': 'hilsa fish ilish medium',
+    'hilsa medium': 'hilsa fish ilish medium',
+    'ilish medium': 'hilsa fish ilish medium',
+    'hilsa fish ilish large': 'hilsa fish ilish large',
+    'hilsa large': 'hilsa fish ilish large',
+    'ilish large': 'hilsa fish ilish large',
+    'hilsa fish ilish jumbo': 'hilsa fish ilish jumbo',
+    'hilsa jumbo': 'hilsa fish ilish jumbo',
+    'ilish jumbo': 'hilsa fish ilish jumbo',
+    'freshwater tengra': 'freshwater tengra fish',
+    'tengra fish': 'freshwater tengra fish',
+    'tengra': 'freshwater tengra fish'
+};
+
 // Standard normalization for all customer-side matching
 function normalizeName(name) {
     if (!name) return "";
-    return name.toLowerCase()
-        .replace(/-/g, ' ')
+    let clean = name.toLowerCase()
+        .replace(/[-–—,()]/g, ' ')
         .replace(/ cuts?$/i, '')
         .trim()
         .replace(/\s+/g, ' ');
+    return INVENTORY_ALIASES[clean] || clean;
 }
 
 // Unified function to get current price, mrp, and stock status
@@ -132,12 +185,50 @@ function getRealtimeItemData(productName, weight, originalItem) {
 
     // Check large (opt1) vs small (opt2) vs solo based on catalog logic
     let isLarge = false;
+    let isMedium = false;
     let isSmall = false;
     let isSolo = false;
 
+    const isHead = (productName || '').toLowerCase().includes('head');
+    const isTengra = (productName || '').toLowerCase().includes('tengra');
+    const isMuttonKeema = (productName || '').toLowerCase().includes('mutton') && ((productName || '').toLowerCase().includes('keema') || (productName || '').toLowerCase().includes('mince'));
+    const isIlish = (productName || '').toLowerCase().includes('ilish') || (productName || '').toLowerCase().includes('hilsa');
+
+    if (isIlish) {
+        let sizeKey = '';
+        if (cleanWeight.includes('900g') || cleanWeight.includes('900gram')) sizeKey = '900';
+        else if (cleanWeight.includes('1.1kg') || cleanWeight.includes('1.1kilogram') || cleanWeight.includes('1100g')) sizeKey = '1100';
+        else if (cleanWeight.includes('1.3kg') || cleanWeight.includes('1.3kilogram') || cleanWeight.includes('1300g')) sizeKey = '1300';
+        else if (cleanWeight.includes('1.5kg') || cleanWeight.includes('1.5kilogram') || cleanWeight.includes('1500g')) sizeKey = '1500';
+        else if (cleanWeight.includes('1.7kg') || cleanWeight.includes('1.7kilogram') || cleanWeight.includes('1700g')) sizeKey = '1700';
+        else if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('1kilogram')) sizeKey = '1000';
+
+        if (sizeKey) {
+            if (product['stock_' + sizeKey] === false) isOut = true;
+            if (product['price_' + sizeKey] !== undefined) rPrice = Number(product['price_' + sizeKey]);
+            if (product['mrp_' + sizeKey] !== undefined) rMrp = Number(product['mrp_' + sizeKey]);
+            rPrice = Number(rPrice || 0);
+            rMrp = Number(rMrp || rPrice);
+            if (rMrp < rPrice) rMrp = rPrice;
+            return {
+                price: rPrice,
+                mrp: rMrp,
+                isOut: isOut
+            };
+        }
+    }
+
     // Standard items
-    if (cleanWeight.includes('500g') || cleanWeight.includes('500gram')) isSmall = true;
-    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('kilogram') || cleanWeight.includes('1000gram')) isLarge = true;
+    if ((isTengra || isMuttonKeema) && (cleanWeight.includes('400g') || cleanWeight.includes('400gram'))) {
+        isSmall = true; // Tengra / Mutton Keema opt1
+    } else if ((isTengra || isMuttonKeema) && (cleanWeight.includes('800g') || cleanWeight.includes('800gram'))) {
+        isLarge = true; // Tengra / Mutton Keema opt2
+    } else if (!isHead && (cleanWeight.includes('400g') || cleanWeight.includes('400gram'))) {
+        isMedium = true;
+    } else if (cleanWeight.includes('500g') || cleanWeight.includes('500gram') || cleanWeight.includes('900g') || cleanWeight.includes('900gram') || cleanWeight.includes('1.1kg') || cleanWeight.includes('1.1kilogram') || cleanWeight.includes('1100g') || cleanWeight.includes('1.5kg') || cleanWeight.includes('1.5kilogram') || cleanWeight.includes('1500g') || (isHead && cleanWeight.includes('400g'))) {
+        isSmall = true;
+    }
+    if (cleanWeight.includes('1kg') || cleanWeight.includes('1000g') || cleanWeight.includes('kilogram') || cleanWeight.includes('1000gram') || cleanWeight.includes('1.3kg') || cleanWeight.includes('1.3kilogram') || cleanWeight.includes('1300g') || cleanWeight.includes('1.7kg') || cleanWeight.includes('1.7kilogram') || cleanWeight.includes('1700g') || ((isTengra || isMuttonKeema) && (cleanWeight.includes('800g') || cleanWeight.includes('800gram')))) isLarge = true;
     if (cleanWeight.includes('220g') || cleanWeight.includes('220gram') || cleanWeight.includes('200g') || cleanWeight.includes('200gram') || cleanWeight.includes('legpiece') || cleanWeight.includes('legpieces') || cleanWeight.includes('solo')) isSolo = true;
 
     // Eggs - Big
@@ -152,6 +243,10 @@ function getRealtimeItemData(productName, weight, originalItem) {
         if (product.large === false) isOut = true;
         if (product.price_large) rPrice = Number(product.price_large);
         if (product.mrp_large) rMrp = Number(product.mrp_large);
+    } else if (isMedium) {
+        if (product.medium === false) isOut = true;
+        if (product.price_medium !== undefined) rPrice = Number(product.price_medium);
+        if (product.mrp_medium !== undefined) rMrp = Number(product.mrp_medium);
     } else if (isSmall) {
         if (product.small === false) isOut = true;
         if (product.price_small) rPrice = Number(product.price_small);
@@ -849,10 +944,7 @@ function processCartItemsArray(itemsArray) {
         const isOut = liveData.isOut;
 
         if (isOut) {
-            // Admin Exception: Allow admins to proceed even if items are stock out
-            if (window.userRole !== 'admin') {
-                hasStockOut = true;
-            }
+            hasStockOut = true;
             window.outOfStockItemIds.push('buyNow');
         }
 
@@ -876,10 +968,7 @@ function processCartItemsArray(itemsArray) {
         items.forEach(item => {
             const liveData = getRealtimeItemData(item.name, item.weight, item);
             if (liveData.isOut) {
-                // Admin Exception: Allow admins to proceed even if items are stock out
-                if (window.userRole !== 'admin') {
-                    hasStockOut = true;
-                }
+                hasStockOut = true;
                 window.outOfStockItemIds.push('reorder'); 
             }
             cartSubtotal += liveData.mrp * item.quantity;
@@ -907,10 +996,7 @@ function processCartItemsArray(itemsArray) {
             const liveData = getRealtimeItemData(item.name, item.weight, item);
 
             if (liveData.isOut) {
-                // Admin Exception: Allow admins to proceed even if items are stock out
-                if (window.userRole !== 'admin') {
-                    hasStockOut = true;
-                }
+                hasStockOut = true;
                 window.outOfStockItemIds.push(item.id);
             }
 
